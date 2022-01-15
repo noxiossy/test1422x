@@ -11,3 +11,9 @@ lib/
 _build/
 libraries/
 /src/*.tss
+.vs
+*.VC.db
+/ipch
+*.VC.VC.opendb
+*.user
+*.cache
