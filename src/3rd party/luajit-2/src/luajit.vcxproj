@@ -67,8 +67,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <NMakeBuildCommandLine>msvcbuild.bat $(PlatformShortName)</NMakeBuildCommandLine>
-    <NMakeOutput>..\bin\$(PlatformShortName)\lua51.exe</NMakeOutput>
+    <NMakeBuildCommandLine>msvcbuild.bat static $(PlatformShortName)</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>msvcbuild.bat static $(PlatformShortName)</NMakeReBuildCommandLine>
+    <NMakeOutput>lua51.dll</NMakeOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
