@@ -18,7 +18,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <IncludePath>$(SolutionDir)SDK\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)SDK\libraries\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)SDK\libraries;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)intermediate\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)intermediate\$(Platform)-$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
