@@ -1,18 +1,6 @@
-# exclude all dot files except .gitignore
-.*
-!.gitignore
-
-# exclude binaries and temporary files
-bin/
-bin_plugs/
-intermediate/
-intermediate_plugs/
-lib/
-_build/
-libraries/
-/src/*.tss
 .vs
 *.VC.db
+/intermediate
 /ipch
 *.VC.VC.opendb
 *.user
