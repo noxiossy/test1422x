@@ -153,7 +153,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalIncludeDirectories>.;$(SolutionDir)3rd party\luajit-2\src\;$(SolutionDir)3rd party\luabind\;$(xrSdkDir)include;$(xrSdkDir)include\OpenAutomate;$(xrSdkDir)include\nvapi;$(XRAY_16X_LIBS)nvapi;$(dxSdkDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;XRRENDER_R1_EXPORTS;_SECURE_SCL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
