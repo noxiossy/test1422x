@@ -938,9 +938,6 @@
     <ProjectReference Include="..\3rd party\lua-extensions\lua_extensions.vcxproj">
       <Project>{44F716E7-05BD-4390-AB02-5F7DAF7FEFDE}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\3rd party\NVTT\NVTT.vcxproj">
-      <Project>{0EB257DC-5CFC-44B0-82C9-CE6B158BE473}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\3rd party\ode\contrib\msvc7\ode_default\default.vcxproj">
       <Project>{1BF75FEB-87DD-486C-880B-227987D191C2}</Project>
     </ProjectReference>
