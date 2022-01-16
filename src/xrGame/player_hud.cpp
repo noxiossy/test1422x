@@ -532,6 +532,9 @@ u32 player_hud::motion_length(const MotionID& M, const CMotionDef*& md, float sp
 	}
 	return					0;
 }
+
+#pragma warning(push)
+#pragma warning(disable: 4172)
 const Fvector& player_hud::attach_rot() const
 {
 	if(m_attached_items[0])
@@ -553,6 +556,7 @@ const Fvector& player_hud::attach_pos() const
 	else
 		return Fvector().set(0,0,0);
 }
+#pragma warning(pop)
 
 void player_hud::update(const Fmatrix& cam_trans)
 {

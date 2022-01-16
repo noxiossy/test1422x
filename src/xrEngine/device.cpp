@@ -517,9 +517,9 @@ BOOL CRenderDevice::Paused()
 
 void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
 {
-    u16 fActive = LOWORD(wParam);
-    BOOL fMinimized = (BOOL)HIWORD(wParam);
-    BOOL bActive = ((fActive != WA_INACTIVE) && (!fMinimized)) ? TRUE : FALSE;
+    const u16 fActive = LOWORD(wParam);
+    const BOOL fMinimized = (BOOL)HIWORD(wParam);
+    const BOOL bActive = ((fActive != WA_INACTIVE) && (!fMinimized)) ? TRUE : FALSE;
 
     if (bActive != Device.b_is_Active)
     {

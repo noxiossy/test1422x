@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#pragma hdrstop
 
 #include "Environment.h"
 #include "xr_efflensflare.h"
@@ -9,8 +8,6 @@
 #include "IGame_Level.h"
 #include "../xrServerEntities/object_broker.h"
 #include "../xrServerEntities/LevelGameDef.h"
-
-//#include "securom_api.h"
 
 void CEnvModifier::load(IReader* fs, u32 version)
 {
@@ -236,7 +233,7 @@ m_identifier(identifier)
     m_fWaterIntensity = 1;
 
 #ifdef TREE_WIND_EFFECT
-    m_fTreeAmplitudeIntensity = 0.01;
+    m_fTreeAmplitudeIntensity = 0.01f;
 #endif
 
     lens_flare_id = "";
@@ -613,11 +610,14 @@ void CEnvironment::load_weathers()
     for (; i != e; ++i)
     {
         u32 length = xr_strlen(*i);
-        VERIFY(length >= 4);
-        VERIFY((*i)[length - 4] == '.');
-        VERIFY((*i)[length - 3] == 'l');
-        VERIFY((*i)[length - 2] == 't');
-        VERIFY((*i)[length - 1] == 'x');
+
+		if (!((length >= 4) &&
+			((*i)[length - 4] == '.') &&
+			((*i)[length - 3] == 'l') &&
+			((*i)[length - 2] == 't') &&
+			((*i)[length - 1] == 'x')))
+			continue;
+
         id.assign(*i, length - 4);
         EnvVec& env = WeatherCycles[id.c_str()];
 

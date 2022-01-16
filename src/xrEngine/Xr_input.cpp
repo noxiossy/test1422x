@@ -253,7 +253,7 @@ void CInput::KeyUpdate()
             }
         }
 
-        for (i = 0; i < COUNT_KB_BUTTONS; i++)
+		for ( u32 i = 0; i < COUNT_KB_BUTTONS; i++ )
             if (KBState[i])
                 cbStack.back()->IR_OnKeyboardHold(i);
     }
@@ -346,6 +346,10 @@ BOOL CInput::iGetAsyncBtnState(int btn)
 
 void CInput::MouseUpdate()
 {
+#	pragma push_macro("FIELD_OFFSET")
+#	undef FIELD_OFFSET
+#	define FIELD_OFFSET offsetof // Фиксим warning C4644 - просто переводим макрос из винсдк на использование стандартного оффсетофа.
+
     HRESULT hr;
     DWORD dwElements = MOUSEBUFFERSIZE;
     DIDEVICEOBJECTDATA od[MOUSEBUFFERSIZE];
