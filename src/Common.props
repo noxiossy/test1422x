@@ -17,7 +17,7 @@
     <xrLuaDir>$(SolutionDir)3rd party\luajit-2\src\</xrLuaDir>
   </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\src\3rd party;$(SolutionDir)3rd party\icu\include;$(IncludePath);$(xrSdkDir)include;$(xrSdkDir)include\OpenAutomate;$(xrSdkDir)include\nvapi;$(xrSdkDir)include\dxsdk;$(SolutionDir)SDK\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)SDK\libraries;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)intermediate\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)intermediate\$(Platform)-$(Configuration)\$(ProjectName)\</IntDir>
