@@ -1,11 +1,10 @@
 #include "stdafx.h"
-#pragma hdrstop
 
 #include "hwcaps.h"
 #include "hw.h"
 
 #ifndef _EDITOR
-	#include <nvapi.h>
+	#include "NVAPI/nvapi.h"
 //	#include "ATI/atimgpud.h"
 #endif
 
