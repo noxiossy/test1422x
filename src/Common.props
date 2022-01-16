@@ -10,7 +10,7 @@
     <xrLibDir>$(xrLibRootDir)$(Configuration)\</xrLibDir>
     <xrIntDir>$(SolutionDir)intermediate\$(Platform)-$(Configuration)\$(ProjectName)\</xrIntDir>
     <xrSdkDir>$(SolutionDir)..\sdk\</xrSdkDir>
-    <xrGameDir>intermediate\$(Platform)-$(Configuration)\</xrGameDir>
+    <xrGameDir>$(SolutionDir)intermediate\$(Platform)-$(Configuration)\</xrGameDir>
     <xrGameBinDir>$(xrGameDir)bin\</xrGameBinDir>
     <xr3rdPartyDir>$(SolutionDir)3rd party\</xr3rdPartyDir>
     <dxSdkDir>$(xrSdkDir)include\dxsdk\</dxSdkDir>
