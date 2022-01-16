@@ -64,8 +64,8 @@ u32 GetNVGpuNum()
 	{
 		Msg	("* NVidia MGPU: %d-Way SLI detected.", iGpuNum);
 	}
-
-	return iGpuNum;*/
+*/
+	return iGpuNum;
 }
 
 u32 GetATIGpuNum()
