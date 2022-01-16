@@ -85,8 +85,8 @@ public:
     char* _charalloc(size_type n) { return (char*)allocate(n); }
     void deallocate(pointer p, size_type n) const { xr_free(p); }
     void deallocate(void* p, size_type n) const { xr_free(p); }
-    void construct(pointer p, const T& _Val) { std::_Construct(p, _Val); }
-    void destroy(pointer p) { std::_Destroy(p); }
+    void construct(pointer p, const T& _Val) {	::new (p) T(_Val);	}
+    void destroy(pointer p) { p->~T(); }
     size_type max_size() const { size_type _Count = (size_type)(-1) / sizeof(T); return (0 < _Count ? _Count : 1); }
 };
 
@@ -124,6 +124,9 @@ private:
 
 public:
     typedef allocator allocator_type;
+	using const_reference = typename inherited::const_reference;
+	using size_type = typename inherited::size_type;
+	using reference = typename inherited::reference;
 
 public:
     xr_vector() : inherited() {}
@@ -173,7 +176,7 @@ template <typename T, typename allocator = xalloc<T> >
 class xr_deque : public std::deque < T, allocator >
 {
 public:
-    typedef typename allocator allocator_type;
+    typedef allocator allocator_type;
     typedef typename allocator_type::value_type value_type;
     typedef typename allocator_type::size_type size_type;
     u32 size() const { return (u32)__super::size(); }
