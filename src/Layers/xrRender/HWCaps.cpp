@@ -5,7 +5,7 @@
 
 #ifndef _EDITOR
 	#include "NVAPI/nvapi.h"
-//	#include "ATI/atimgpud.h"
+	#include "ATI/atimgpud.h"
 #endif
 
 namespace
