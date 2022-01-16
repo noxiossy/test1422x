@@ -325,7 +325,7 @@ LPCSTR xrDebug::error2string(long code)
 #ifdef _M_AMD64
 #else
     WCHAR err_result[1024];
-    DXGetErrorString(code,err_result,sizeof(err_result));
+    DXGetErrorString(code);
     wcstombs(result, err_result, sizeof(err_result));
 #endif
     if (0 == result)
