@@ -67,21 +67,21 @@ XRCORE_API xrDebug Debug;
 
 static bool error_after_dialog = false;
 
-extern void BuildStackTrace();
-extern char g_stackTrace[100][4096];
-extern int g_stackTraceCount;
+//extern void BuildStackTrace();
+//extern char g_stackTrace[100][4096];
+//extern int g_stackTraceCount;
 
 void LogStackTrace(LPCSTR header)
 {
     if (!shared_str_initialized)
         return;
 
-    BuildStackTrace();
+    //BuildStackTrace();
 
     Msg("%s", header);
 
-    for (int i = 1; i < g_stackTraceCount; ++i)
-        Msg("%s", g_stackTrace[i]);
+    //for (int i = 1; i < g_stackTraceCount; ++i)
+    //    Msg("%s", g_stackTrace[i]);
 }
 
 void xrDebug::gather_info(const char* expression, const char* description, const char* argument0, const char* argument1, const char* file, int line, const char* function, LPSTR assertion_info, u32 const assertion_info_size)
@@ -160,7 +160,7 @@ void xrDebug::gather_info(const char* expression, const char* description, const
         buffer += xr_sprintf(buffer, assertion_size - u32(buffer - buffer_base), "stack trace:%s%s", endline, endline);
 #endif //-USE_OWN_ERROR_MESSAGE_WINDOW
 
-        BuildStackTrace();
+        /*BuildStackTrace();
 
         for (int i = 2; i < g_stackTraceCount; ++i)
         {
@@ -170,7 +170,7 @@ void xrDebug::gather_info(const char* expression, const char* description, const
 #ifdef USE_OWN_ERROR_MESSAGE_WINDOW
             buffer += xr_sprintf(buffer, assertion_size - u32(buffer - buffer_base), "%s%s", g_stackTrace[i], endline);
 #endif //-USE_OWN_ERROR_MESSAGE_WINDOW
-        }
+        }*/
 
         if (shared_str_initialized)
             FlushLog();
@@ -555,7 +555,7 @@ void SetupExceptionHandler(const bool& dedicated)
 }
 #endif //-USE_BUG_TRAP
 
-extern void BuildStackTrace(struct _EXCEPTION_POINTERS* pExceptionInfo);
+//extern void BuildStackTrace(struct _EXCEPTION_POINTERS* pExceptionInfo);
 typedef LONG WINAPI UnhandledExceptionFilterType(struct _EXCEPTION_POINTERS* pExceptionInfo);
 typedef LONG(__stdcall* PFNCHFILTFN) (EXCEPTION_POINTERS* pExPtrs);
 extern "C" BOOL __stdcall SetCrashHandlerFilter(PFNCHFILTFN pFn);
@@ -715,7 +715,7 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
     format_message(error_message, sizeof(error_message));
 
     CONTEXT save = *pExceptionInfo->ContextRecord;
-    BuildStackTrace(pExceptionInfo);
+    //BuildStackTrace(pExceptionInfo);
     *pExceptionInfo->ContextRecord = save;
 
     if (shared_str_initialized)
@@ -726,7 +726,7 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
         os_clipboard::copy_to_clipboard("stack trace:\r\n\r\n");
     }
 
-    string4096 buffer;
+    /*string4096 buffer;
     for (int i = 0; i < g_stackTraceCount; ++i)
     {
         if (shared_str_initialized)
@@ -736,7 +736,7 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
         if (!IsDebuggerPresent())
             os_clipboard::update_clipboard(buffer);
 #endif //-DEBUG
-    }
+    }*/
 
     if (*error_message)
     {
@@ -752,6 +752,10 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 
     FlushLog();
 
+# ifdef USE_OWN_MINI_DUMP
+	save_mini_dump(pExceptionInfo);
+# endif // USE_OWN_MINI_DUMP
+
     ShowCursor(true);
     ShowWindow(GetActiveWindow(), SW_FORCEMINIMIZE);
     MessageBox(
@@ -760,7 +764,7 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
         "Fatal Error",
         MB_OK | MB_ICONERROR | MB_SYSTEMMODAL
         );
-    TerminateProcess(GetCurrentProcess(), 1);
+    //TerminateProcess(GetCurrentProcess(), 1);
 
     return (EXCEPTION_CONTINUE_SEARCH);
 }
@@ -876,6 +880,9 @@ void xrDebug::_initialize (const bool& dedicated)
     // ::SetUnhandledExceptionFilter (UnhandledFilter); // exception handler to all "unhandled" exceptions
 }
 #else
+typedef int (__cdecl* _PNH)(size_t);
+_CRTIMP int __cdecl _set_new_mode(int);
+//_CRTIMP _PNH __cdecl _set_new_handler(_PNH);
 
 #ifdef LEGACY_CODE
 #ifndef USE_BUG_TRAP

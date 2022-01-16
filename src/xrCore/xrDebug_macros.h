@@ -35,9 +35,9 @@
 # undef VERIFY
 # endif // VERIFY
 
+# include "../build_config_defines.h"
 # ifdef DEBUG
 //AVO:
-# include "../build_config_defines.h"
 # ifdef NON_FATAL_VERIFY
 # define NODEFAULT FATAL("nodefault reached")
 # define VERIFY(expr) do {static bool ignore_always = false; if (!ignore_always && !(expr)) ::Debug.soft_fail(#expr,DEBUG_INFO);} while(0)
