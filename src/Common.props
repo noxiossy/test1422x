@@ -34,6 +34,10 @@
       <PreprocessorDefinitions>_VC80_UPGRADE=0x0710;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MinimalRebuild>true</MinimalRebuild>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+     <EnableFiberSafeOptimizations>False</EnableFiberSafeOptimizations>
     </ClCompile>
     <Link>
       <LargeAddressAware>true</LargeAddressAware>
