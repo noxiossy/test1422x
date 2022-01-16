@@ -37,7 +37,7 @@
       <MinimalRebuild>true</MinimalRebuild>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
-     <EnableFiberSafeOptimizations>False</EnableFiberSafeOptimizations>
+     <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
     </ClCompile>
     <Link>
       <LargeAddressAware>true</LargeAddressAware>
