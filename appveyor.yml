@@ -1,4 +1,4 @@
-version: CoC_{build}
+version: coc_{build}
 image: Visual Studio 2015
 configuration: Release
 platform: Win32
@@ -11,7 +11,7 @@ before_build:
 
     echo %CONFIGURATION%
 
-    echo coc_%APPVEYOR_REPO_TAG_NAME%.7z
+    echo %APPVEYOR_REPO_TAG_NAME%.7z
 build:
   project: ./src/engine.sln
   verbosity: minimal
@@ -33,19 +33,19 @@ after_build:
     
     copy sdk\binaries\lua51.dll dist\engine\bin\
 
-    echo appveyor PushArtifact coc_%APPVEYOR_REPO_TAG_NAME%.7z release
+    echo appveyor PushArtifact %APPVEYOR_REPO_TAG_NAME%.7z release
 
     cd dist\engine
 
-    7z a ..\..\coc_%APPVEYOR_REPO_TAG_NAME%.7z
+    7z a ..\..\%APPVEYOR_REPO_TAG_NAME%.7z
 
     cd ..\..
 
-    echo appveyor PushArtifact coc_%APPVEYOR_REPO_TAG_NAME%.7z release
+    echo appveyor PushArtifact %APPVEYOR_REPO_TAG_NAME%.7z release
 
-    copy coc_%APPVEYOR_REPO_TAG_NAME%.7z coc_%APPVEYOR_VERSION%.7z
+    copy %APPVEYOR_REPO_TAG_NAME%.7z %APPVEYOR_VERSION%.7z
 
-    appveyor PushArtifact coc_%APPVEYOR_VERSION%.7z
+    appveyor PushArtifact %APPVEYOR_VERSION%.7z
 artifacts:
-- path: .\coc_$(appveyor_repo_tag_name).7z
+- path: .\$(appveyor_repo_tag_name).7z
   name: release

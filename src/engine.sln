@@ -165,7 +165,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libogg_static", "..\sdk\inc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtheora_static", "..\sdk\include\theora\vs2013\libtheora_static.vcxproj", "{0BDF3377-F84E-4B42-A605-B45AAA244CB6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oalib", "..\sdk\include\OpenAutomate\vs2013\oalib.vcxproj", "{61D4856F-FA82-4F02-BB88-909DDFB1FE74}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oalib", "..\sdk\include\OpenAutomate\oalib\oalib.vcxproj", "{61D4856F-FA82-4F02-BB88-909DDFB1FE74}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg", "..\sdk\include\jpeg\vs2013\libjpeg.vcxproj", "{938C5808-85A1-4B5A-8CB4-D2D9D7851CB8}"
 EndProject
