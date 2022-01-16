@@ -5,7 +5,7 @@
 #include "os_clipboard.h"
 
 #include <sal.h>
-#include <dxerr.h>
+#include "../3rd party/DXERR/dxerr.h"
 
 #pragma warning(push)
 #pragma warning(disable:4995)
@@ -37,19 +37,19 @@ static BOOL bException = FALSE;
 # include <exception>
 #endif
 
-#ifndef _M_AMD64
+/*#ifndef _M_AMD64
 # ifndef __BORLANDC__
 # pragma comment(lib,"dxerr.lib")
 # endif
-#endif
+#endif*/
 
 #include <dbghelp.h> // MiniDump flags
 
 #ifdef USE_BUG_TRAP
 # include <BugTrap/source/BugTrap.h> // for BugTrap functionality
-#ifndef __BORLANDC__
-# pragma comment(lib,"BugTrap.lib") // Link to ANSI DLL
-#else
+#ifdef __BORLANDC__
+//# pragma comment(lib,"BugTrap.lib") // Link to ANSI DLL
+//#else
 # pragma comment(lib,"BugTrapB.lib") // Link to ANSI DLL
 #endif
 #endif // USE_BUG_TRAP
