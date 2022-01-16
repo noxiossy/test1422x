@@ -8,9 +8,9 @@
     <xrBinDir>$(xrBinRootDir)$(Configuration)\</xrBinDir>
     <xrBinPlugDir>$(xrBinPlugRootDir)$(Configuration)\</xrBinPlugDir>
     <xrLibDir>$(xrLibRootDir)$(Configuration)\</xrLibDir>
-    <xrIntDir>$(SolutionDir)..\_build\intermediate\$(Configuration)\</xrIntDir>
+    <xrIntDir>$(SolutionDir)intermediate\$(Platform)-$(Configuration)\$(ProjectName)\</xrIntDir>
     <xrSdkDir>$(SolutionDir)..\sdk\</xrSdkDir>
-    <xrGameDir>$(SolutionDir)..\_build\_game\</xrGameDir>
+    <xrGameDir>intermediate\$(Platform)-$(Configuration)\</xrGameDir>
     <xrGameBinDir>$(xrGameDir)bin\</xrGameBinDir>
     <xr3rdPartyDir>$(SolutionDir)3rd party\</xr3rdPartyDir>
     <dxSdkDir>$(xrSdkDir)include\dxsdk\</dxSdkDir>
