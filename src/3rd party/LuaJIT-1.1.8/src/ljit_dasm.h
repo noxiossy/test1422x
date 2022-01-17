@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** Interface to DynASM engine.
 ** Copyright (C) 2005-2012 Mike Pall. See Copyright Notice in luajit.h
 */

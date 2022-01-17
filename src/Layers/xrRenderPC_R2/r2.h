@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../xrRender/r__dsgraph_structure.h"
 #include "../xrRender/r__occlusion.h"
@@ -61,6 +61,8 @@ public:
         u32		nvdbt				: 1;
 
         u32		nullrt				: 1;
+		
+        u32 	no_ram_textures 	: 1; // don't keep textures in RAM
 
         u32		distortion			: 1;
         u32		distortion_enabled	: 1;
@@ -86,6 +88,7 @@ public:
         u32		ic_total,	ic_culled;
     }			stats;
 public:
+	bool is_sun();
     // Sector detection and visibility
     CSector*													pLastSector;
     Fvector														vLastCameraPos;
@@ -306,7 +309,7 @@ public:
     virtual void					rmNear						();
     virtual void					rmFar						();
     virtual void					rmNormal					();
-    virtual u32 active_phase() {return phase;}; //Swartz: actor shadow
+    virtual u32 active_phase() {return phase;} //Swartz: actor shadow
     // Constructor/destructor/loader
     CRender							();
     virtual ~CRender				();

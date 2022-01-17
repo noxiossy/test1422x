@@ -1,4 +1,4 @@
-#ifndef BLENDER_CLSID_H
+﻿#ifndef BLENDER_CLSID_H
 #define BLENDER_CLSID_H
 #pragma once
 

@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////
 //	Module 		: script_game_object.h
 //	Created 	: 25.09.2003
 //  Modified 	: 29.06.2004
@@ -15,29 +15,7 @@
 #include "character_info_defs.h"
 #include "game_graph_space.h"
 #include "game_location_selector.h"
-// CHARLIE_CHECK
-#include "Actor.h"
-#include "Car.h"
-#include "helicopter.h"
-#include "InventoryOwner.h"
-#include "InventoryBox.h"
-#include "CustomZone.h"
-#include "TorridZone.h"
-#include "MosquitoBald.h"
-#include "ZoneCampfire.h"
-#include "CustomOutfit.h"
-#include "ActorHelmet.h"
-#include "Artefact.h"
-#include "Weapon.h"
-#include "WeaponAmmo.h"
-#include "WeaponMagazined.h"
-#include "WeaponMagazinedWGrenade.h"
-#include "eatable_item.h"
-#include "FoodItem.h"
-#include "medkit.h"
-#include "antirad.h"
-#include "BottleItem.h"
-// CHARLIE_CHECK
+
 enum EPdaMsg;
 enum ESoundTypes;
 enum ETaskState;
@@ -323,7 +301,7 @@ public:
             bool				inv_box_can_take		(bool status);
             bool				inv_box_can_take_status	();
 
-    //ïåðåäà÷à ïîðöèè èíôîðìàöèè InventoryOwner
+    //передача порции информации InventoryOwner
             bool				GiveInfoPortion		(LPCSTR info_id);
             bool				DisableInfoPortion	(LPCSTR info_id);
             void				GiveGameNews		(LPCSTR caption, LPCSTR news, LPCSTR texture_name, int delay, int show_time);
@@ -331,10 +309,10 @@ public:
 
             void				AddIconedTalkMessage_old(LPCSTR text, LPCSTR texture_name, LPCSTR templ_name) {};
             void				AddIconedTalkMessage(LPCSTR caption, LPCSTR text, LPCSTR texture_name, LPCSTR templ_name);
-    //ïðåäèêàòû íàëè÷èÿ/îòñóòñòâèÿ ïîðöèè èíôîðìàöèè ó ïåðñîíàæà
+    //предикаты наличия/отсутствия порции информации у персонажа
             bool				HasInfo				(LPCSTR info_id);
             bool				DontHasInfo			(LPCSTR info_id);
-    //ðàáîòà ñ çàäàíèÿìè
+    //работа с заданиями
             ETaskState			GetGameTaskState	(LPCSTR task_id);
             void				SetGameTaskState	(ETaskState state, LPCSTR task_id);
             void				GiveTaskToActor		(CGameTask* t, u32 dt, bool bCheckExisting, u32 t_timer);

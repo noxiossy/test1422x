@@ -1,4 +1,4 @@
-#ifndef _INC_CPUID
+﻿#ifndef _INC_CPUID
 #define _INC_CPUID
 
 #define _CPU_FEATURE_MMX 0x0001

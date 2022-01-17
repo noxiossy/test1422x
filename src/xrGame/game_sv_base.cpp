@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "LevelGameDef.h"
 #include "script_process.h"
 #include "xrServer_Objects_ALife_Monsters.h"
@@ -1069,7 +1069,7 @@ void game_sv_GameState::OnRoundStart			()
 		}
 	};
 	rpointsBlocked.clear			();
-}// старт раунда
+}// СЃС‚Р°СЂС‚ СЂР°СѓРЅРґР°
 
 void game_sv_GameState::OnRoundEnd()
 { 
@@ -1087,7 +1087,7 @@ void game_sv_GameState::OnRoundEnd()
 	{
 		m_bFastRestart = true;
 	}
-}// конец раунда
+}// РєРѕРЅРµС† СЂР°СѓРЅРґР°
 
 void game_sv_GameState::SaveMapList				()
 {

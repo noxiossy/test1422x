@@ -1,4 +1,4 @@
-// DetailManager.cpp: implementation of the CDetailManager class.
+﻿// DetailManager.cpp: implementation of the CDetailManager class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -140,6 +140,11 @@ CDetailManager::CDetailManager	()
 
 CDetailManager::~CDetailManager	()
 {
+	if (dtFS)
+	{
+		FS.r_close(dtFS);
+		dtFS = NULL;
+	}
 #ifdef DETAIL_RADIUS
     for (u32 i = 0; i < dm_cache_size; ++i)
         cache_pool[i].~Slot();
@@ -246,25 +251,29 @@ void CDetailManager::Unload		()
 	m_visibles[1].clear	();
 	m_visibles[2].clear	();
 	FS.r_close			(dtFS);
+	dtFS = NULL;
 }
 
 extern ECORE_API float r_ssaDISCARD;
 
 void CDetailManager::UpdateVisibleM()
 {
+	// Clean up
+	for (auto& vec : m_visibles)
+		for (auto& vis : vec)
+			vis.clear_not_free();
+
 	Fvector		EYE				= RDEVICE.vCameraPosition_saved;
 
-	CFrustum	View;
-	View.CreateFromMatrix		(RDEVICE.mFullTransform_saved, FRUSTUM_P_LRTB + FRUSTUM_P_FAR);
-	
- 	CFrustum	View_old;
- 	Fmatrix		Viewm_old = RDEVICE.mFullTransform;
- 	View_old.CreateFromMatrix		(Viewm_old, FRUSTUM_P_LRTB + FRUSTUM_P_FAR);
-	
-	float fade_limit			= dm_fade;	fade_limit=fade_limit*fade_limit;
-	float fade_start			= 1.f;		fade_start=fade_start*fade_start;
-	float fade_range			= fade_limit-fade_start;
- 	float		r_ssaCHEAP		= 16*r_ssaDISCARD;
+	CFrustum View;
+	View.CreateFromMatrix(RDEVICE.mFullTransform_saved, FRUSTUM_P_LRTB + FRUSTUM_P_FAR);
+		
+	float fade_limit = dm_fade;
+	fade_limit = fade_limit * fade_limit;
+	float fade_start = 1.f;
+	fade_start = fade_start * fade_start;
+	float fade_range = fade_limit - fade_start;
+	float r_ssaCHEAP = 16 * r_ssaDISCARD;
 
 	// Initialize 'vis' and 'cache'
 	// Collect objects for rendering
@@ -335,9 +344,11 @@ void CDetailManager::UpdateVisibleM()
 						float				R		= objects	[sp.id]->bv_sphere.R;
 						float				Rq_drcp	= R*R*dist_sq_rcp;	// reordered expression for 'ssa' calc
 
-						SlotItem			**siIT=&(*sp.items.begin()), **siEND=&(*sp.items.end());
-						for (; siIT!=siEND; siIT++){
-							SlotItem& Item			= *(*siIT);
+						for (auto& el: sp.items){
+
+							if (el == nullptr) continue;
+
+							SlotItem& Item			= *el;
 							float   scale			= Item.scale_calculated	= Item.scale*alpha_i;
 							float	ssa				= scale*scale*Rq_drcp;
 							if (ssa < r_ssaDISCARD)
@@ -347,7 +358,7 @@ void CDetailManager::UpdateVisibleM()
 							u32		vis_id			= 0;
 							if (ssa > r_ssaCHEAP)	vis_id = Item.vis_ID;
 							
-							sp.r_items[vis_id].push_back	(*siIT);
+							sp.r_items[vis_id].push_back	(el);
 
 //2							visible[vis_id][sp.id].push_back(&Item);
 						}
@@ -378,8 +389,10 @@ void CDetailManager::UpdateVisibleM()
 void CDetailManager::Render	()
 {
 #ifndef _EDITOR
-	if (0==dtFS)						return;
-	if (!psDeviceFlags.is(rsDetails))	return;
+	if (!RImplementation.Details) return;	// possibly deleted
+	if (!dtFS) return;
+	if (!psDeviceFlags.is(rsDetails)) return;
+	if (g_pGamePersistent && g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive()) return;
 #endif
 
 	// MT
@@ -403,12 +416,15 @@ void CDetailManager::Render	()
 	m_frame_rendered		= RDEVICE.dwFrame;
 }
 
+u32 reset_frame = 0;
 void __stdcall	CDetailManager::MT_CALC		()
 {
 #ifndef _EDITOR
-	if (0==RImplementation.Details)		return;	// possibly deleted
-	if (0==dtFS)						return;
-	if (!psDeviceFlags.is(rsDetails))	return;
+	if (reset_frame == Device.dwFrame) return;
+	if (!RImplementation.Details) return;	// possibly deleted
+	if (!dtFS) return;
+	if (!psDeviceFlags.is(rsDetails)) return;
+	if (g_pGamePersistent && g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive()) return;
 #endif    
 
 	MT.Enter					();

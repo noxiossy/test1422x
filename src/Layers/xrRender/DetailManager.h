@@ -1,4 +1,4 @@
-// DetailManager.h: interface for the CDetailManager class.
+п»ї// DetailManager.h: interface for the CDetailManager class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ const float		dm_slot_size		= DETAIL_SLOT_SIZE;
 //AVO: detail radius
 #include "../../build_config_defines.h"
 #ifdef DETAIL_RADIUS
-const u32		dm_max_cache_size = 62001; // assuming max dm_size = 124
+const u32		dm_max_cache_size = 62001 * 2; // assuming max dm_size = 124
 extern u32		dm_size;
 extern u32 		dm_cache1_line;
 extern u32		dm_cache_line;
@@ -63,11 +63,11 @@ const float		dm_fade = float(2 * dm_size) - .5f;
 class ECORE_API CDetailManager
 {
 public:
-	struct	SlotItem	{								// один кустик
+	struct	SlotItem	{								// РѕРґРёРЅ РєСѓСЃС‚РёРє
 		float						scale;
 		float						scale_calculated;
 		Fmatrix						mRotY;
-		u32							vis_ID;				// индекс в visibility списке он же тип [не качается, качается1, качается2]
+		u32							vis_ID;				// РёРЅРґРµРєСЃ РІ visibility СЃРїРёСЃРєРµ РѕРЅ Р¶Рµ С‚РёРї [РЅРµ РєР°С‡Р°РµС‚СЃСЏ, РєР°С‡Р°РµС‚СЃСЏ1, РєР°С‡Р°РµС‚СЃСЏ2]
 		float						c_hemi;
 		float						c_sun;
 #if RENDER==R_R1
@@ -76,9 +76,9 @@ public:
 	};
 	DEFINE_VECTOR(SlotItem*,SlotItemVec,SlotItemVecIt);
 	struct	SlotPart	{                              	// 
-		u32							id;					// ID модельки
-		SlotItemVec					items;              // список кустиков
-		SlotItemVec					r_items[3];         // список кустиков for render
+		u32							id;					// ID РјРѕРґРµР»СЊРєРё
+		SlotItemVec					items;              // СЃРїРёСЃРѕРє РєСѓСЃС‚РёРєРѕРІ
+		SlotItemVec					r_items[3];         // СЃРїРёСЃРѕРє РєСѓСЃС‚РёРєРѕРІ for render
 	};
 	enum	SlotType	{
 		stReady						= 0,				// Ready to use
@@ -86,13 +86,13 @@ public:
 
 		stFORCEDWORD				= 0xffffffff
 	};
-	struct	Slot		{								// распакованый слот размером DETAIL_SLOT_SIZE
+	struct	Slot		{								// СЂР°СЃРїР°РєРѕРІР°РЅС‹Р№ СЃР»РѕС‚ СЂР°Р·РјРµСЂРѕРј DETAIL_SLOT_SIZE
 		struct{
 			u32						empty	:1;
 			u32						type	:1;
 			u32						frame	:30;
 		};
-		int							sx,sz;				// координаты слота X x Y
+		int							sx,sz;				// РєРѕРѕСЂРґРёРЅР°С‚С‹ СЃР»РѕС‚Р° X x Y
 		vis_data					vis;				// 
 		SlotPart					G[dm_obj_in_slot];	// 
 
@@ -108,7 +108,7 @@ public:
 	typedef	xr_vector<xr_vector <SlotItemVec* > >	vis_list;
 	typedef	svector<CDetail*,dm_max_objects>	DetailVec;
 	typedef	DetailVec::iterator					DetailIt;
-	typedef	poolSS<SlotItem,4096>				PSS;
+	typedef	poolSS<SlotItem, /*4096*/ 65536> PSS; // KD: try to avoid blinking
 public:
 	int								dither			[16][16];
 public:
@@ -161,7 +161,7 @@ public:
 	int								cache_cx;
 	int								cache_cz;
 
-	PSS								poolSI;										// pool из которого выделяются SlotItem
+	PSS								poolSI;										// pool РёР· РєРѕС‚РѕСЂРѕРіРѕ РІС‹РґРµР»СЏСЋС‚СЃСЏ SlotItem
 
 	void							UpdateVisibleM	();
 	void							UpdateVisibleS	();

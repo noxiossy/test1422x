@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "../xrCDB/frustum.h"
 
 #pragma warning(disable:4995)

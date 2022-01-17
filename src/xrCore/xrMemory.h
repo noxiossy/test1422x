@@ -1,4 +1,4 @@
-#ifndef xrMemoryH
+﻿#ifndef xrMemoryH
 #define xrMemoryH
 #pragma once
 

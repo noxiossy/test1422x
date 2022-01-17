@@ -1,4 +1,4 @@
-#ifndef __XR_OBJECT_LIST_H__
+﻿#ifndef __XR_OBJECT_LIST_H__
 #define __XR_OBJECT_LIST_H__
 
 // refs
@@ -76,8 +76,14 @@ public:
     IC u32 o_count() { return objects_active.size() + objects_sleeping.size(); };
     IC CObject* o_get_by_iterator(u32 _it)
     {
-        if (_it < objects_active.size()) return objects_active[_it];
-        else return objects_sleeping[_it - objects_active.size()];
+        if (_it < objects_active.size()) 
+			return objects_active[_it];
+
+		_it = _it - objects_active.size();
+		if (_it < objects_sleeping.size())
+			return objects_sleeping[_it];
+
+		return (0);
     }
     bool dump_all_objects();
 

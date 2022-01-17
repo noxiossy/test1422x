@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "weaponrpg7.h"
 #include "xrserver_objects_alife_items.h"
 #include "explosiverocket.h"

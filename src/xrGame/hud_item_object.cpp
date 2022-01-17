@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "hud_item_object.h"
 
 CHudItemObject::CHudItemObject			()

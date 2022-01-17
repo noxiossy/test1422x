@@ -1,6 +1,4 @@
-#include	"stdafx.h"
-#pragma		hdrstop
-
+Ôªø#include	"stdafx.h"
 #include	"xrRender_console.h"
 #include	"dxRenderDeviceRender.h"
 
@@ -58,6 +56,20 @@ xr_token							qsun_quality_token							[ ]={
 	{ 0,							0												}
 };
 
+u32 r2_SmapSize = 1024;
+xr_token SmapSizeToken[] = {
+	{ "1024x1024",   1024 },
+	{ "1536x1536",   1536 },
+	{ "2048x2048",   2048 },
+	{ "2560x2560",   2560 },
+	{ "3072x3072",   3072 },
+	{ "4096x4096",   4096 },
+	{ "6144x6144",   6144 },
+	{ "8192x8192",   8192 },
+	{ "16384x16384", 16384 },
+	{ nullptr, 0 }
+};
+
 u32			ps_r3_msaa				=	0;			//	=	0;
 xr_token							qmsaa_token							[ ]={
 	{ "st_opt_off",					0												},
@@ -75,7 +87,7 @@ xr_token							qmsaa__atest_token					[ ]={
 	{ 0,							0												}
 };
 
-u32			ps_r3_minmax_sm			=	3;			//	=	0;
+u32			ps_r3_minmax_sm			=	0;
 xr_token							qminmax_sm_token					[ ]={
 	{ "off",						0												},
 	{ "on",							1												},
@@ -84,13 +96,15 @@ xr_token							qminmax_sm_token					[ ]={
 	{ 0,							0												}
 };
 
-//	ìOffî
-//	ìDX10.0 style [Standard]î
-//	ìDX10.1 style [Higher quality]î
+//	‚ÄúOff‚Äù
+//	‚ÄúDX10.0 style [Standard]‚Äù
+//	‚ÄúDX10.1 style [Higher quality]‚Äù
 
 // Common
 extern int			psSkeletonUpdate;
 extern float		r__dtex_range;
+
+Flags32 ps_r__common_flags = { RFLAG_NO_RAM_TEXTURES }; // All renders
 
 //int		ps_r__Supersample			= 1		;
 int			ps_r__LightSleepFrames		= 10	;
@@ -234,7 +248,7 @@ Flags32 ps_actor_shadow_flags = {0}; //Swartz: actor shadow
 Flags32		ps_common_flags = {0};		// r1-only
 u32			ps_steep_parallax = 0;
 int			ps_r__detail_radius = 49;
-#ifdef DETAIL_RADIUS // ÛÔ‡‚ÎÂÌËÂ ‡‰ËÛÒÓÏ ÓÚËÒÓ‚ÍË Ú‡‚˚
+#ifdef DETAIL_RADIUS // —É–ø—Ä–∞–≤–ª–µ–Ω–∏–µ —Ä–∞–¥–∏—É—Å–æ–º –æ—Ç—Ä–∏—Å–æ–≤–∫–∏ —Ç—Ä–∞–≤—ã
 u32			dm_size = 24;
 u32 		dm_cache1_line = 12;	//dm_size*2/dm_cache1_count
 u32			dm_cache_line = 49;	//dm_size+1+dm_size
@@ -246,7 +260,8 @@ u32			dm_current_cache_line = 49;	//dm_current_size+1+dm_current_size
 u32			dm_current_cache_size = 2401;	//dm_current_cache_line*dm_current_cache_line
 float		dm_current_fade = 47.5;	//float(2*dm_current_size)-.5f;
 #endif
-float		ps_current_detail_density = 0.6;
+float		ps_current_detail_density = 0.6f;
+float		ps_current_detail_scale = 1.f;
 xr_token							ext_quality_token[] = {
     {"qt_off", 0},
     {"qt_low", 1},
@@ -337,7 +352,7 @@ public:
 #endif	//	USE_DX10
 	}
 
-	CCC_tf_MipBias(LPCSTR N, float*	v) : CCC_Float(N, v, -0.5f, +0.5f)	{ };
+	CCC_tf_MipBias(LPCSTR N, float*	v) : CCC_Float(N, v, -3.f, +3.f)	{ };
 	virtual void Execute(LPCSTR args)
 	{
 		CCC_Float::Execute	(args);
@@ -745,8 +760,8 @@ void		xrRender_initconsole	()
 //.	CMD4(CCC_Float,		"r__geometry_lod_pow",	&ps_r__LOD_Power,			0,		2		);
 
 //.	CMD4(CCC_Float,		"r__detail_density",	&ps_r__Detail_density,		.05f,	0.99f	);
-    CMD4(CCC_Float, "r__detail_density", &ps_current_detail_density/*&ps_r__Detail_density*/, 0.04f/*.2f*/, 0.6f); //AVO: extended from 0.2 to 0.04 and replaced variable
-
+    CMD4(CCC_Float, "r__detail_density", &ps_current_detail_density/*&ps_r__Detail_density*/, 0.3f/*.2f*/, 0.9f); //AVO: extended from 0.2 to 0.04 and replaced variable
+	CMD4(CCC_Float, "r__detail_scale", &ps_current_detail_scale, 0.2f, 3.0f);
 #ifdef DEBUG
 	CMD4(CCC_Float,		"r__detail_l_ambient",	&ps_r__Detail_l_ambient,	.5f,	.95f	);
 	CMD4(CCC_Float,		"r__detail_l_aniso",	&ps_r__Detail_l_aniso,		.1f,	.5f		);
@@ -917,6 +932,8 @@ void		xrRender_initconsole	()
 
 	CMD3(CCC_Token,		"r2_sun_quality",				&ps_r_sun_quality,			qsun_quality_token);
 
+	CMD3(CCC_Token, 	"r__smap_size", 				&r2_SmapSize, 				SmapSizeToken);
+
 	//	Igor: need restart
 	CMD3(CCC_Mask,		"r2_soft_water",				&ps_r2_ls_flags,			R2FLAG_SOFT_WATER);
 	CMD3(CCC_Mask,		"r2_soft_particles",			&ps_r2_ls_flags,			R2FLAG_SOFT_PARTICLES);
@@ -932,7 +949,7 @@ void		xrRender_initconsole	()
 	CMD3(CCC_Token,		"r3_minmax_sm",					&ps_r3_minmax_sm,			qminmax_sm_token);
 
 #ifdef DETAIL_RADIUS
-    CMD4(CCC_detail_radius, "r__detail_radius", &ps_r__detail_radius, 49, 300);
+    CMD4(CCC_detail_radius, "r__detail_radius", &ps_r__detail_radius, 49, 200);
 	CMD4(CCC_Integer, "r__clear_models_on_unload", &ps_clear_models_on_unload, 0, 1); //Alundaio
 	CMD4(CCC_Integer, "r__use_precompiled_shaders", &ps_use_precompiled_shaders, 0, 1); //Alundaio
 #endif

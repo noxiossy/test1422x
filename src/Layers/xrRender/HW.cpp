@@ -1,4 +1,4 @@
-// HW.cpp: implementation of the CHW class.
+﻿// HW.cpp: implementation of the CHW class.
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -327,16 +327,7 @@ void		CHW::CreateDevice		(HWND m_hWnd, bool move_window)
         fDepth  = selectDepthStencil(fTarget);
     }
 
-    if ((D3DFMT_UNKNOWN==fTarget) || (D3DFMT_UNKNOWN==fTarget))	{
-        Msg					("Failed to initialize graphics hardware.\n"
-                             "Please try to restart the game.\n"
-                             "Can not find matching format for back buffer."
-                             );
-        FlushLog			();
-        MessageBox			(NULL,"Failed to initialize graphics hardware.\nPlease try to restart the game.","Error!",MB_OK|MB_ICONERROR);
-        TerminateProcess	(GetCurrentProcess(),0);
-    }
-
+	CHECK_OR_EXIT(D3DFMT_UNKNOWN != fTarget && D3DFMT_UNKNOWN != fDepth, "Failed to initialize graphics hardware.\nPlease try to restart the game.\nCan not find matching format for back buffer.");
 
     // Set up the presentation parameters
     D3DPRESENT_PARAMETERS&	P	= DevPP;

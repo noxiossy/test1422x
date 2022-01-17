@@ -1,4 +1,4 @@
-#ifndef _STL_EXT_internal
+﻿#ifndef _STL_EXT_internal
 #define _STL_EXT_internal
 
 using std::swap;

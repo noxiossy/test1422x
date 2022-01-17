@@ -1,4 +1,4 @@
-/* lzo1x_d3.c -- LZO1X decompression with preset dictionary
+﻿/* lzo1x_d3.c -- LZO1X decompression with preset dictionary
 
    This file is part of the LZO real-time data compression library.
 

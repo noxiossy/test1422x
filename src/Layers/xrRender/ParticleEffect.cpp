@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #pragma hdrstop
 
 #include "ParticleEffect.h"
@@ -543,7 +543,7 @@ void CParticleEffect::Render(float )
 
 			u32 nWorkers = ttapi_GetWorkersCount();
 
-			if ( p_cnt < nWorkers * 20 )
+			if (p_cnt < (nWorkers * 64))
 				nWorkers = 1;
 
 			PRS_PARAMS* prsParams = (PRS_PARAMS*) _alloca( sizeof(PRS_PARAMS) * nWorkers );
@@ -578,9 +578,9 @@ void CParticleEffect::Render(float )
 				Fmatrix FTold						= Device.mFullTransform;
 				if(GetHudMode())
 				{
-					RDEVICE.mProject.build_projection(	deg2rad(psHUD_FOV*Device.fFOV), 
+					RDEVICE.mProject.build_projection(	deg2rad(psHUD_FOV < 1.f ? psHUD_FOV*Device.fFOV : psHUD_FOV), 
 														Device.fASPECT, 
-														VIEWPORT_NEAR, 
+														HUD_VIEWPORT_NEAR, 
 														g_pGamePersistent->Environment().CurrentEnv->far_plane);
 
 					Device.mFullTransform.mul	(Device.mProject, Device.mView);

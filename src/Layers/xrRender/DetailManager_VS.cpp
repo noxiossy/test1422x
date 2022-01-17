@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #pragma hdrstop
 
 #include "detailmanager.h"
@@ -267,6 +267,9 @@ void	CDetailManager::hw_Render_dump		(ref_constant x_array, u32 var_id, u32 lod_
 				SlotItemVecIt _iI			= items->begin();
 				SlotItemVecIt _iE			= items->end();
 				for (; _iI!=_iE; _iI++){
+
+					if (*_iI == nullptr) continue;
+
 					SlotItem&	Instance	= **_iI;
 					u32			base		= dwBatch*4;
 

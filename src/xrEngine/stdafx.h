@@ -1,4 +1,4 @@
-#ifndef STDAFX_3DA
+﻿#ifndef STDAFX_3DA
 #define STDAFX_3DA
 #pragma once
 

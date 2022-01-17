@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------------
+ï»¿//-----------------------------------------------------------------------------
 // File: x_ray.cpp
 //
 // Programmers:
@@ -70,10 +70,10 @@ static int start_year = 1999; // 1999
 #define DEFAULT_MODULE_HASH "3CAABCFCFF6F3A810019C6A72180F166"
 static char szEngineHash[33] = DEFAULT_MODULE_HASH;
 
-char* ComputeModuleHash(char* pszHash)
+PROTECT_API char* ComputeModuleHash(char* pszHash)
 {
     //SECUROM_MARKER_HIGH_SECURITY_ON(3)
-	/*
+
     char szModuleFileName[MAX_PATH];
     HANDLE hModuleHandle = NULL, hFileMapping = NULL;
     LPVOID lpvMapping = NULL;
@@ -122,7 +122,7 @@ char* ComputeModuleHash(char* pszHash)
     CloseHandle(hModuleHandle);
 
     //SECUROM_MARKER_HIGH_SECURITY_OFF(3)
-	*/
+
     return pszHash;
 }
 #endif // DEDICATED_SERVER
@@ -210,7 +210,7 @@ struct path_excluder_predicate
     xr_auth_strings_t const* m_ignore;
 };
 
-void InitSettings()
+PROTECT_API void InitSettings()
 {
 #ifndef DEDICATED_SERVER
     Msg("EH: %s\n", ComputeModuleHash(szEngineHash));
@@ -244,7 +244,7 @@ void InitSettings()
     pGameIni = xr_new<CInifile>(fname, TRUE);
     CHECK_OR_EXIT(0 != pGameIni->section_count(), make_string("Cannot find file %s.\nReinstalling application may fix this problem.", fname));
 }
-void InitConsole()
+PROTECT_API void InitConsole()
 {
     ////SECUROM_MARKER_SECURITY_ON(5)
 
@@ -271,7 +271,7 @@ void InitConsole()
     ////SECUROM_MARKER_SECURITY_OFF(5)
 }
 
-void InitInput()
+PROTECT_API void InitInput()
 {
     BOOL bCaptureInput = !strstr(Core.Params, "-i");
 
@@ -282,12 +282,12 @@ void destroyInput()
     xr_delete(pInput);
 }
 
-void InitSound1()
+PROTECT_API void InitSound1()
 {
     CSound_manager_interface::_create(0);
 }
 
-void InitSound2()
+PROTECT_API void InitSound2()
 {
     CSound_manager_interface::_create(1);
 }
@@ -605,7 +605,7 @@ struct damn_keys_filter
 #undef dwFilterKeysStructSize
 #undef dwToggleKeysStructSize
 
-// Ôóíöèÿ äëÿ òóïûõ òðåáîâàíèé THQ è òóïûõ àìåðèêàíñêèõ ïîëüçîâàòåëåé
+// Ð¤ÑƒÐ½Ñ†Ð¸Ñ Ð´Ð»Ñ Ñ‚ÑƒÐ¿Ñ‹Ñ… Ñ‚Ñ€ÐµÐ±Ð¾Ð²Ð°Ð½Ð¸Ð¹ THQ Ð¸ Ñ‚ÑƒÐ¿Ñ‹Ñ… Ð°Ð¼ÐµÑ€Ð¸ÐºÐ°Ð½ÑÐºÐ¸Ñ… Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹
 BOOL IsOutOfVirtualMemory()
 {
 #define VIRT_ERROR_SIZE 256
@@ -629,7 +629,7 @@ BOOL IsOutOfVirtualMemory()
     dwPageFileInMB = (DWORD)(statex.ullTotalPageFile / (1024 * 1024));
     dwPhysMemInMB = (DWORD)(statex.ullTotalPhys / (1024 * 1024));
 
-    // Äîâîëüíî îòôîíàðíîå óñëîâèå
+    // Ð”Ð¾Ð²Ð¾Ð»ÑŒÐ½Ð¾ Ð¾Ñ‚Ñ„Ð¾Ð½Ð°Ñ€Ð½Ð¾Ðµ ÑƒÑÐ»Ð¾Ð²Ð¸Ðµ
     if ((dwPhysMemInMB > 500) && ((dwPageFileInMB + dwPhysMemInMB) > 2500))
         return 0;
 
@@ -1208,7 +1208,8 @@ void CApplication::LoadBegin()
 
         m_pRender->LoadBegin();
 #endif
-        phase_timer.Start();
+		if (Core.ParamFlags.test(Core.verboselog))
+			phase_timer.Start();
         load_stage = 0;
 
     }
@@ -1219,9 +1220,12 @@ void CApplication::LoadEnd()
     ll_dwReference--;
     if (0 == ll_dwReference)
     {
-        Msg("* phase time: %d ms", phase_timer.GetElapsed_ms());
-        Msg("* phase cmem: %d K", Memory.mem_usage() / 1024);
-        Console->Execute("stat_memory");
+		if (Core.ParamFlags.test(Core.verboselog))
+		{
+			Msg("* phase time: %d ms", phase_timer.GetElapsed_ms());
+			Msg("* phase cmem: %d K", Memory.mem_usage() / 1024);
+			Console->Execute("stat_memory");
+		}
         g_appLoaded = TRUE;
         // DUMP_PHASE;
     }
@@ -1242,7 +1246,7 @@ void CApplication::destroy_loading_shaders()
 
 //u32 calc_progress_color(u32, u32, int, int);
 
-void CApplication::LoadDraw()
+PROTECT_API void CApplication::LoadDraw()
 {
     if (g_appLoaded) return;
     Device.dwFrame += 1;
@@ -1269,9 +1273,12 @@ void CApplication::LoadStage()
 {
     load_stage++;
     VERIFY(ll_dwReference);
-    Msg("* phase time: %d ms", phase_timer.GetElapsed_ms());
-    phase_timer.Start();
-    Msg("* phase cmem: %d K", Memory.mem_usage() / 1024);
+	if (Core.ParamFlags.test(Core.verboselog))
+	{
+		Msg("* phase time: %d ms", phase_timer.GetElapsed_ms());
+		phase_timer.Start();
+		Msg("* phase cmem: %d K", Memory.mem_usage() / 1024);
+	}
 
     if (g_pGamePersistent->GameType() == 1 && strstr(Core.Params, "alife"))
         max_load_stage = 17;

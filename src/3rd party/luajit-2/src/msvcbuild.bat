@@ -14,7 +14,7 @@
 @if not defined INCLUDE goto :FAIL
 
 @setlocal
-@set LJCOMPILE=cl /nologo /c /O2 /W3 /D_CRT_SECURE_NO_DEPRECATE
+@set LJCOMPILE=cl /nologo /c /O2 /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_STDIO_INLINE=__declspec(dllexport)__inline
 @set LJLINK=link /nologo
 @set LJMT=mt /nologo
 @set LJLIB=lib /nologo /nodefaultlib
@@ -78,9 +78,9 @@ buildvm -m folddef -o lj_folddef.h lj_opt_fold.c
 :NODEBUG
 @if "%1"=="amalg" goto :AMALGDLL
 @if "%1"=="static" goto :STATIC
-%LJCOMPILE% /MD /DLUA_BUILD_AS_DLL lj_*.c lib_*.c
+%LJCOMPILE% /MD /DLUA_BUILD_AS_DLL lj_*.c lib_*.c xr_*.c
 @if errorlevel 1 goto :BAD
-%LJLINK% /DLL /out:%LJDLLNAME% lj_*.obj lib_*.obj
+%LJLINK% /DLL /out:%LJDLLNAME% lj_*.obj lib_*.obj xr_*.obj
 @if errorlevel 1 goto :BAD
 @goto :MTDLL
 :STATIC

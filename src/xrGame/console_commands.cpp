@@ -1,4 +1,4 @@
-#include "pch_script.h"
+﻿#include "pch_script.h"
 #include "../xrEngine/xr_ioconsole.h"
 #include "../xrEngine/xr_ioc_cmd.h"
 #include "../xrEngine/customhud.h"
@@ -72,7 +72,7 @@ extern	u64		g_qwStartGameTime;
 extern	u64		g_qwEStartGameTime;
 
 ENGINE_API
-extern	float	psHUD_FOV;
+extern	float	psHUD_FOV_def;
 extern	float	psSqueezeVelocity;
 extern	int		psLUA_GCSTEP;
 
@@ -415,17 +415,14 @@ class CCC_DemoRecord : public IConsole_Command
 public:
 
 	CCC_DemoRecord(LPCSTR N) : IConsole_Command(N) {};
-	virtual void Execute(LPCSTR args)
-	{
-#ifndef	DEBUG
-		//if (GameID() != eGameIDSingle)
-		//{
-		//	Msg("For this game type Demo Record is disabled.");
-		//	return;
-		//};
-#endif
-		Console->Hide();
-
+	virtual void Execute(LPCSTR args) {
+		if (!g_pGameLevel) // level not loaded
+		{
+			Msg("Demo Record is disabled when level is not loaded.");
+			return;
+		}
+		Console->Hide	();
+		if (MainMenu()->IsActive()) MainMenu()->Activate(false); // close main menu if it is open
 		LPSTR			fn_;
 		STRCONCAT(fn_, args, ".xrdemo");
 		string_path		fn;
@@ -1928,8 +1925,8 @@ void CCC_RegisterCommands()
 	CMD3(CCC_Mask, "hud_crosshair_dist", &psHUD_Flags, HUD_CROSSHAIR_DIST);
 
 	//#ifdef DEBUG
-	CMD4(CCC_Float, "hud_fov", &psHUD_FOV, 0.1f, 1.0f);
-	CMD4(CCC_Float, "fov", &g_fov, 5.0f, 180.0f);
+	CMD4(CCC_Float, "hud_fov", &psHUD_FOV_def, 0.1f, 0.8f);
+	CMD4(CCC_Float, "fov", &g_fov, 30.0f, 120.0f);
 	//#endif // DEBUG
 
 	// Demo
@@ -2063,17 +2060,10 @@ void CCC_RegisterCommands()
 	CMD4(CCC_Integer, "ph_tri_clear_disable_count", &ph_console::ph_tri_clear_disable_count, 0, 255);
 	CMD4(CCC_FloatBlock, "ph_tri_query_ex_aabb_rate", &ph_console::ph_tri_query_ex_aabb_rate, 1.01f, 3.f);
 	CMD3(CCC_Mask, "g_no_clip", &psActorFlags, AF_NO_CLIP);
-	CMD1(CCC_JumpToLevel, "jump_to_level");
-	CMD3(CCC_Mask, "g_god", &psActorFlags, AF_GODMODE);
-	CMD3(CCC_Mask, "g_unlimitedammo", &psActorFlags, AF_UNLIMITEDAMMO);
-	CMD1(CCC_Script, "run_script");
-	CMD1(CCC_ScriptCommand, "run_string");
-	CMD1(CCC_TimeFactor, "time_factor");
 #endif // DEBUG
 
 	/* AVO: changing restriction to -dbg key instead of DEBUG */
 	//#ifndef MASTER_GOLD
-#ifdef MASTER_GOLD
 	if (0 != strstr(Core.Params, "-dbg"))
 	{
 		CMD1(CCC_JumpToLevel, "jump_to_level");
@@ -2085,7 +2075,6 @@ void CCC_RegisterCommands()
 		//CMD3(CCC_Mask, "g_no_clip", &psActorFlags, AF_NO_CLIP);
 		CMD1(CCC_PHGravity, "ph_gravity");
 	}
-#endif // MASTER_GOLD
 	//#endif // MASTER_GOLD
 	/* AVO: end */
 

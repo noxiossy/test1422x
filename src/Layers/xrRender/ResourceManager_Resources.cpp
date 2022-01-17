@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 
 #pragma warning(disable:4995)
@@ -183,7 +183,8 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 		if (strstr(data, "main_vs_1_1"))	{ c_target = "vs_1_1"; c_entry = "main_vs_1_1";	}
 		if (strstr(data, "main_vs_2_0"))	{ c_target = "vs_2_0"; c_entry = "main_vs_2_0";	}
 
-		Msg						( "compiling shader %s", name );
+		if (Core.ParamFlags.test(Core.verboselog))
+			Msg						( "compiling shader %s", name );
 		HRESULT const _hr		= ::Render->shader_compile( name, (DWORD const*)data, size, c_entry, c_target, D3DXSHADER_DEBUG | D3DXSHADER_PACKMATRIX_ROWMAJOR, (void*&)_vs);
 
 		if ( FAILED(_hr) ) {
@@ -192,7 +193,7 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 
 		CHECK_OR_EXIT			(
 			!FAILED(_hr),
-			make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
+			make_string("Shader compilation failed, check your log file for additional information.")
 		);
 
 		return					_vs;
@@ -253,7 +254,8 @@ SPS*	CResourceManager::_CreatePS			(LPCSTR name)
 		if (strstr(data,"main_ps_1_4"))			{ c_target = "ps_1_4"; c_entry = "main_ps_1_4";	}
 		if (strstr(data,"main_ps_2_0"))			{ c_target = "ps_2_0"; c_entry = "main_ps_2_0";	}
 
-		Msg						( "compiling shader %s", name );
+		if (Core.ParamFlags.test(Core.verboselog))
+			Msg						( "compiling shader %s", name );
 		HRESULT const _hr		= ::Render->shader_compile( name, (DWORD const*)data, size, c_entry, c_target, D3DXSHADER_DEBUG | D3DXSHADER_PACKMATRIX_ROWMAJOR, (void*&)_ps);
 
 		if ( FAILED(_hr) ) {
@@ -262,7 +264,7 @@ SPS*	CResourceManager::_CreatePS			(LPCSTR name)
 
 		CHECK_OR_EXIT		(
 			!FAILED(_hr),
-			make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
+			make_string("Shader compilation failed, check your log file for additional information.")
 		);
 
 		return					_ps;
@@ -754,7 +756,7 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 
 		CHECK_OR_EXIT		(
 			!FAILED(_hr),
-			make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
+			make_string("Shader compilation failed, check your log file for additional information.")
 		);
 
 		return		_vs;
@@ -859,7 +861,7 @@ SPS*	CResourceManager::_CreatePS			(LPCSTR name)
 
 		CHECK_OR_EXIT		(
 			!FAILED(_hr),
-			make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
+			make_string("Shader compilation failed, check your log file for additional information.")
 		);
 
 		return			_ps;

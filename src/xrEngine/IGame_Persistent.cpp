@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #pragma hdrstop
 
 #include "IGame_Persistent.h"
@@ -129,6 +129,10 @@ void IGame_Persistent::Disconnect()
     if (g_hud)
         DEL_INSTANCE(g_hud);
     //. g_hud->OnDisconnected ();
+	
+	// Kill object - save memory
+	ObjectPool.clear();
+	Render->models_Clear(TRUE); 
 #endif
 }
 

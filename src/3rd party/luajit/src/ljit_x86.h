@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** This file has been pre-processed with DynASM.
 ** http://luajit.org/dynasm.html
 ** DynASM version 1.1.4, DynASM x86 version 1.1.4

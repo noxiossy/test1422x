@@ -1,4 +1,4 @@
-// dx10HW.cpp: implementation of the DX10 specialisation of CHW.
+﻿// dx10HW.cpp: implementation of the DX10 specialisation of CHW.
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"

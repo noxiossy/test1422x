@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef	dSINGLE
  #define dSINGLE
 #endif

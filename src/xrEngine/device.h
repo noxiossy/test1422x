@@ -1,4 +1,4 @@
-#ifndef xr_device
+п»ї#ifndef xr_device
 #define xr_device
 #pragma once
 
@@ -17,6 +17,7 @@
 //#include "R_Backend.h"
 
 #define VIEWPORT_NEAR 0.2f
+#define HUD_VIEWPORT_NEAR 0.05f
 
 #define DEVICE_RESET_PRECACHE_FRAME_COUNT 10
 
@@ -85,7 +86,7 @@ protected:
     CTimer_paused TimerGlobal;
 
     //AVO: 
-    CTimer frame_timer;   //TODO: проверить, не дублируется-ли схожий таймер (alpet)
+    CTimer frame_timer;   //TODO: РїСЂРѕРІРµСЂРёС‚СЊ, РЅРµ РґСѓР±Р»РёСЂСѓРµС‚СЃСЏ-Р»Рё СЃС…РѕР¶РёР№ С‚Р°Р№РјРµСЂ (alpet)
     //-AVO
 
 public:

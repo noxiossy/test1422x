@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "uizonemap.h"
 
 #include "InfoPortion.h"

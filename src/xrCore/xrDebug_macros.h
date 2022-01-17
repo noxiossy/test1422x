@@ -1,4 +1,4 @@
-#ifndef xrDebug_macrosH
+﻿#ifndef xrDebug_macrosH
 #define xrDebug_macrosH
 #pragma once
 

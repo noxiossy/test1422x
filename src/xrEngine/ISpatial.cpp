@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ispatial.h"
 #include "render.h"
 #include "xr_object.h"

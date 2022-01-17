@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "r4.h"
 #include "../xrRender/fbasicvisual.h"
 #include "../../xrEngine/xr_object.h"
@@ -34,6 +34,13 @@ public:
 	virtual void					set_color			(const Fcolor& C)			{ }
 	virtual void					set_color			(float r, float g, float b)	{ }
 };
+
+bool CRender::is_sun()
+{
+	if (o.sunstatic) return FALSE;
+	Fcolor sun_color = ((light*)Lights.sun_adapted._get())->color;
+	return (ps_r2_ls_flags.test(R2FLAG_SUN) && (u_diffuse2s(sun_color.r, sun_color.g, sun_color.b)>EPS));
+}
 
 float		r_dtex_range		= 50.f;
 //////////////////////////////////////////////////////////////////////////
@@ -261,12 +268,13 @@ void					CRender::create					()
 	o.nvdbt				= false;
 	if (o.nvdbt)		Msg	("* NV-DBT supported and used");
 
+    o.no_ram_textures = (strstr(Core.Params, "-noramtex")) ? TRUE : ps_r__common_flags.test(RFLAG_NO_RAM_TEXTURES);
+    if (o.no_ram_textures)
+        Msg("* Managed textures disabled");
+
 	// options (smap-pool-size)
-	if (strstr(Core.Params,"-smap1536"))	o.smapsize	= 1536;
-	if (strstr(Core.Params,"-smap2048"))	o.smapsize	= 2048;
-	if (strstr(Core.Params,"-smap2560"))	o.smapsize	= 2560;
-	if (strstr(Core.Params,"-smap3072"))	o.smapsize	= 3072;
-	if (strstr(Core.Params,"-smap4096"))	o.smapsize	= 4096;
+	o.smapsize			= r2_SmapSize;
+	Msg					("* Shadow map resolution: [%d]x[%d]", o.smapsize, o.smapsize);
 
 	// gloss
 	char*	g			= strstr(Core.Params,"-gloss ");
@@ -530,6 +538,7 @@ void CRender::OnFrame()
 	Models->DeleteQueue			();
 	if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))	{
 		// MT-details (@front)
+		if (Details)
 		Device.seqParallel.insert	(Device.seqParallel.begin(),
 			fastdelegate::FastDelegate0<>(Details,&CDetailManager::MT_CALC));
 
@@ -1499,7 +1508,7 @@ HRESULT	CRender::shader_compile			(
 	FS.file_list	( m_file_set, folder_name, FS_ListFiles | FS_RootOnly, "*");
 
 	string_path temp_file_name, file_name;
-	if (ps_use_precompiled_shaders == 0 || !match_shader_id(name, sh_name, m_file_set, temp_file_name)) {
+	if (!match_shader_id(name, sh_name, m_file_set, temp_file_name)) {
 		string_path file;
 		xr_strcpy		( file, "shaders_cache\\r4\\" );
 		xr_strcat		( file, name );
@@ -1514,7 +1523,7 @@ HRESULT	CRender::shader_compile			(
 		xr_strcat		( file_name, temp_file_name );
 	}
 
-	if (FS.exist(file_name))
+	if (ps_use_precompiled_shaders && FS.exist(file_name))
 	{
 		IReader* file = FS.r_open(file_name);
 		if (file->length()>4)
@@ -1552,6 +1561,8 @@ HRESULT	CRender::shader_compile			(
 
 		if (SUCCEEDED(_result))
 		{
+			if (ps_use_precompiled_shaders)
+			{
 			IWriter* file = FS.w_open(file_name);
 
 			boost::crc_32_type		processor;
@@ -1561,14 +1572,13 @@ HRESULT	CRender::shader_compile			(
 			file->w_u32				(crc);
 			file->w					(pShaderBuf->GetBufferPointer(), (u32)pShaderBuf->GetBufferSize());
 			FS.w_close				(file);
-
+			}
 			_result					= create_shader(pTarget, (DWORD*)pShaderBuf->GetBufferPointer(), (u32)pShaderBuf->GetBufferSize(), file_name, result, o.disasm);
 		}
 		else {
-//			Msg						( "! shader compilation failed" );
-			Log						("! ", file_name);
+			Msg						("! %s", file_name);
 			if ( pErrorBuf )
-				Log					("! error: ",(LPCSTR)pErrorBuf->GetBufferPointer());
+				Msg					("! error: %s", pErrorBuf->GetBufferPointer());
 			else
 				Msg					("Can't compile shader hr=0x%08x", _result);
 		}

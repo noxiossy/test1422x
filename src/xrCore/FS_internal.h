@@ -1,4 +1,4 @@
-#ifndef FS_internalH
+﻿#ifndef FS_internalH
 #define FS_internalH
 #pragma once
 

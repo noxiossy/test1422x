@@ -1,4 +1,4 @@
-// FVisual.cpp: implementation of the FVisual class.
+﻿// FVisual.cpp: implementation of the FVisual class.
 //
 //////////////////////////////////////////////////////////////////////
 

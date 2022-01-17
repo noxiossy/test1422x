@@ -1,4 +1,4 @@
-// WallmarksEngine.cpp: implementation of the CWallmarksEngine class.
+﻿// WallmarksEngine.cpp: implementation of the CWallmarksEngine class.
 //
 //////////////////////////////////////////////////////////////////////
 

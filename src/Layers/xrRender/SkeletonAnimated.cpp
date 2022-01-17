@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+п»ї//---------------------------------------------------------------------------
 #include 	"stdafx.h"
 #pragma hdrstop
 
@@ -223,7 +223,7 @@ void	CKinematicsAnimated::LL_FadeCycle(u16 part, float falloff, u8 mask_channel 
 		B.set_falloff_state();
 		B.blendFalloff		= falloff;
 		//B.blendAccrue		= B.timeCurrent;
-		if (B.stop_at_end)  B.stop_at_end_callback = FALSE;		// callback не должен приходить!
+		if (B.stop_at_end)  B.stop_at_end_callback = FALSE;		// callback РЅРµ РґРѕР»Р¶РµРЅ РїСЂРёС…РѕРґРёС‚СЊ!
 	}
 }
 void	CKinematicsAnimated::LL_CloseCycle(u16 part, u8 mask_channel /*= (1<<0)*/)
@@ -409,7 +409,9 @@ MotionID CKinematicsAnimated::ID_FX			(LPCSTR  N)
 }
 CBlend*	CKinematicsAnimated::PlayFX			(MotionID motion_ID, float power_scale)
 {
-	VERIFY					(motion_ID.valid()); 
+	if (!motion_ID.valid())
+		return nullptr;
+
     CMotionDef* m_def		= m_Motions[motion_ID.slot].motions.motion_def(motion_ID.idx);
     VERIFY					(m_def);
 	return LL_PlayFX		(m_def->bone_or_part,motion_ID,

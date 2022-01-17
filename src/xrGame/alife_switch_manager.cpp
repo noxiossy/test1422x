@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////
 //	Module 		: alife_switch_manager.cpp
 //	Created 	: 25.12.2002
 //  Modified 	: 12.05.2004
@@ -61,9 +61,16 @@ void CALifeSwitchManager::add_online(CSE_ALifeDynamicObject *object, bool update
 	clientID.set					(server().GetServerClient() ? server().GetServerClient()->ID.value() : 0);
 	server().Process_spawn			(tNetPacket,clientID,FALSE,l_tpAbstract);
 	object->s_flags.and				(u16(-1) ^ M_SPAWN_UPDATE);
+	if ( object->used_ai_locations() && !ai().level_graph().valid_vertex_id( object->m_tNodeID ) ) {
+		Msg( "! Trying to correct invalid vertex %u for object %s", object->m_tNodeID, object->name_replace() );
+		object->m_tNodeID = ai().level_graph().vertex( object->m_tNodeID, object->o_Position );
+		Msg( "  new vertex: %u", object->m_tNodeID );
+        }
+	R_ASSERT3						(!object->used_ai_locations() || ai().level_graph().valid_vertex_id(object->m_tNodeID),"Invalid vertex for object ",object->name_replace());
+
 
 	//Alundaio: Knowing last object to spawn can be very useful to debugging
-	if (strstr(Core.Params, "-dbg"))
+	if (Core.ParamFlags.test(Core.verboselog))
 		Msg("[LSS] Spawning object [%s][%s][%d]", object->name_replace(), *object->s_name, object->ID);
 
 	//Alundaio: Workaround for crash with corpses that end up outside AI map

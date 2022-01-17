@@ -1,4 +1,4 @@
-// LocatorAPI.cpp: implementation of the CLocatorAPI class.
+п»ї// LocatorAPI.cpp: implementation of the CLocatorAPI class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -917,7 +917,7 @@ xr_vector<char*>* CLocatorAPI::file_list_open(const char* _path, u32 flags)
 {
     R_ASSERT(_path);
     VERIFY(flags);
-    // проверить нужно ли пересканировать пути
+    // РїСЂРѕРІРµСЂРёС‚СЊ РЅСѓР¶РЅРѕ Р»Рё РїРµСЂРµСЃРєР°РЅРёСЂРѕРІР°С‚СЊ РїСѓС‚Рё
     check_pathes();
 
     string_path N;
@@ -979,7 +979,7 @@ int CLocatorAPI::file_list(FS_FileSet& dest, LPCSTR path, u32 flags, LPCSTR mask
 {
     R_ASSERT(path);
     VERIFY(flags);
-    // проверить нужно ли пересканировать пути
+    // РїСЂРѕРІРµСЂРёС‚СЊ РЅСѓР¶РЅРѕ Р»Рё РїРµСЂРµСЃРєР°РЅРёСЂРѕРІР°С‚СЊ РїСѓС‚Рё
     check_pathes();
 
     string_path N;
@@ -1298,7 +1298,7 @@ void CLocatorAPI::copy_file_to_build(T*& r, LPCSTR source_name)
 
 bool CLocatorAPI::check_for_file(LPCSTR path, LPCSTR _fname, string_path& fname, const file*& desc)
 {
-    // проверить нужно ли пересканировать пути
+    // РїСЂРѕРІРµСЂРёС‚СЊ РЅСѓР¶РЅРѕ Р»Рё РїРµСЂРµСЃРєР°РЅРёСЂРѕРІР°С‚СЊ РїСѓС‚Рё
     check_pathes();
 
     // correct path
@@ -1421,7 +1421,7 @@ void CLocatorAPI::w_close(IWriter*& S)
 
 CLocatorAPI::files_it CLocatorAPI::file_find_it(LPCSTR fname)
 {
-    // проверить нужно ли пересканировать пути
+    // РїСЂРѕРІРµСЂРёС‚СЊ РЅСѓР¶РЅРѕ Р»Рё РїРµСЂРµСЃРєР°РЅРёСЂРѕРІР°С‚СЊ РїСѓС‚Рё
     check_pathes();
 
     file desc_f;
@@ -1590,7 +1590,7 @@ return get_path(initial)->_update(dest,src);
 
 u32 CLocatorAPI::get_file_age(LPCSTR nm)
 {
-    // проверить нужно ли пересканировать пути
+    // РїСЂРѕРІРµСЂРёС‚СЊ РЅСѓР¶РЅРѕ Р»Рё РїРµСЂРµСЃРєР°РЅРёСЂРѕРІР°С‚СЊ РїСѓС‚Рё
     check_pathes();
 
     files_it I = file_find_it(nm);
@@ -1599,7 +1599,7 @@ u32 CLocatorAPI::get_file_age(LPCSTR nm)
 
 void CLocatorAPI::set_file_age(LPCSTR nm, u32 age)
 {
-    // проверить нужно ли пересканировать пути
+    // РїСЂРѕРІРµСЂРёС‚СЊ РЅСѓР¶РЅРѕ Р»Рё РїРµСЂРµСЃРєР°РЅРёСЂРѕРІР°С‚СЊ РїСѓС‚Рё
     check_pathes();
 
     // set file

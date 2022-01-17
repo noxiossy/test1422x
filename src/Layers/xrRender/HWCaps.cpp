@@ -1,10 +1,10 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 #include "hwcaps.h"
 #include "hw.h"
 
 #ifndef _EDITOR
-	//#include "NVAPI/nvapi.h"
+	#include <nvapi.h>
 	#include "ATI/atimgpud.h"
 #endif
 
@@ -14,19 +14,19 @@ namespace
 #ifndef _EDITOR
 u32 GetNVGpuNum()
 {
-	//NvLogicalGpuHandle  logicalGPUs[NVAPI_MAX_LOGICAL_GPUS];
-	//NvU32               logicalGPUCount;
-	//NvPhysicalGpuHandle physicalGPUs[NVAPI_MAX_PHYSICAL_GPUS];
-	//NvU32               physicalGPUCount;
+	NvLogicalGpuHandle  logicalGPUs[NVAPI_MAX_LOGICAL_GPUS];
+	NvU32               logicalGPUCount;
+	NvPhysicalGpuHandle physicalGPUs[NVAPI_MAX_PHYSICAL_GPUS];
+	NvU32               physicalGPUCount;
 
 //	int result = NVAPI_OK;
 
-	int iGpuNum = 1;
+	int iGpuNum = 0;
 
-	//NvAPI_Status	status;
-	//status = NvAPI_Initialize();
+	NvAPI_Status	status;
+	status = NvAPI_Initialize();
 
-	/*if (status != NVAPI_OK)
+	if (status != NVAPI_OK)
 	{
 		Msg("* NVAPI is missing.");
 		return iGpuNum;
@@ -64,7 +64,7 @@ u32 GetNVGpuNum()
 	{
 		Msg	("* NVidia MGPU: %d-Way SLI detected.", iGpuNum);
 	}
-*/
+
 	return iGpuNum;
 }
 

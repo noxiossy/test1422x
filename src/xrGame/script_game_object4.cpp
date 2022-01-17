@@ -1,5 +1,5 @@
-////////////////////////////////////////////////////////////////////////////
-// script_game_object_trader.сpp :	функции для торговли и торговцев
+п»ї////////////////////////////////////////////////////////////////////////////
+// script_game_object_trader.СЃpp :	С„СѓРЅРєС†РёРё РґР»СЏ С‚РѕСЂРіРѕРІР»Рё Рё С‚РѕСЂРіРѕРІС†РµРІ
 //////////////////////////////////////////////////////////////////////////
 
 #include "pch_script.h"
@@ -18,39 +18,11 @@
 #include "sight_manager_space.h"
 #include "sight_control_action.h"
 #include "sight_manager.h"
+#include "inventoryBox.h"
+#include "ZoneCampfire.h"
 #include "physicobject.h"
 #include "artefact.h"
 #include "stalker_sound_data.h"
-// CHARLIE_CHECK
-#include "Actor.h"
-#include "Car.h"
-#include "helicopter.h"
-#include "InventoryOwner.h"
-#include "inventoryBox.h"
-#include "CustomZone.h"
-#include "TorridZone.h"
-#include "MosquitoBald.h"
-#include "ZoneCampfire.h"
-#include "CustomOutfit.h"
-#include "ActorHelmet.h"
-#include "Artefact.h"
-#include "Weapon.h"
-#include "WeaponAmmo.h"
-#include "WeaponMagazined.h"
-#include "WeaponMagazinedWGrenade.h"
-#include "ai\monsters\basemonster\base_monster.h"
-#include "scope.h"
-#include "silencer.h"
-#include "torch.h"
-#include "GrenadeLauncher.h"
-#include "searchlight.h"
-//#include "grenade.h"
-#include "eatable_item.h"
-#include "FoodItem.h"
-#include "medkit.h"
-#include "antirad.h"
-#include "BottleItem.h"
-// CHARLIE_CHECK
 
 class CWeapon;
 

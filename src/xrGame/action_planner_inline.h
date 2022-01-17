@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////
 //	Module 		: action_planner_inline.h
 //	Created 	: 28.01.2004
 //  Modified 	: 10.03.2004
@@ -82,7 +82,7 @@ void CPlanner::update()
 	}
 #endif
 	//Alundaio: debug action
-	bool bDbgAct = strstr(Core.Params, "-dbgact") != NULL;
+	bool bDbgAct = Core.ParamFlags.test(Core.verboselog) == 1;
 
 #ifdef LOG_ACTION
 	if (m_failed)

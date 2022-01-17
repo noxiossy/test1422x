@@ -1,4 +1,4 @@
-#ifndef _INCDEF_NETUTILS_H_
+﻿#ifndef _INCDEF_NETUTILS_H_
 #define _INCDEF_NETUTILS_H_
 #pragma once
 

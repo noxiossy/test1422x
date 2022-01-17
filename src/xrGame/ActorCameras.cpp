@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Actor.h"
 #include "../xrEngine/CameraBase.h"
 #ifdef DEBUG
@@ -19,6 +19,9 @@
 //#include "elevatorstate.h"
 #include "CharacterPhysicsSupport.h"
 #include "EffectorShot.h"
+
+ENGINE_API extern float psHUD_FOV; //--#SM+#--
+ENGINE_API extern float psHUD_FOV_def; //--#SM+#--
 
 #include "PHMovementControl.h"
 #include "../xrphysics/ielevatorstate.h"
@@ -254,7 +257,8 @@ void	CActor::cam_Lookout	( const Fmatrix &xform, float camera_height )
 					da			= PI/1000.f;
 					if (!fis_zero(r_torso.roll))
 						da		*= r_torso.roll/_abs(r_torso.roll);
-					for (float angle=0.f; _abs(angle)<_abs(alpha); angle+=da)
+					float angle = 0.f;
+					for (; _abs(angle)<_abs(alpha); angle+=da)
 					{
 						Fvector				pt;
 						calc_gl_point( pt, xform, radius, angle );

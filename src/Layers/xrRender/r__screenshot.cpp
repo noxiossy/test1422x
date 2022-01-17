@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 //#include "../../xrEngine/xr_effgamma.h"
 #include "xr_effgamma.h"
 #include "dxRenderDeviceRender.h"
@@ -233,29 +233,23 @@ void CRender::ScreenshotImpl	(ScreenshotMode mode, LPCSTR name, CMemoryWriter* m
 void CRender::ScreenshotImpl	(ScreenshotMode mode, LPCSTR name, CMemoryWriter* memory_writer)
 {
 	if (!Device.b_is_Ready)			return;
-	if ((psDeviceFlags.test(rsFullscreen)) == 0) {
-		if(name && FS.exist(name))
-			FS.file_delete(0,name);
-
-		Log("~ Can't capture screen while in windowed mode...");
-		return;
-	}
 
 	// Create temp-surface
 	IDirect3DSurface9*	pFB;
 	D3DLOCKED_RECT		D;
 	HRESULT				hr;
-	hr					= HW.pDevice->CreateOffscreenPlainSurface(Device.dwWidth,Device.dwHeight,D3DFMT_A8R8G8B8,D3DPOOL_SYSTEMMEM,&pFB,NULL);
-	if(hr!=D3D_OK)		return;
+	hr = HW.pDevice->CreateOffscreenPlainSurface(Device.dwWidth, Device.dwHeight, HW.DevPP.BackBufferFormat,
+		D3DPOOL_SYSTEMMEM, &pFB, NULL);
+	if (FAILED(hr))
+		return;
+	hr = HW.pDevice->GetRenderTargetData(HW.pBaseRT, pFB);
+	if (FAILED(hr))
+		goto _end_;
+	hr = pFB->LockRect(&D, 0, D3DLOCK_NOSYSLOCK);
+	if (FAILED(hr))
+		goto _end_;
 
-	hr					= HW.pDevice->GetFrontBufferData(0,pFB);
-	if(hr!=D3D_OK)		return;
-
-	
-	hr					= pFB->LockRect(&D,0,D3DLOCK_NOSYSLOCK);
-	if(hr!=D3D_OK)		return;
-
-	// Image processing (gamma-correct)
+	{// Image processing (gamma-correct)
 	u32* pPixel		= (u32*)D.pBits;
 	u32* pEnd		= pPixel+(Device.dwWidth*Device.dwHeight);
 	//	IGOR: Remove inverse color correction and kill alpha
@@ -286,6 +280,7 @@ void CRender::ScreenshotImpl	(ScreenshotMode mode, LPCSTR name, CMemoryWriter* m
 			color_get_G(p),
 			color_get_B(p)
 		);
+	}
 	}
 
 	hr					= pFB->UnlockRect();

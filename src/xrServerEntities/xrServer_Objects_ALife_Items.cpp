@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+ï»¿////////////////////////////////////////////////////////////////////////////
 //	Module 		: xrServer_Objects_ALife_Items.cpp
 //	Created 	: 19.09.2002
 //  Modified 	: 04.06.2003
@@ -28,7 +28,7 @@
 ////////////////////////////////////////////////////////////////////////////
 CSE_ALifeInventoryItem::CSE_ALifeInventoryItem(LPCSTR caSection)
 {
-	//òåêóùåå ñîñòîÿíèå âåùè
+	//Ñ‚ÐµÐºÑƒÑ‰ÐµÐµ ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ Ð²ÐµÑ‰Ð¸
 	m_fCondition				= 1.0f;
 
 	m_fMass						= pSettings->r_float(caSection, "inv_weight");
@@ -199,6 +199,13 @@ void CSE_ALifeInventoryItem::UPDATE_Read	(NET_Packet &tNetPacket)
 		return;
 	}
 
+	//Alundaio: Bug workaround
+	if (tNetPacket.r_elapsed() < 52)
+	{
+		tNetPacket.r_advance(tNetPacket.r_elapsed());
+		return;
+	}
+	
 	mask_num_items					num_items;
 	num_items.common				= m_u8NumItems;
 	m_u8NumItems					= num_items.num_items;

@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////
 //	Module 		: level_script.cpp
 //	Created 	: 28.06.2004
 //  Modified 	: 28.06.2004
@@ -19,6 +19,7 @@
 #include "UI/UIDialogWnd.h"
 #include "date_time.h"
 #include "ai_space.h"
+#include "script_engine.h"
 #include "level_graph.h"
 #include "PHCommander.h"
 #include "PHScriptCall.h"
@@ -37,6 +38,7 @@
 #include "alife_object_registry.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 #include "hudmanager.h"
+#include "relation_registry.h"
 
 #include "raypick.h"
 #include "../xrcdb/xr_collide_defs.h"
@@ -230,6 +232,11 @@ float high_cover_in_direction(u32 level_vertex_id, const Fvector &direction)
 
 float low_cover_in_direction(u32 level_vertex_id, const Fvector &direction)
 {
+	if (!ai().level_graph().valid_vertex_id(level_vertex_id))
+	{
+		return 0;
+	}
+
 	float			y,p;
 	direction.getHP	(y,p);
 	return			(ai().level_graph().low_cover_in_direction(y,level_vertex_id));
@@ -242,6 +249,10 @@ float rain_factor()
 
 u32	vertex_in_direction(u32 level_vertex_id, Fvector direction, float max_distance)
 {
+	if (!ai().level_graph().valid_vertex_id(level_vertex_id))
+	{
+		return u32(-1);
+	}
 	direction.normalize_safe();
 	direction.mul	(max_distance);
 	Fvector			start_position = ai().level_graph().vertex_position(level_vertex_id);
@@ -253,6 +264,10 @@ u32	vertex_in_direction(u32 level_vertex_id, Fvector direction, float max_distan
 
 Fvector vertex_position(u32 level_vertex_id)
 {
+	if (!ai().level_graph().valid_vertex_id(level_vertex_id))
+	{
+		return Fvector{};
+	}
 	return			(ai().level_graph().vertex_position(level_vertex_id));
 }
 
@@ -603,8 +618,6 @@ void set_pp_effector_factor2(int id, float f)
 
 	if(pp) pp->SetCurrentFactor(f);
 }
-
-#include "relation_registry.h"
 
 int g_community_goodwill(LPCSTR _community, int _entity_id)
  {

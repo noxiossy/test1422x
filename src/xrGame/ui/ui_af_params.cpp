@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ui_af_params.h"
 #include "UIStatic.h"
 

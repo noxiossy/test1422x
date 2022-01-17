@@ -1,10 +1,10 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 #include "xrdebug.h"
 #include "os_clipboard.h"
 
 #include <sal.h>
-#include "../3rd party/DXERR/dxerr.h"
+#include <dxerr.h>
 
 #pragma warning(push)
 #pragma warning(disable:4995)
@@ -548,7 +548,7 @@ void SetupExceptionHandler(const bool& dedicated)
 #endif // #ifndef MASTER_GOLD
 
     BT_SetDumpType(minidump_flags);
-    BT_SetSupportEMail("cop-crash-report@stalker-game.com");
+    // BT_SetSupportEMail("cop-crash-report@stalker-game.com");
     // BT_SetSupportServer ("localhost", 9999);
     // BT_SetSupportURL ("www.gsc-game.com");
 }
@@ -751,10 +751,6 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 
     FlushLog();
 
-# ifdef USE_OWN_MINI_DUMP
-	save_mini_dump(pExceptionInfo);
-# endif // USE_OWN_MINI_DUMP
-
     ShowCursor(true);
     ShowWindow(GetActiveWindow(), SW_FORCEMINIMIZE);
     MessageBox(
@@ -879,7 +875,7 @@ void xrDebug::_initialize (const bool& dedicated)
     // ::SetUnhandledExceptionFilter (UnhandledFilter); // exception handler to all "unhandled" exceptions
 }
 #else
-typedef int (__cdecl* _PNH)(size_t);
+typedef int(__cdecl* _PNH)(size_t);
 _CRTIMP int __cdecl _set_new_mode(int);
 //_CRTIMP _PNH __cdecl _set_new_handler(_PNH);
 

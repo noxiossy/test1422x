@@ -1,4 +1,4 @@
-#ifndef xrRender_consoleH
+﻿#ifndef xrRender_consoleH
 #define xrRender_consoleH
 #pragma once
 
@@ -54,6 +54,13 @@ extern ECORE_API	float		ps_r__ssaDISCARD	;
 extern ECORE_API	float		ps_r__ssaDONTSORT	;
 extern ECORE_API	float		ps_r__ssaHZBvsTEX	;
 extern ECORE_API	int			ps_r__tf_Anisotropic;
+
+enum
+{
+    RFLAG_NO_RAM_TEXTURES = (1 << 0),
+};
+
+extern ECORE_API Flags32 ps_r__common_flags;
 
 // R1
 extern ECORE_API	float		ps_r1_ssaLOD_A;
@@ -138,6 +145,7 @@ extern ECORE_API float			ps_r2_dof_kernel_size;		//	7.0f
 extern ECORE_API float			ps_r3_dyn_wet_surf_near;	// 10.0f
 extern ECORE_API float			ps_r3_dyn_wet_surf_far;		// 30.0f
 extern ECORE_API int			ps_r3_dyn_wet_surf_sm_res;	// 256
+extern u32 						r2_SmapSize;
 
 enum
 {

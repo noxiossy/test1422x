@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "inventory_item_object.h"
 #include "huditem.h"
@@ -7,7 +7,7 @@ class CHudItemObject :
 		public CInventoryItemObject,
 		public CHudItem
 {
-protected: //чтоб нельзя было вызвать на прямую
+protected: //С‡С‚РѕР± РЅРµР»СЊР·СЏ Р±С‹Р»Рѕ РІС‹Р·РІР°С‚СЊ РЅР° РїСЂСЏРјСѓСЋ
 						CHudItemObject		();
 	virtual				~CHudItemObject		();
 

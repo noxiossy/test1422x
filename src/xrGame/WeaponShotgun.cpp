@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "weaponshotgun.h"
 #include "entity.h"
 #include "ParticlesObject.h"
@@ -52,7 +52,7 @@ bool CWeaponShotgun::Action			(u16 cmd, u32 flags)
 
 	if(	m_bTriStateReload && GetState()==eReload &&
 		cmd==kWPN_FIRE && flags&CMD_START &&
-		m_sub_state==eSubstateReloadInProcess		)//îñòàíîâèòü ïåðåçàãðóçêó
+		m_sub_state==eSubstateReloadInProcess		)//Ð¾ÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð¿ÐµÑ€ÐµÐ·Ð°Ð³Ñ€ÑƒÐ·ÐºÑƒ
 	{
 		AddCartridge(1);
 		m_sub_state = eSubstateReloadEnd;
@@ -230,7 +230,7 @@ u8 CWeaponShotgun::AddCartridge		(u8 cnt)
 
 	VERIFY((u32)iAmmoElapsed == m_magazine.size());
 
-	//âûêèíóòü êîðîáêó ïàòðîíîâ, åñëè îíà ïóñòàÿ
+	//Ð²Ñ‹ÐºÐ¸Ð½ÑƒÑ‚ÑŒ ÐºÐ¾Ñ€Ð¾Ð±ÐºÑƒ Ð¿Ð°Ñ‚Ñ€Ð¾Ð½Ð¾Ð², ÐµÑÐ»Ð¸ Ð¾Ð½Ð° Ð¿ÑƒÑÑ‚Ð°Ñ
 	if(m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr && OnServer()) 
 		m_pCurrentAmmo->SetDropManual(TRUE);
 

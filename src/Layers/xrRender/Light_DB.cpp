@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 #include "../../xrEngine/_d3d_extensions.h"
 #include "../../xrEngine/xrLevel.h"
 #include "../../xrEngine/igame_persistent.h"

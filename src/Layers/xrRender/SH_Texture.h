@@ -1,4 +1,4 @@
-#ifndef SH_TEXTURE_H
+﻿#ifndef SH_TEXTURE_H
 #define SH_TEXTURE_H
 #pragma once
 

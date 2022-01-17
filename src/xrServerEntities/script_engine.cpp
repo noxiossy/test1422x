@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////
 //	Module 		: script_engine.cpp
 //	Created 	: 01.04.2004
 //  Modified 	: [1/14/2015 Andrey]
@@ -414,7 +414,7 @@ void CScriptEngine::process_file_if_exists(LPCSTR file_name, bool warn_if_not_ex
             return;
         }
         //#ifndef MASTER_GOLD
-        if (strstr(Core.Params, "-dbg"))
+		if (Core.ParamFlags.test(Core.verboselog))
             Msg("* loading script %s", S1);
         //#endif // MASTER_GOLD
         m_reload_modules = false;

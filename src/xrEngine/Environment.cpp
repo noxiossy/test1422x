@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #pragma hdrstop
 
 #ifndef _EDITOR
@@ -550,12 +550,12 @@ void CEnvironment::OnFrame()
 #ifndef MASTER_GOLD
     if (CurrentEnv->sun_dir.y > 0)
     {
-        Log("CurrentEnv->sun_dir", CurrentEnv->sun_dir);
+        //Log("CurrentEnv->sun_dir", CurrentEnv->sun_dir);
         // Log("current_weight", current_weight);
         // Log("mpower", mpower);
 
-        Log("Current[0]->sun_dir", Current[0]->sun_dir);
-        Log("Current[1]->sun_dir", Current[1]->sun_dir);
+        //Log("Current[0]->sun_dir", Current[0]->sun_dir);
+        //Log("Current[1]->sun_dir", Current[1]->sun_dir);
 
     }
     VERIFY2(CurrentEnv->sun_dir.y < 0, "Invalid sun direction settings in lerp");

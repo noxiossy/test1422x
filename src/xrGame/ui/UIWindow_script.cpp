@@ -1,4 +1,4 @@
-#include "pch_script.h"
+п»ї#include "pch_script.h"
 #include "UIWindow.h"
 #include "UIFrameWindow.h"
 #include "UIFrameLineWnd.h"
@@ -24,7 +24,7 @@ CGameFont* GetFontMedium()
 {return mngr().pFontMedium;}
 CGameFont* GetFontDI()
 {return mngr().pFontDI;}
-//шрифты для интерфейса
+//С€СЂРёС„С‚С‹ РґР»СЏ РёРЅС‚РµСЂС„РµР№СЃР°
 CGameFont* GetFontGraffiti19Russian()
 {return mngr().pFontGraffiti19Russian;}
 CGameFont* GetFontGraffiti22Russian()

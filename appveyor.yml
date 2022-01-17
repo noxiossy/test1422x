@@ -1,4 +1,4 @@
-version: coc_{build}
+version: xray_mlr_{build}
 image: Visual Studio 2019
 configuration: Release
 platform: Win32

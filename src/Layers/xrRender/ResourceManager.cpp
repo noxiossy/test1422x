@@ -1,4 +1,4 @@
-// TextureManager.cpp: implementation of the CResourceManager class.
+﻿// TextureManager.cpp: implementation of the CResourceManager class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -93,7 +93,7 @@ void	CResourceManager::_ParseList(sh_list& dest, LPCSTR names)
 	if (0==names || 0==names[0])
  		names 	= "$null";
 
-	ZeroMemory			(&dest, sizeof(dest));
+	dest.clear();
 	char*	P			= (char*) names;
 	svector<char,128>	N;
 
@@ -342,14 +342,14 @@ void CResourceManager::DeferredUpload()
 		t->second->Load();
 	}
 }
-/*
+
 void	CResourceManager::DeferredUnload	()
 {
 	if (!RDEVICE.b_is_Ready)				return;
 	for (map_TextureIt t=m_textures.begin(); t!=m_textures.end(); t++)
 		t->second->Unload();
 }
-*/
+
 #ifdef _EDITOR
 void	CResourceManager::ED_UpdateTextures(AStringVec* names)
 {

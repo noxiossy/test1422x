@@ -1,4 +1,4 @@
-#ifndef _INCDEF_XRMESSAGES_H_
+﻿#ifndef _INCDEF_XRMESSAGES_H_
 #define _INCDEF_XRMESSAGES_H_
 
 #pragma once

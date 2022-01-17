@@ -1,4 +1,4 @@
-#include "stdafx_.h"
+﻿#include "stdafx_.h"
 #include "BugSlayerUtil.h"
 #include <stdio.h>
 
@@ -37,6 +37,9 @@ void BuildStackTrace	(struct _EXCEPTION_POINTERS *g_BlackBoxUIExPtrs)
 		traceDump = GetNextStackTraceString( GSTSO_MODULE | GSTSO_SYMBOL | GSTSO_SRCLINE,
 			g_BlackBoxUIExPtrs );
 	}
+
+	void CleanupSymEng(void);
+	CleanupSymEng();
 }
 
 #ifdef _EDITOR

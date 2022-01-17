@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #pragma hdrstop
 
 #include "DetailManager.h"
@@ -69,6 +69,7 @@ bool det_render_debug = false;
 
 #include "../../xrEngine/gamemtllib.h"
 
+extern float ps_current_detail_scale;
 //#define		DBG_SWITCHOFF_RANDOMIZE
 void		CDetailManager::cache_Decompress(Slot* S)
 {
@@ -115,7 +116,7 @@ void		CDetailManager::cache_Decompress(Slot* S)
 	u32			d_size		= iCeil	(dm_slot_size/density);
 	svector<int,dm_obj_in_slot>		selected;
 
-    u32 p_rnd	= D.sx*D.sz; // нужно для того чтобы убрать полосы(ряды)
+    u32 p_rnd	= D.sx*D.sz; // РЅСѓР¶РЅРѕ РґР»СЏ С‚РѕРіРѕ С‡С‚РѕР±С‹ СѓР±СЂР°С‚СЊ РїРѕР»РѕСЃС‹(СЂСЏРґС‹)
 	CRandom				r_selection	(0x12071980^p_rnd);
 	CRandom				r_jitter	(0x12071980^p_rnd);
 	CRandom				r_yaw		(0x12071980^p_rnd);
@@ -227,6 +228,7 @@ RDEVICE.Statistic->TEST0.End		();
 			Item.scale	= (Dobj->m_fMinScale*0.5f+Dobj->m_fMaxScale*0.9f)/2;
 			//Item.scale	= 0.1f;
 #endif
+			Item.scale *= ps_current_detail_scale;
 			// X-Form BBox
 			Fmatrix		mScale,mXform;
 			Fbox		ItemBB;

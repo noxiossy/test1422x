@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+п»ї////////////////////////////////////////////////////////////////////////////
 //	Modified by Axel DominatoR
 //	Last updated: 13/08/2015
 ////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ float CCustomOutfit::HitThroughArmor(float hit_power, s16 element, float ap, boo
 		float BoneArmor = ba*GetCondition();
 		if(/*!fis_zero(ba, EPS) && */(ap > BoneArmor))
 		{
-			//пуля пробила бронь
+			//РїСѓР»СЏ РїСЂРѕР±РёР»Р° Р±СЂРѕРЅСЊ
 			if(!IsGameTypeSingle())
 			{
 				float hit_fraction = (ap - BoneArmor) / ap;
@@ -179,9 +179,9 @@ float CCustomOutfit::HitThroughArmor(float hit_power, s16 element, float ap, boo
 		}
 		else
 		{
-			//пуля НЕ пробила бронь
+			//РїСѓР»СЏ РќР• РїСЂРѕР±РёР»Р° Р±СЂРѕРЅСЊ
 			NewHitPower *= m_boneProtection->m_fHitFracActor;
-			add_wound = false; 	//раны нет
+			add_wound = false; 	//СЂР°РЅС‹ РЅРµС‚
 		}
 	}
 	else
@@ -200,7 +200,7 @@ float CCustomOutfit::HitThroughArmor(float hit_power, s16 element, float ap, boo
 		if(NewHitPower < 0.f)
 			NewHitPower = 0.f;
 	}
-	//увеличить изношенность костюма
+	//СѓРІРµР»РёС‡РёС‚СЊ РёР·РЅРѕС€РµРЅРЅРѕСЃС‚СЊ РєРѕСЃС‚СЋРјР°
 	Hit(hit_power, hit_type);
 
 	return NewHitPower;

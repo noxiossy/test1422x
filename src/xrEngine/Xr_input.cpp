@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #pragma hdrstop
 
 #include "xr_input.h"
@@ -348,7 +348,7 @@ void CInput::MouseUpdate()
 {
 #	pragma push_macro("FIELD_OFFSET")
 #	undef FIELD_OFFSET
-#	define FIELD_OFFSET offsetof // Ôèêñèì warning C4644 - ïðîñòî ïåðåâîäèì ìàêðîñ èç âèíñäê íà èñïîëüçîâàíèå ñòàíäàðòíîãî îôôñåòîôà.
+#	define FIELD_OFFSET offsetof // Ð¤Ð¸ÐºÑÐ¸Ð¼ warning C4644 - Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ð¿ÐµÑ€ÐµÐ²Ð¾Ð´Ð¸Ð¼ Ð¼Ð°ÐºÑ€Ð¾Ñ Ð¸Ð· Ð²Ð¸Ð½ÑÐ´Ðº Ð½Ð° Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ð¸Ðµ ÑÑ‚Ð°Ð½Ð´Ð°Ñ€Ñ‚Ð½Ð¾Ð³Ð¾ Ð¾Ñ„Ñ„ÑÐµÑ‚Ð¾Ñ„Ð°.
 
     HRESULT hr;
     DWORD dwElements = MOUSEBUFFERSIZE;
@@ -520,6 +520,8 @@ void CInput::MouseUpdate()
         if (timeStamp[1] && ((dwCurTime - timeStamp[1]) >= mouse_property.mouse_dt)) cbStack.back()->IR_OnMouseStop(DIMOFS_Y, timeStamp[1] = 0);
         if (timeStamp[0] && ((dwCurTime - timeStamp[0]) >= mouse_property.mouse_dt)) cbStack.back()->IR_OnMouseStop(DIMOFS_X, timeStamp[0] = 0);
     }
+
+#	pragma pop_macro("FIELD_OFFSET")
 }
 
 //-------------------------------------------------------

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** Lua/Coco glue.
 ** Copyright (C) 2004-2008 Mike Pall. See copyright notice in lcoco.c
 */

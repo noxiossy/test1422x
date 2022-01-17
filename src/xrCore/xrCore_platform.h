@@ -1,4 +1,4 @@
-#ifndef XRCORE_PLATFORM_H
+﻿#ifndef XRCORE_PLATFORM_H
 #define XRCORE_PLATFORM_H
 #pragma once
 

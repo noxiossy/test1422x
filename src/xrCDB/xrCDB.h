@@ -1,4 +1,4 @@
-#ifndef XRCDB_H
+﻿#ifndef XRCDB_H
 #define XRCDB_H
 
 //#pragma once

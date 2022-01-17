@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "igame_level.h"
 
 //#include "xr_effgamma.h"
@@ -692,7 +692,8 @@ public:
 };
 
 
-ENGINE_API float psHUD_FOV = 0.45f;
+ENGINE_API float	psHUD_FOV_def=0.45f;
+ENGINE_API float	psHUD_FOV=psHUD_FOV_def;
 
 //extern int psSkeletonUpdate;
 extern int rsDVB_Size;
@@ -764,7 +765,7 @@ void CCC_Register()
     CMD3(CCC_Mask, "rs_fullscreen", &psDeviceFlags, rsFullscreen);
     CMD3(CCC_Mask, "rs_refresh_60hz", &psDeviceFlags, rsRefresh60hz);
     CMD3(CCC_Mask, "rs_stats", &psDeviceFlags, rsStatistic);
-    CMD4(CCC_Float, "rs_vis_distance", &psVisDistance, 0.4f, 1.5f);
+    CMD4(CCC_Float, "rs_vis_distance", &psVisDistance, 0.4f, 1.0f);
 
     CMD3(CCC_Mask, "rs_cam_pos", &psDeviceFlags, rsCameraPos);
 #ifdef DEBUG
@@ -798,7 +799,7 @@ void CCC_Register()
     CMD1(CCC_SND_Restart, "snd_restart");
     CMD3(CCC_Mask, "snd_acceleration", &psSoundFlags, ss_Hardware);
     CMD3(CCC_Mask, "snd_efx", &psSoundFlags, ss_EAX);
-    CMD4(CCC_Integer, "snd_targets", &psSoundTargets, 200, 1000);
+    CMD4(CCC_Integer, "snd_targets", &psSoundTargets, 4, 256);
     CMD4(CCC_Integer, "snd_cache_size", &psSoundCacheSizeMB, 4, 64);
 
 #ifdef DEBUG

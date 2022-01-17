@@ -1,4 +1,4 @@
-#ifndef MP_LOGGING_H
+﻿#ifndef MP_LOGGING_H
 #define MP_LOGGING_H
 
 //#define MP_LOGGING

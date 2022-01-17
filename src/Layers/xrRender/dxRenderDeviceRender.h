@@ -1,4 +1,4 @@
-#ifndef dxRenderDeviceRender_included
+﻿#ifndef dxRenderDeviceRender_included
 #define dxRenderDeviceRender_included
 #pragma once
 
@@ -49,6 +49,7 @@ public:
 	//	Resources control
 	virtual void	DeferredLoad(BOOL E);
 	virtual void	ResourcesDeferredUpload();
+    virtual void 	ResourcesDeferredUnload();
 	virtual void	ResourcesGetMemoryUsage(u32& m_base, u32& c_base, u32& m_lmaps, u32& c_lmaps);
 	virtual void	ResourcesDestroyNecessaryTextures();
 	virtual void	ResourcesStoreNecessaryTextures();

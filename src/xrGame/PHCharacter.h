@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "PHObject.h"
 #include "PHInterpolation.h"
 #include "PHSynchronize.h"

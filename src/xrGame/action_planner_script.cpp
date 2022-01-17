@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////
 //	Module 		: action_planner_script.cpp
 //	Created 	: 28.01.2004
 //  Modified 	: 10.03.2004
@@ -25,7 +25,6 @@ bool get_actual(const CScriptActionPlanner *action_planner)
 
 CScriptActionPlanner *cast_planner(CScriptActionBase *action)
 {
-    if (!action) return NULL;
 	return	(smart_cast<CScriptActionPlanner*>(action));
 }
 

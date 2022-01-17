@@ -1,4 +1,4 @@
-// HOM.h: interface for the CHOM class.
+﻿// HOM.h: interface for the CHOM class.
 //
 //////////////////////////////////////////////////////////////////////
 #pragma once
@@ -25,7 +25,7 @@ private:
 #endif
 
 	xrCriticalSection		MT;
-	volatile u32			MT_frame_rendered;
+	volatile u32			MT_frame_rendered{};
 
 	void					Render_DB	(CFrustum&	base);
 public:

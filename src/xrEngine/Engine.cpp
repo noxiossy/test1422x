@@ -1,9 +1,10 @@
-// Engine.cpp: implementation of the CEngine class.
+﻿// Engine.cpp: implementation of the CEngine class.
 //
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "Engine.h"
+#include "dedicated_server_only.h"
 
 CEngine Engine;
 xrDispatchTable PSGP;
@@ -24,7 +25,7 @@ CEngine::~CEngine()
 
 extern void msCreate(LPCSTR name);
 
-void CEngine::Initialize(void)
+PROTECT_API void CEngine::Initialize(void)
 {
     // Bind PSGP
     hPSGP = LoadLibrary("xrCPU_Pipe.dll");

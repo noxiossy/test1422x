@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** Hints for the JIT compiler backend.
 ** Copyright (C) 2005-2008 Mike Pall. See Copyright Notice in luajit.h
 */

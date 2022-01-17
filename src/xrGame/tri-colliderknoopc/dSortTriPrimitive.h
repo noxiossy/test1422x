@@ -1,4 +1,4 @@
-#ifndef D_SORT_TRI_PRIMITIVE_H
+﻿#ifndef D_SORT_TRI_PRIMITIVE_H
 #define D_SORT_TRI_PRIMITIVE_H
 #include "dTriCollideK.h"
 #include "dTriColliderCommon.h"
