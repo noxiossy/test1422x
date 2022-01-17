@@ -286,7 +286,7 @@ CRenderTarget::CRenderTarget		()
 	param_noise_fps		= 25.f;
 	param_noise_scale	= 1.f;
 
-	im_noise_time		= 1/100.0f; //Alundaio should be float?
+	im_noise_time		= 1.f/100.0f;
 	im_noise_shift_w	= 0;
 	im_noise_shift_h	= 0;
 
@@ -852,8 +852,8 @@ CRenderTarget::CRenderTarget		()
 			//for (int it=0; it<TEX_jitter_count; it++)	{
 			//	R_CHK						(t_noise_surf[it]->UnlockRect(0));
 			//}
-
-			for (int it=0; it<TEX_jitter_count-1; it++)
+			int it = 0;
+			for ( ;it<TEX_jitter_count-1; it++)
 			{
 				string_path					name;
 				xr_sprintf						(name,"%s%d",r2_jitter,it);
