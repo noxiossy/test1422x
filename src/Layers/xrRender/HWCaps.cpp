@@ -21,7 +21,7 @@ u32 GetNVGpuNum()
 
 //	int result = NVAPI_OK;
 
-	int iGpuNum = 0;
+	int iGpuNum = 1;
 
 	//NvAPI_Status	status;
 	//status = NvAPI_Initialize();
