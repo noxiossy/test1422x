@@ -78,6 +78,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <DisableSpecificWarnings>4013;4006;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
