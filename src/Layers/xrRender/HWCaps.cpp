@@ -4,8 +4,8 @@
 #include "hw.h"
 
 #ifndef _EDITOR
-	//#include <nvapi.h>
-	//#include "ATI/atimgpud.h"
+	#include <nvapi.h>
+	#include "ATI/atimgpud.h"
 #endif
 
 namespace

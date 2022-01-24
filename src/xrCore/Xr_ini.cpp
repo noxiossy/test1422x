@@ -498,9 +498,8 @@ BOOL CInifile::section_exist(const shared_str& S)const { return section_exist(*S
 //--------------------------------------------------------------------------------------
 CInifile::Sect& CInifile::r_section(LPCSTR S)const
 {
-	R_ASSERT(S && strlen(S),
-	         "Empty section (null\\'') passed into CInifile::r_section(). See info above ^, check your configs and 'call stack'.")
-	; //--#SM+#--
+	if (!S)
+		LogStackTrace("CInifile::r_section | section is nil!");
 
     char section[256];
     xr_strcpy(section, sizeof(section), S);

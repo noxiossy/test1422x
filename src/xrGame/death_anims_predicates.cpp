@@ -145,7 +145,7 @@ class	type_motion0: public type_motion
 			return false;
 
 		m = motion( front );
-		type_motion_diagnostic( " type_motion0: 1. = Headshot. Falling forward by inertion. ", front, ea, H, m );
+		type_motion_diagnostic( " type_motion0: 1. = Inertial movement forward from headshot ", front, ea, H, m );
 		return true;
 	}
 };
@@ -206,7 +206,7 @@ class	type_motion3: public type_motion
 		{
 			edirection dr = dir( ea, H, angle );
 			m = motion( dr );
-			type_motion_diagnostic( " type_motion3: 4.	Headshot (by probabiity), besides 5 (4)", dr, ea, H, m );
+			type_motion_diagnostic( " type_motion3: 4.	Headshot (by probability), except 5 (4)", dr, ea, H, m );
 			return true;
 		}
 		return false;
@@ -292,7 +292,7 @@ class	type_motion6: public type_motion
 		{
 			edirection dr = dir( ea, H, angle );
 			m = motion( dr );
-			type_motion_diagnostic( "type_motion6: 7. Grenade ", dr, ea, H, m );
+			type_motion_diagnostic( "type_motion6: 7. Grenade", dr, ea, H, m );
 			return true;
 		}
 
