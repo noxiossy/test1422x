@@ -1914,12 +1914,14 @@ void CCC_RegisterCommands()
 	CMD3(CCC_Mask, "hud_weapon", &psHUD_Flags, HUD_WEAPON);
 	CMD3(CCC_Mask, "hud_info", &psHUD_Flags, HUD_INFO);
 	CMD3(CCC_Mask, "hud_draw", &psHUD_Flags, HUD_DRAW);
+	CMD3(CCC_Mask, "a_ui_show_last_name", &psHUD_Flags, A_LAST_NAME);
 
 	// hud
 	psHUD_Flags.set(HUD_CROSSHAIR, true);
 	psHUD_Flags.set(HUD_WEAPON, true);
 	psHUD_Flags.set(HUD_DRAW, true);
 	psHUD_Flags.set(HUD_INFO, true);
+	psHUD_Flags.set(A_LAST_NAME, true);
 
 	CMD3(CCC_Mask, "hud_crosshair", &psHUD_Flags, HUD_CROSSHAIR);
 	CMD3(CCC_Mask, "hud_crosshair_dist", &psHUD_Flags, HUD_CROSSHAIR_DIST);
