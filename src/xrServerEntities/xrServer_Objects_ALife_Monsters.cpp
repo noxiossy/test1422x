@@ -11,7 +11,7 @@
 #include "xrServer_Objects_ALife_Monsters.h"
 #include "object_broker.h"
 #include "alife_human_brain.h"
-
+#include "../xrEngine/CustomHUD.h"
 
 
 #ifndef AI_COMPILER
@@ -445,12 +445,14 @@ void CSE_ALifeTraderAbstract::set_specific_character	(shared_str new_spec_char)
 		m_character_name	= *(CStringTable().translate(n.c_str()));
 		m_character_name	+= " ";
 
+	if (psHUD_Flags.test(A_LAST_NAME))
+	{ 
 		n					= "lname_";
 		n					+= subset;
 		n					+= "_";
 		n					+= itoa(::Random.randI(last_name_cnt),S,10);
 		m_character_name	+= *(CStringTable().translate(n.c_str()));
-
+	}
 
 	
 	}
