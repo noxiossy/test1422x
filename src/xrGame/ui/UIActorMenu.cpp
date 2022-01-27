@@ -866,7 +866,7 @@ bool CUIActorMenu::CanSetItemToList(PIItem item, CUIDragDropListEx* l, u16& ret_
 		return		true;
 	}
 
-	if(item_slot==INV_SLOT_3 && l==m_pInventoryPistolList)
+	/*if(item_slot==INV_SLOT_3 && l==m_pInventoryPistolList)
 	{
 		ret_slot	= INV_SLOT_2;
 		return		true;
@@ -876,7 +876,7 @@ bool CUIActorMenu::CanSetItemToList(PIItem item, CUIDragDropListEx* l, u16& ret_
 	{
 		ret_slot	= INV_SLOT_3;
 		return		true;
-	}
+	}*/
 
 	return false;
 }
