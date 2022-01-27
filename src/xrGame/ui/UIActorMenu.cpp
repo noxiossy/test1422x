@@ -510,9 +510,13 @@ void CUIActorMenu::highlight_item_slot(CUICellItem* cell_item)
 
 	u16 slot_id = item->BaseSlot();
 
-	if (weapon && (slot_id == INV_SLOT_2 || slot_id == INV_SLOT_3))
+	if (weapon && (slot_id == INV_SLOT_2))
 	{
 		m_InvSlot2Highlight->Show(true);
+		return;
+	}
+	if (weapon && (slot_id == INV_SLOT_3))
+	{
 		m_InvSlot3Highlight->Show(true);
 		return;
 	}
