@@ -6,8 +6,6 @@
 #include "EngineAPI.h"
 #include "../xrcdb/xrXRC.h"
 
-//#include "securom_api.h"
-
 extern xr_token* vid_quality_token;
 
 //////////////////////////////////////////////////////////////////////
@@ -47,8 +45,6 @@ ENGINE_API bool is_enough_address_space_available()
         GetSystemInfo(&system_info);
         return (*(u32*)&system_info.lpMaximumApplicationAddress) > 0x90000000;
 }
-
-#ifndef DEDICATED_SERVER
 
 void CEngineAPI::InitializeNotDedicated()
 {
@@ -99,8 +95,6 @@ void CEngineAPI::InitializeNotDedicated()
             g_current_renderer = 2;
     }
 }
-#endif // DEDICATED_SERVER
-
 
 void CEngineAPI::Initialize(void)
 {
@@ -108,9 +102,7 @@ void CEngineAPI::Initialize(void)
     // render
     LPCSTR r1_name = "xrRender_R1.dll";
 
-#ifndef DEDICATED_SERVER
     InitializeNotDedicated();
-#endif // DEDICATED_SERVER
 
     if (0 == hRender)
     {
@@ -178,17 +170,6 @@ extern "C" {
 
 void CEngineAPI::CreateRendererList()
 {
-#ifdef DEDICATED_SERVER
-
-    vid_quality_token = xr_alloc<xr_token>(2);
-
-    vid_quality_token[0].id = 0;
-    vid_quality_token[0].name = xr_strdup("renderer_r1");
-
-    vid_quality_token[1].id = -1;
-    vid_quality_token[1].name = NULL;
-
-#else
     // TODO: ask renderers if they are supported!
     if (vid_quality_token != NULL) return;
     bool bSupports_r2 = false;
@@ -285,5 +266,5 @@ void CEngineAPI::CreateRendererList()
         Msg("[%s]", _tmp[i]);
 #endif // DEBUG
     }
-#endif //#ifndef DEDICATED_SERVER
+
 }

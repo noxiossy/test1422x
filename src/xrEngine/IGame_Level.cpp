@@ -130,14 +130,10 @@ bool IGame_Level::Load(u32 dwNum)
     // Done
     FS.r_close(LL_Stream);
     bReady = true;
-    if (!g_dedicated_server) IR_Capture();
-#ifndef DEDICATED_SERVER
+    IR_Capture();
     Device.seqRender.Add (this);
-#endif
 
     Device.seqFrame.Add(this);
-
-    //SECUROM_MARKER_PERFORMANCE_OFF(10)
 
         return true;
 }
@@ -149,7 +145,6 @@ bool IGame_Level::Load(u32 dwNum)
 int psNET_DedicatedSleep = 5;
 void IGame_Level::OnRender()
 {
-#ifndef DEDICATED_SERVER
     // if (_abs(Device.fTimeDelta)<EPS_S) return;
 
 #ifdef _GPA_ENABLED
@@ -161,15 +156,8 @@ void IGame_Level::OnRender()
 #endif // _GPA_ENABLED
 
     // Level render, only when no client output required
-    if (!g_dedicated_server)
-    {
-        Render->Calculate ();
-        Render->Render ();
-    }
-    else
-    {
-        Sleep (psNET_DedicatedSleep);
-    }
+		Render->Calculate			();
+		Render->Render				();
 
 #ifdef _GPA_ENABLED
     TAL_RetireID( rtID );

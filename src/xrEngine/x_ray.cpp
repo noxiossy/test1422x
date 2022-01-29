@@ -9,8 +9,6 @@
 #include "igame_level.h"
 #include "igame_persistent.h"
 
-#include "dedicated_server_only.h"
-#include "no_single.h"
 #include "../xrNetServer/NET_AuthCheck.h"
 
 #include "xr_input.h"
@@ -27,7 +25,6 @@
 
 #include "xrSash.h"
 
-//#include "securom_api.h"
 
 //---------------------------------------------------------------------
 ENGINE_API CInifile* pGameIni = NULL;
@@ -62,70 +59,16 @@ static int start_year = 1999; // 1999
 
 // binary hash, mainly for copy-protection
 
-#ifndef DEDICATED_SERVER
-
 #include "../xrGameSpy/gamespy/md5c.c"
 #include <ctype.h>
 
 #define DEFAULT_MODULE_HASH "3CAABCFCFF6F3A810019C6A72180F166"
 static char szEngineHash[33] = DEFAULT_MODULE_HASH;
 
-PROTECT_API char* ComputeModuleHash(char* pszHash)
+char * ComputeModuleHash( char * pszHash )
 {
-    //SECUROM_MARKER_HIGH_SECURITY_ON(3)
-
-    char szModuleFileName[MAX_PATH];
-    HANDLE hModuleHandle = NULL, hFileMapping = NULL;
-    LPVOID lpvMapping = NULL;
-    MEMORY_BASIC_INFORMATION MemoryBasicInformation;
-
-    if (!GetModuleFileName(NULL, szModuleFileName, MAX_PATH))
-        return pszHash;
-
-    hModuleHandle = CreateFile(szModuleFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-
-    if (hModuleHandle == INVALID_HANDLE_VALUE)
-        return pszHash;
-
-    hFileMapping = CreateFileMapping(hModuleHandle, NULL, PAGE_READONLY, 0, 0, NULL);
-
-    if (hFileMapping == NULL)
-    {
-        CloseHandle(hModuleHandle);
-        return pszHash;
-    }
-
-    lpvMapping = MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
-
-    if (lpvMapping == NULL)
-    {
-        CloseHandle(hFileMapping);
-        CloseHandle(hModuleHandle);
-        return pszHash;
-    }
-
-    ZeroMemory(&MemoryBasicInformation, sizeof(MEMORY_BASIC_INFORMATION));
-
-    VirtualQuery(lpvMapping, &MemoryBasicInformation, sizeof(MEMORY_BASIC_INFORMATION));
-
-    if (MemoryBasicInformation.RegionSize)
-    {
-        char szHash[33];
-        MD5Digest((unsigned char*)lpvMapping, (unsigned int)MemoryBasicInformation.RegionSize, szHash);
-        MD5Digest((unsigned char*)szHash, 32, pszHash);
-        for (int i = 0; i < 32; ++i)
-            pszHash[i] = (char)toupper(pszHash[i]);
-    }
-
-    UnmapViewOfFile(lpvMapping);
-    CloseHandle(hFileMapping);
-    CloseHandle(hModuleHandle);
-
-    //SECUROM_MARKER_HIGH_SECURITY_OFF(3)
-
     return pszHash;
 }
-#endif // DEDICATED_SERVER
 
 void compute_build_id()
 {
@@ -210,11 +153,9 @@ struct path_excluder_predicate
     xr_auth_strings_t const* m_ignore;
 };
 
-PROTECT_API void InitSettings()
+void InitSettings	()
 {
-#ifndef DEDICATED_SERVER
     Msg("EH: %s\n", ComputeModuleHash(szEngineHash));
-#endif // DEDICATED_SERVER
 
     string_path fname;
     FS.update_path(fname, "$game_config$", "system.ltx");
@@ -244,20 +185,9 @@ PROTECT_API void InitSettings()
     pGameIni = xr_new<CInifile>(fname, TRUE);
     CHECK_OR_EXIT(0 != pGameIni->section_count(), make_string("Cannot find file %s.\nReinstalling application may fix this problem.", fname));
 }
-PROTECT_API void InitConsole()
+void InitConsole	()
 {
-    ////SECUROM_MARKER_SECURITY_ON(5)
-
-#ifdef DEDICATED_SERVER
-    {
-        Console = xr_new<CTextConsole>();
-    }
-#else
-    // else
-    {
-        Console = xr_new<CConsole>();
-    }
-#endif
+    Console = xr_new<CConsole>();
     Console->Initialize();
 
     xr_strcpy(Console->ConfigFile, "user.ltx");
@@ -268,10 +198,9 @@ PROTECT_API void InitConsole()
         xr_strcpy(Console->ConfigFile, c_name);
     }
 
-    ////SECUROM_MARKER_SECURITY_OFF(5)
 }
 
-PROTECT_API void InitInput()
+void InitInput		()
 {
     BOOL bCaptureInput = !strstr(Core.Params, "-i");
 
@@ -282,12 +211,12 @@ void destroyInput()
     xr_delete(pInput);
 }
 
-PROTECT_API void InitSound1()
+void InitSound1		()
 {
     CSound_manager_interface::_create(0);
 }
 
-PROTECT_API void InitSound2()
+void InitSound2		()
 {
     CSound_manager_interface::_create(1);
 }
@@ -368,10 +297,8 @@ void Startup()
     }
 
     // Initialize APP
-    //#ifndef DEDICATED_SERVER
     ShowWindow(Device.m_hWnd, SW_SHOWNORMAL);
     Device.Create();
-    //#endif
     LALib.OnCreate();
     pApp = xr_new<CApplication>();
     g_pGamePersistent = (IGame_Persistent*)NEW_INSTANCE(CLSID_GAME_PERSISTANT);
@@ -611,8 +538,6 @@ BOOL IsOutOfVirtualMemory()
 #define VIRT_ERROR_SIZE 256
 #define VIRT_MESSAGE_SIZE 512
 
-    //SECUROM_MARKER_HIGH_SECURITY_ON(1)
-
     MEMORYSTATUSEX statex;
     DWORD dwPageFileInMB = 0;
     DWORD dwPhysMemInMB = 0;
@@ -642,8 +567,6 @@ BOOL IsOutOfVirtualMemory()
         return 0;
 
     MessageBox(NULL, pszMessage, pszError, MB_OK | MB_ICONHAND);
-
-    //SECUROM_MARKER_HIGH_SECURITY_OFF(1)
 
     return 1;
 }
@@ -692,22 +615,12 @@ void foo()
 }
 #endif // 0
 
-ENGINE_API bool g_dedicated_server = false;
-
-#ifndef DEDICATED_SERVER
-
-#endif // DEDICATED_SERVER
-
 int APIENTRY WinMain_impl(HINSTANCE hInstance,
                           HINSTANCE hPrevInstance,
                           char* lpCmdLine,
                           int nCmdShow)
 {
-#ifdef DEDICATED_SERVER
-    Debug._initialize(true);
-#else // DEDICATED_SERVER
-    Debug._initialize(false);
-#endif // DEDICATED_SERVER
+	Debug._initialize			(false);
 
     if (!IsDebuggerPresent())
     {
@@ -735,8 +648,6 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
     }
 
     // foo();
-#ifndef DEDICATED_SERVER
-
     // Check for virtual memory
     if ((strstr(lpCmdLine, "--skipmemcheck") == NULL) && IsOutOfVirtualMemory())
         return 0;
@@ -762,9 +673,6 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
         return 1;
     }
 #endif
-#else // DEDICATED_SERVER
-    g_dedicated_server = true;
-#endif // DEDICATED_SERVER
 
     SetThreadAffinityMask(GetCurrentThread(), 1);
 
@@ -820,11 +728,9 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
         xr_strcpy(Core.CompName, sizeof(Core.CompName), "Computer");
     }
 
-#ifndef DEDICATED_SERVER
     {
         damn_keys_filter filter;
         (void)filter;
-#endif // DEDICATED_SERVER
 
         FPU::m24r();
         InitEngine();
@@ -865,7 +771,6 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
                 return 0;
         };
 
-#ifndef DEDICATED_SERVER
         if (strstr(Core.Params, "-r2a"))
             Console->Execute("renderer renderer_r2a");
         else if (strstr(Core.Params, "-r2"))
@@ -876,9 +781,7 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
             pTmp->Execute(Console->ConfigFile);
             xr_delete(pTmp);
         }
-#else
-        Console->Execute("renderer renderer_r1");
-#endif
+
         //. InitInput ( );
         Engine.External.Initialize();
         Console->Execute("stat_memory");
@@ -901,14 +804,12 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
                           temp_wf, &si, &pi);
 
         }
-#ifndef DEDICATED_SERVER
 #ifdef NO_MULTI_INSTANCES
         // Delete application presence mutex
         CloseHandle(hCheckPresenceMutex);
 #endif
     }
     // here damn_keys_filter class instanse will be destroyed
-#endif // DEDICATED_SERVER
 
     return 0;
 }
@@ -1098,20 +999,6 @@ void CApplication::OnEvent(EVENT E, u64 P1, u64 P2)
         R_ASSERT(0 == g_pGameLevel);
         R_ASSERT(0 != g_pGamePersistent);
 
-#ifdef NO_SINGLE
-        Console->Execute("main_menu on");
-        if ((op_server == NULL) ||
-                (!xr_strlen(op_server)) ||
-                (
-                    (strstr(op_server, "/dm") || strstr(op_server, "/deathmatch") ||
-                     strstr(op_server, "/tdm") || strstr(op_server, "/teamdeathmatch") ||
-                     strstr(op_server, "/ah") || strstr(op_server, "/artefacthunt") ||
-                     strstr(op_server, "/cta") || strstr(op_server, "/capturetheartefact")
-                    ) &&
-                    !strstr(op_server, "/alife")
-                )
-           )
-#endif // #ifdef NO_SINGLE
         {
             Console->Execute("main_menu off");
             Console->Hide();
@@ -1203,11 +1090,10 @@ void CApplication::LoadBegin()
         g_bootComplete = FALSE;
         //-AVO
 
-#ifndef DEDICATED_SERVER
         _InitializeFont(pFontSystem, "ui_font_letterica18_russian", 0);
 
         m_pRender->LoadBegin();
-#endif
+
 		if (Core.ParamFlags.test(Core.verboselog))
 			phase_timer.Start();
         load_stage = 0;
@@ -1246,7 +1132,7 @@ void CApplication::destroy_loading_shaders()
 
 //u32 calc_progress_color(u32, u32, int, int);
 
-PROTECT_API void CApplication::LoadDraw()
+void CApplication::LoadDraw		()
 {
     if (g_appLoaded) return;
     Device.dwFrame += 1;
@@ -1254,10 +1140,7 @@ PROTECT_API void CApplication::LoadDraw()
 
     if (!Device.Begin()) return;
 
-    if (g_dedicated_server)
-        Console->OnRender();
-    else
-        load_draw_internal();
+	load_draw_internal			();
 
     Device.End();
 }
@@ -1324,8 +1207,6 @@ void CApplication::Level_Append(LPCSTR folder)
 
 void CApplication::Level_Scan()
 {
-    //SECUROM_MARKER_PERFORMANCE_ON(8)
-
     for (u32 i = 0; i < Levels.size(); i++)
     {
         xr_free(Levels[i].folder);
@@ -1341,8 +1222,6 @@ void CApplication::Level_Scan()
         Level_Append((*folder)[i]);
 
     FS.file_list_close(folder);
-
-    //SECUROM_MARKER_PERFORMANCE_OFF(8)
 }
 
 void gen_logo_name(string_path& dest, LPCSTR level_name, int num)
@@ -1360,8 +1239,6 @@ void gen_logo_name(string_path& dest, LPCSTR level_name, int num)
 
 void CApplication::Level_Set(u32 L)
 {
-    //SECUROM_MARKER_PERFORMANCE_ON(9)
-
     if (L >= Levels.size()) return;
     FS.get_path("$level$")->_set(Levels[L].folder);
 
@@ -1393,15 +1270,11 @@ void CApplication::Level_Set(u32 L)
 
     if (path[0])
         m_pRender->setLevelLogo(path);
-
-    //SECUROM_MARKER_PERFORMANCE_OFF(9)
 }
 
 int CApplication::Level_ID(LPCSTR name, LPCSTR ver, bool bSet)
 {
     int result = -1;
-
-    ////SECUROM_MARKER_SECURITY_ON(7)
 
     CLocatorAPI::archives_it it = FS.m_archives.begin();
     CLocatorAPI::archives_it it_e = FS.m_archives.end();

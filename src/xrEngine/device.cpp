@@ -15,6 +15,7 @@
 
 #include "x_ray.h"
 #include "render.h"
+#include "IGame_Persistent.h"
 
 // must be defined before include of FS_impl.h
 #define INCLUDE_FROM_ENGINE
@@ -26,10 +27,8 @@
 #endif // #ifdef INGAME_EDITOR
 
 #include "xrSash.h"
-#include "igame_persistent.h"
 
 #include "../build_config_defines.h"
-
 #pragma comment( lib, "d3dx9.lib" )
 
 ENGINE_API CRenderDevice Device;
@@ -43,7 +42,6 @@ ref_light precache_light = 0;
 
 BOOL CRenderDevice::Begin()
 {
-#ifndef DEDICATED_SERVER
     switch (m_pRender->GetDeviceState())
     {
     case IRenderDeviceRender::dsOK:
@@ -68,7 +66,7 @@ BOOL CRenderDevice::Begin()
 
     FPU::m24r();
     g_bRendering = TRUE;
-#endif
+	
     return TRUE;
 }
 
@@ -180,12 +178,8 @@ void mt_Thread(void* ptr)
 #include "igame_level.h"
 void CRenderDevice::PreCache(u32 amount, bool b_draw_loadscreen, bool b_wait_user_input)
 {
-#ifdef DEDICATED_SERVER
-    amount = 0;
-#else
     if (m_pRender->GetForceGPU_REF())
 		amount = 0;
-#endif
 
     dwPrecacheFrame = dwPrecacheTotal = amount;
     if (amount && !precache_light && g_pGameLevel && g_loading_events.empty())
@@ -218,9 +212,6 @@ void CRenderDevice::on_idle()
         return;
     }
 
-#ifdef DEDICATED_SERVER
-    u32 FrameStartTime = TimerGlobal.GetElapsed_ms();
-#endif
     if (psDeviceFlags.test(rsStatistic)) 
 		g_bEnableStatGather = TRUE;
     else g_bEnableStatGather = FALSE;
@@ -282,7 +273,6 @@ void CRenderDevice::on_idle()
 	Sleep(0);
 #endif // ECO_RENDER END
 
-#ifndef DEDICATED_SERVER
     Statistic->RenderTOTAL_Real.FrameStart();
     Statistic->RenderTOTAL_Real.Begin();
 	
@@ -296,7 +286,7 @@ void CRenderDevice::on_idle()
     Statistic->RenderTOTAL_Real.End();
     Statistic->RenderTOTAL_Real.FrameEnd();
     Statistic->RenderTOTAL.accum = Statistic->RenderTOTAL_Real.accum;
-#endif // #ifndef DEDICATED_SERVER
+	
     // *** Suspend threads
     // Capture startup point
     // Release end point - allow thread to wait for startup point
@@ -312,13 +302,6 @@ void CRenderDevice::on_idle()
         seqFrameMT.Process(rp_Frame);
     }
 
-#ifdef DEDICATED_SERVER
-    u32 FrameEndTime = TimerGlobal.GetElapsed_ms();
-    u32 FrameTime = (FrameEndTime - FrameStartTime);
-    u32 DSUpdateDelta = 1000 / g_svDedicateServerUpdateReate;
-    if (FrameTime < DSUpdateDelta)
-        Sleep(DSUpdateDelta - FrameTime);
-#endif
     if (!b_is_Active)
         Sleep(1);
 }
@@ -442,7 +425,6 @@ void CRenderDevice::FrameMove()
 	Statistic->EngineTOTAL.End();
 }
 ENGINE_API BOOL bShowPauseString = TRUE;
-#include "IGame_Persistent.h"
 
 void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 {
@@ -530,12 +512,10 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
             Device.seqAppActivate.Process(rp_AppActivate);
             app_inactive_time += TimerMM.GetElapsed_ms() - app_inactive_time_start;
 
-#ifndef DEDICATED_SERVER
 # ifdef INGAME_EDITOR
             if (!editor())
 # endif // #ifdef INGAME_EDITOR
                 ShowCursor(FALSE);
-#endif // #ifndef DEDICATED_SERVER
         }
         else
         {
