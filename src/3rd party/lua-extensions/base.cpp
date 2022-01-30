@@ -1,10 +1,6 @@
 ﻿#include "../../build_config_defines.h"
 
-#ifdef USE_LUAJIT_ONE
-#pragma comment(lib, "LuaJIT-1.1.8.lib")
-#else
 #pragma comment(lib, "lua51.lib")
-#endif //-USE_LUAJIT_ONE
 
 #include "lua.hpp"
 

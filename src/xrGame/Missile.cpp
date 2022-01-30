@@ -135,10 +135,8 @@ void CMissile::OnHiddenItem()
 {
 
 //. -Hide
-	if(IsGameTypeSingle())
-		SwitchState			(eHiding);
-	else
-		SwitchState			(eHidden);
+	SwitchState			(eHiding);
+
 //-
 
 	inherited::OnHiddenItem	();
@@ -156,7 +154,7 @@ void CMissile::spawn_fake_missile()
 		CSE_Abstract		*object = Level().spawn_item(
 			*cNameSect(),
 			Position(),
-			(g_dedicated_server)?u32(-1):ai_location().level_vertex_id(),
+			ai_location().level_vertex_id(),
 			ID(),
 			true
 		);
@@ -618,11 +616,6 @@ void CMissile::activate_physic_shell()
 {
 	if (!smart_cast<CMissile*>(H_Parent())) {
 		inherited::activate_physic_shell();
-		if(m_pPhysicsShell&&m_pPhysicsShell->isActive()&&!IsGameTypeSingle())
-		{
-				m_pPhysicsShell->add_ObjectContactCallback		(ExitContactCallback);
-				m_pPhysicsShell->set_CallbackData	(smart_cast<CPhysicsShellHolder*>(H_Root()));
-		}
 		return;
 	}
 
