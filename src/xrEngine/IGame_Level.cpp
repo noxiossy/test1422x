@@ -166,7 +166,6 @@ void IGame_Level::OnRender()
     // Font
     // pApp->pFontSystem->SetSizeI(0.023f);
     // pApp->pFontSystem->OnRender ();
-#endif
 }
 
 void IGame_Level::OnFrame()
