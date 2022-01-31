@@ -157,7 +157,7 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(xrSdkDir)libraries;$(xrLibDir);$(XRAY_16X_LIBS)libvorbis-1.2.3\win32\lib\$(Platform)\Release;$(XRAY_16X_LIBS)libogg-1.1.4\win32\lib\$(Platform)\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(xrSdkDir)libraries;$(xrLibDir);$(XRAY_16X_LIBS)libvorbis\win32\lib\$(Platform)\Release;$(XRAY_16X_LIBS)libogg\win32\lib\$(Platform)\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <MapFileName />
       <SubSystem>NotSet</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
