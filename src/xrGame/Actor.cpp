@@ -214,7 +214,7 @@ CActor::CActor() : CEntityAlive(), current_ik_cam_shift(0)
     m_iLastHittingWeaponID = u16(-1);
     m_statistic_manager = NULL;
     //-----------------------------------------------------------------------------------
-    m_memory = g_dedicated_server ? 0 : xr_new<CActorMemory>(this);
+	m_memory				= xr_new<CActorMemory>(this);
     m_bOutBorder = false;
     m_hit_probability = 1.f;
     m_feel_touch_characters = 0;
@@ -270,8 +270,7 @@ void CActor::reinit()
     material().reinit();
 
     m_pUsableObject = NULL;
-    if (!g_dedicated_server)
-        memory().reinit();
+	memory().reinit							();
 
     set_input_external_handler(0);
     m_time_lock_accel = 0;
@@ -283,8 +282,7 @@ void CActor::reload(LPCSTR section)
     CInventoryOwner::reload(section);
     material().reload(section);
     CStepManager::reload(section);
-    if (!g_dedicated_server)
-        memory().reload(section);
+	memory().reload			(section);
     m_location_manager->reload(section);
 }
 void set_box(LPCSTR section, CPHMovementControl &mc, u32 box_num)
@@ -404,7 +402,7 @@ void CActor::Load(LPCSTR section)
     character_physics_support()->in_Load(section);
 
 
-    if (!g_dedicated_server)
+
     {
         LPCSTR hit_snd_sect = pSettings->r_string(section, "hit_sounds");
         for (int hit_type = 0; hit_type < (int) ALife::eHitTypeMax; ++hit_type)
@@ -517,39 +515,8 @@ void	CActor::Hit(SHit* pHDS)
     bool bPlaySound = true;
     if (!g_Alive()) bPlaySound = false;
 
-    if (!IsGameTypeSingle() && !g_dedicated_server)
-    {
-        game_PlayerState* ps = Game().GetPlayerByGameID(ID());
-        if (ps && ps->testFlag(GAME_PLAYER_FLAG_INVINCIBLE))
-        {
-            bPlaySound = false;
-            if (Device.dwFrame != last_hit_frame &&
-                HDS.bone() != BI_NONE)
-            {
-                // вычислить позицию и направленность партикла
-                Fmatrix pos;
 
-                CParticlesPlayer::MakeXFORM(this, HDS.bone(), HDS.dir, HDS.p_in_bone_space, pos);
-
-                // установить particles
-                CParticlesObject* ps = NULL;
-
-                if (eacFirstEye == cam_active && this == Level().CurrentEntity())
-                    ps = CParticlesObject::Create(invincibility_fire_shield_1st, TRUE);
-                else
-                    ps = CParticlesObject::Create(invincibility_fire_shield_3rd, TRUE);
-
-                ps->UpdateParent(pos, Fvector().set(0.f, 0.f, 0.f));
-                GamePersistent().ps_needtoplay.push_back(ps);
-            };
-        };
-
-
-        last_hit_frame = Device.dwFrame;
-    };
-
-    if (!g_dedicated_server				&&
-        !sndHit[HDS.hit_type].empty() &&
+	if(	!sndHit[HDS.hit_type].empty()	&&
         conditions().PlayHitSound(pHDS))
     {
         ref_sound& S = sndHit[HDS.hit_type][Random.randI(sndHit[HDS.hit_type].size())];
@@ -582,9 +549,7 @@ void	CActor::Hit(SHit* pHDS)
     m_hit_slowmo = conditions().HitSlowmo(pHDS);
 
     //---------------------------------------------------------------
-    if ((Level().CurrentViewEntity() == this) &&
-        !g_dedicated_server &&
-        (HDS.hit_type == ALife::eHitTypeFireWound))
+	if(Level().CurrentViewEntity() == this && (HDS.hit_type == ALife::eHitTypeFireWound) )
     {
         CObject* pLastHitter = Level().Objects.net_Find(m_iLastHitterID);
         CObject* pLastHittingWeapon = Level().Objects.net_Find(m_iLastHittingWeaponID);
@@ -600,7 +565,7 @@ void	CActor::Hit(SHit* pHDS)
             mstate_wishful &= ~mcSprint;
         }
     }
-    if (!g_dedicated_server && !m_disabled_hitmarks)
+	if(!m_disabled_hitmarks)
     {
         bool b_fireWound = (pHDS->hit_type == ALife::eHitTypeFireWound || pHDS->hit_type == ALife::eHitTypeWound_2);
         b_initiated = b_initiated && (pHDS->hit_type == ALife::eHitTypeStrike);
@@ -609,7 +574,7 @@ void	CActor::Hit(SHit* pHDS)
             HitMark(HDS.damage(), HDS.dir, HDS.who, HDS.bone(), HDS.p_in_bone_space, HDS.impulse, HDS.hit_type);
     }
 
-    if (IsGameTypeSingle())
+
     {
         if (GodMode())
         {
@@ -891,7 +856,7 @@ void CActor::Die(CObject* who)
         };
     };
 
-    if (!g_dedicated_server)
+
     {
         ::Sound->play_at_pos(sndDie[Random.randI(SND_DIE_COUNT)], this, Position());
 
@@ -900,8 +865,6 @@ void CActor::Die(CObject* who)
         m_DangerSnd.stop();
     }
 
-    if (IsGameTypeSingle())
-    {
 #ifdef FP_DEATH
         cam_Set(eacFirstEye);
 #else
@@ -928,12 +891,7 @@ void CActor::Die(CObject* who)
         /* avo: end */
 
         start_tutorial("game_over");
-    }
-    else
-    {
-        cam_Set(eacFixedLookAt);
-    }
-
+	
     mstate_wishful &= ~mcAnyMove;
     mstate_real &= ~mcAnyMove;
 
@@ -1353,7 +1311,7 @@ void CActor::shedule_Update(u32 DT)
     pCamBobbing->SetState(mstate_real, conditions().IsLimping(), IsZoomAimingMode());
 
     //звук тяжелого дыхания при уталости и хромании
-    if (this == Level().CurrentControlEntity() && !g_dedicated_server)
+    if (this == Level().CurrentControlEntity() )
     {
         if (conditions().IsLimping() && g_Alive() && !psActorFlags.test(AF_GODMODE_RT))
         {

@@ -1,8 +1,6 @@
 ﻿#include "stdafx.h"
 #pragma hdrstop
 
-#pragma comment(lib, "lua51.lib" )
-
 #include	"../../xrEngine/Render.h"
 #include	"ResourceManager.h"
 #include	"tss.h"

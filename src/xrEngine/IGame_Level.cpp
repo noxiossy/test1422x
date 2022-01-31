@@ -12,8 +12,6 @@
 #include "xr_object.h"
 #include "feel_sound.h"
 
-//#include "securom_api.h"
-
 ENGINE_API IGame_Level* g_pGameLevel = NULL;
 extern BOOL g_bLoaded;
 
@@ -142,7 +140,6 @@ bool IGame_Level::Load(u32 dwNum)
 #include "../xrCPU_Pipe/ttapi.h"
 #endif
 
-int psNET_DedicatedSleep = 5;
 void IGame_Level::OnRender()
 {
     // if (_abs(Device.fTimeDelta)<EPS_S) return;
@@ -162,11 +159,6 @@ void IGame_Level::OnRender()
 #ifdef _GPA_ENABLED
     TAL_RetireID( rtID );
 #endif // _GPA_ENABLED
-
-    // Font
-    // pApp->pFontSystem->SetSizeI(0.023f);
-    // pApp->pFontSystem->OnRender ();
-#endif
 }
 
 void IGame_Level::OnFrame()

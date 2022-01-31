@@ -595,7 +595,8 @@ public:
     }
 
 };
-#ifndef DEDICATED_SERVER
+
+
 class CCC_soundDevice : public CCC_Token
 {
     typedef CCC_Token inherited;
@@ -631,7 +632,7 @@ public:
         inherited::Save(F);
     }
 };
-#endif
+
 //-----------------------------------------------------------------------
 class CCC_ExclusiveMode : public IConsole_Command
 {
