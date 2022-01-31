@@ -407,15 +407,16 @@ void CGamePersistent::start_logo_intro()
 	if(Device.dwPrecacheFrame==0)
 	{
 		m_intro_event.bind		(this, &CGamePersistent::update_logo_intro);
-        if (0 == xr_strlen(m_game_params.m_game_or_spawn) && NULL == g_pGameLevel)
+		if (0 == xr_strlen(m_game_params.m_game_or_spawn) && NULL == g_pGameLevel)
 		{
 			VERIFY				(NULL==m_intro);
 			m_intro				= xr_new<CUISequencer>();
-            if (allow_logo()) // AVO: skip NVIDIA and other logos at load time
-            {
-			m_intro->Start		("intro_logo");
-			Msg					("intro_start intro_logo");
-			Console->Hide		();
+            		if (allow_logo()) // AVO: skip NVIDIA and other logos at load time
+           		{
+				m_intro->Start		("intro_logo");
+				Msg					("intro_start intro_logo");
+				Console->Hide		();
+			}
 		}
 	}
 }
