@@ -55,11 +55,6 @@ void CHW::Reset		(HWND hwnd)
     _RELEASE			(pBaseRT);
 
 #ifndef _EDITOR
-//#ifndef DEDICATED_SERVER
-//	BOOL	bWindowed		= !psDeviceFlags.is	(rsFullscreen);
-//#else
-//	BOOL	bWindowed		= TRUE;
-//#endif
     BOOL	bWindowed		= TRUE;
 	if (!strstr(Core.Params, "-editor"))
         bWindowed		= !psDeviceFlags.is	(rsFullscreen);
@@ -515,12 +510,6 @@ BOOL	CHW::support	(D3DFORMAT fmt, DWORD type, DWORD usage)
 
 void	CHW::updateWindowProps	(HWND m_hWnd)
 {
-//	BOOL	bWindowed				= strstr(Core.Params,"-dedicated") ? TRUE : !psDeviceFlags.is	(rsFullscreen);
-//#ifndef DEDICATED_SERVER
-//	BOOL	bWindowed				= !psDeviceFlags.is	(rsFullscreen);
-//#else
-//	BOOL	bWindowed				= TRUE;
-//#endif
 
     BOOL	bWindowed				= TRUE;
 #ifndef _EDITOR

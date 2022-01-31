@@ -29,8 +29,6 @@
 #include "xrSash.h"
 
 #include "../build_config_defines.h"
-#pragma comment( lib, "d3dx9.lib" )
-
 ENGINE_API CRenderDevice Device;
 ENGINE_API CLoadScreenRenderer load_screen_renderer;
 
@@ -197,8 +195,6 @@ void CRenderDevice::PreCache(u32 amount, bool b_draw_loadscreen, bool b_wait_use
         load_screen_renderer.start(b_wait_user_input);
     }
 }
-
-int g_svDedicateServerUpdateReate = 100;
 
 ENGINE_API xr_list<LOADING_EVENT> g_loading_events;
 
