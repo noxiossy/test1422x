@@ -39,6 +39,7 @@ void CRenderDevice::_SetupStates()
     vCameraRight.set(1, 0, 0);
 
     m_pRender->SetupStates();
+}
 
 void CRenderDevice::_Create(LPCSTR shName)
 {
