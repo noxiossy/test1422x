@@ -341,8 +341,8 @@
     <ProjectReference Include="..\sdk\include\libogg\win32\VS2010\libogg_static.vcxproj">
       <Project>{893887A1-3ABF-40A0-B931-CD0867010785}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\sdk\include\libvorbis\win32\VS2010\libvorbis\libvorbis_static.vcxproj">
-      <Project>{3A214E06-B95E-4D61-A291-1F8DF2EC10FD}</Project>
+    <ProjectReference Include="..\sdk\include\libvorbis\win32\VS2010\libvorbisfile\libvorbisfile_static.vcxproj">
+      <Project>{CEBDE98B-A6AA-46E6-BC79-FAAF823DB9EC}</Project>
     </ProjectReference>
     <ProjectReference Include="..\3rd party\openal\OpenAL-Windows\Router\Router.vcxproj">
       <Project>{566551f4-4ef1-4cb4-a131-f982e7606907}</Project>
