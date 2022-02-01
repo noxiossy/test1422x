@@ -184,6 +184,9 @@ void game_cl_TeamDeathmatch::SetGameUI(CUIGameCustom* uigame)
 
 CUIGameCustom* game_cl_TeamDeathmatch::createGameUI()
 {
+	if (g_dedicated_server)
+		return NULL;
+
 	CLASS_ID clsid			= CLSID_GAME_UI_TEAMDEATHMATCH;
 	m_game_ui				= smart_cast<CUIGameTDM*> ( NEW_INSTANCE ( clsid ) );
 	R_ASSERT				(m_game_ui);
@@ -306,6 +309,7 @@ void game_cl_TeamDeathmatch::SetCurrentBuyMenu	()
 {
 	if (!local_player) return;
 	if (!local_player->team || local_player->skin == -1) return;
+	if (g_dedicated_server) return;
 
 	if (!pCurBuyMenu)
 	{

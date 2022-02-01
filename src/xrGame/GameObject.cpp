@@ -14,6 +14,7 @@
 #include "script_game_object.h"
 #include "xrserver_objects_alife.h"
 #include "xrServer_Objects_ALife_Items.h"
+#include "game_cl_base.h"
 #include "object_factory.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "ai_object_location_impl.h"
@@ -23,6 +24,9 @@
 #include "level.h"
 #include "script_callback_ex.h"
 #include "../xrphysics/MathUtils.h"
+#include "game_cl_base_weapon_usage_statistic.h"
+#include "game_cl_mp.h"
+#include "reward_event_generator.h"
 #include "game_level_cross_table.h"
 #include "ai_obstacle.h"
 #include "magic_box3.h"
@@ -40,6 +44,8 @@ extern MagicBox3 MagicMinBox (int iQuantity, const Fvector* akPoint);
 #	include "PHDebug.h"
 #endif
 
+ENGINE_API bool g_dedicated_server;
+
 CGameObject::CGameObject		()
 {
 	m_ai_obstacle				= 0;
@@ -49,13 +55,11 @@ CGameObject::CGameObject		()
 	m_bCrPr_Activated			= false;
 	m_dwCrPr_ActivationStep		= 0;
 	m_spawn_time				= 0;
-	m_ai_location				= xr_new<CAI_ObjectLocation>();
+	m_ai_location				= !g_dedicated_server ? xr_new<CAI_ObjectLocation>() : 0;
 	m_server_flags.one			();
 
 	m_callbacks					= xr_new<CALLBACK_MAP>();
 	m_anim_mov_ctrl				= 0;
-	m_story_id = ALife::_STORY_ID(-1);
-	m_bObjectRemoved = false;
 }
 
 CGameObject::~CGameObject		()
@@ -91,7 +95,8 @@ void CGameObject::Load(LPCSTR section)
 void CGameObject::reinit	()
 {
 	m_visual_callback.clear	();
-	ai_location().reinit	();
+	if (!g_dedicated_server)
+        ai_location().reinit	();
 
 	// clear callbacks	
 	for (CALLBACK_MAP_IT it = m_callbacks->begin(); it != m_callbacks->end(); ++it) it->second.clear();
@@ -110,9 +115,6 @@ void CGameObject::net_Destroy	()
 #endif
 
 	VERIFY					(m_spawned);
-	if (!m_spawned)
-		Msg("!![%s] Already destroyed object detected: [%s]", __FUNCTION__, this->cName().c_str());
-
 	if( m_anim_mov_ctrl )
 					destroy_anim_mov_ctrl	();
 
@@ -202,6 +204,8 @@ void CGameObject::OnEvent		(NET_Packet& P, u16 type)
 			{
 			case GE_HIT_STATISTIC:
 				{
+					if (GameID() != eGameIDSingle)
+						Game().m_WeaponUsageStatistic->OnBullet_Check_Request(&HDS);
 				}break;
 			default:
 				{
@@ -210,6 +214,13 @@ void CGameObject::OnEvent		(NET_Packet& P, u16 type)
 			SetHitInfo(Hitter, Weapon, HDS.bone(), HDS.p_in_bone_space, HDS.dir);
 			Hit				(&HDS);
 			//---------------------------------------------------------------------------
+			if (GameID() != eGameIDSingle)
+			{
+				Game().m_WeaponUsageStatistic->OnBullet_Check_Result(false);
+				game_cl_mp*	mp_game = smart_cast<game_cl_mp*>(&Game());
+				if (mp_game->get_reward_generator())
+					mp_game->get_reward_generator()->OnBullet_Hit(Hitter, this, Weapon, HDS.boneID);
+			}
 			//---------------------------------------------------------------------------
 		}
 		break;
@@ -242,9 +253,6 @@ void VisualCallback(IKinematics *tpKinematics);
 BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 {
 	VERIFY							(!m_spawned);
-	if (m_spawned)
-		Msg("!![%s] Already spawned object detected: [%s]", __FUNCTION__, this->cName().c_str());
-
 	m_spawned						= true;
 	m_spawn_time					= Device.dwFrame;
 	m_ai_obstacle					= xr_new<ai_obstacle>(this);
@@ -288,6 +296,8 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 
 
 	setID							(E->ID);
+//	if (GameID() != eGameIDSingle)
+//		Msg ("CGameObject::net_Spawn -- object %s[%x] setID [%d]", *(E->s_name), this, E->ID);
 	
 	// XForm
 	XFORM().setXYZ					(E->o_Angle);
@@ -302,16 +312,8 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 	VERIFY							(!fis_zero(DET(renderable.xform)));
 	CSE_ALifeObject					*O = smart_cast<CSE_ALifeObject*>(E);
 	if (O && xr_strlen(O->m_ini_string)) {
-#pragma warning(push)
-#pragma warning(disable:4238)
-		m_ini_file					= xr_new<CInifile>(
-			&IReader				(
-				(void*)(*(O->m_ini_string)),
-				O->m_ini_string.size()
-			),
-			FS.get_path("$game_config$")->m_Path
-		);
-#pragma warning(pop)
+		IReader r((void*)(*(O->m_ini_string)), O->m_ini_string.size());
+		m_ini_file = xr_new<CInifile>(&r, FS.get_path("$game_config$")->m_Path);
 	}
 
 	m_story_id						= ALife::_STORY_ID(-1);
@@ -342,10 +344,12 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 	}
 
 	reload						(*cNameSect());
-	CScriptBinder::reload	(*cNameSect());
+	if(!g_dedicated_server)
+		CScriptBinder::reload	(*cNameSect());
 	
 	reinit						();
-	CScriptBinder::reinit	();
+	if(!g_dedicated_server)
+		CScriptBinder::reinit	();
 #ifdef DEBUG
 	if(ph_dbg_draw_mask1.test(ph_m1_DbgTrackObject)&&stricmp(PH_DBG_ObjectTrackName(),*cName())==0)
 	{
@@ -793,7 +797,6 @@ void VisualCallback	(IKinematics *tpKinematics)
 
 CScriptGameObject *CGameObject::lua_game_object		() const
 {
-    if (!this) return NULL;
 #ifdef DEBUG
 	if (!m_spawned)
 		Msg							("! you are trying to use a destroyed object [%x]",this);
@@ -838,7 +841,8 @@ void CGameObject::shedule_Update	(u32 dt)
 	// Msg							("-SUB-:[%x][%s] CGameObject::shedule_Update",smart_cast<void*>(this),*cName());
 	inherited::shedule_Update	(dt);
 	
-	CScriptBinder::shedule_Update(dt);
+	if(!g_dedicated_server)
+		CScriptBinder::shedule_Update(dt);
 }
 
 BOOL CGameObject::net_SaveRelevant	()
@@ -900,7 +904,8 @@ u32	CGameObject::ef_detector_type		() const
 void CGameObject::net_Relcase			(CObject* O)
 {
 	inherited::net_Relcase		(O);
-	CScriptBinder::net_Relcase	(O);
+	if(!g_dedicated_server)
+		CScriptBinder::net_Relcase	(O);
 }
 
 CGameObject::CScriptCallbackExVoid &CGameObject::callback(GameObject::ECallbackType type) const

@@ -47,7 +47,9 @@ public:
     VTResume* tune_resume;
     void Initialize();
 
+#ifndef DEDICATED_SERVER
     void InitializeNotDedicated();
+#endif // DEDICATED_SERVER
 
     void Destroy();
 

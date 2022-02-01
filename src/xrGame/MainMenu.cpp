@@ -24,8 +24,10 @@
 #include "ui/UICDkey.h"
 
 #include <shellapi.h>
+#pragma comment(lib, "shell32.lib")
 
 #include "object_broker.h"
+
 #include "account_manager.h"
 #include "login_manager.h"
 #include "profile_store.h"
@@ -95,6 +97,7 @@ CMainMenu::CMainMenu	()
 	GetCDKeyFromRegistry			();
 	m_demo_info_loader				= NULL;
 
+	if(!g_dedicated_server)
 	{
 		g_btnHint						= xr_new<CUIButtonHint>();
 		g_statHint						= xr_new<CUIButtonHint>();
@@ -173,6 +176,8 @@ void CMainMenu::Activate	(bool bActivate)
 		(m_screenshotFrame == Device.dwFrame+1))	return;
 
 	bool b_is_single				= IsGameTypeSingle();
+
+	if(g_dedicated_server && bActivate) return;
 
 	if(bActivate)
 	{

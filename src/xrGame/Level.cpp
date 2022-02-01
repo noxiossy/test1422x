@@ -36,11 +36,13 @@
 #include "level_sounds.h"
 #include "car.h"
 #include "trade_parameters.h"
+#include "game_cl_base_weapon_usage_statistic.h"
 #include "MainMenu.h"
 #include "xrEngine/XR_IOConsole.h"
 #include "actor.h"
 #include "player_hud.h"
 #include "UI/UIGameTutorial.h"
+#include "file_transfer.h"
 #include "message_filter.h"
 #include "demoplay_control.h"
 #include "demoinfo.h"
@@ -57,7 +59,7 @@
 #include "PHDebug.h"
 #include "debug_text_tree.h"
 #endif
-
+ENGINE_API bool g_dedicated_server;
 //AVO: used by SPAWN_ANTIFREEZE (by alpet)
 #ifdef SPAWN_ANTIFREEZE
 ENGINE_API BOOL	g_bootComplete;
@@ -110,14 +112,14 @@ IPureClient(Device.GetTimerGlobal())
     eEnvironment = Engine.Event.Handler_Attach("LEVEL:Environment", this);
     eEntitySpawn = Engine.Event.Handler_Attach("LEVEL:spawn", this);
     m_pBulletManager = xr_new<CBulletManager>();
-
+    if (!g_dedicated_server)
     {
         m_map_manager = xr_new<CMapManager>();
         m_game_task_manager = xr_new<CGameTaskManager>();
     }
     m_dwDeltaUpdate = u32(fixed_step * 1000);
     m_seniority_hierarchy_holder = xr_new<CSeniorityHierarchyHolder>();
-
+    if (!g_dedicated_server)
     {
         m_level_sound_manager = xr_new<CLevelSoundManager>();
         m_space_restriction_manager = xr_new<CSpaceRestrictionManager>();
@@ -130,33 +132,8 @@ IPureClient(Device.GetTimerGlobal())
     }
     m_ph_commander = xr_new<CPHCommander>();
     m_ph_commander_scripts = xr_new<CPHCommander>();
-	//---------------------------------------------------------
-	pStatGraphR = NULL;
-	pStatGraphS = NULL;
-	//---------------------------------------------------------
     pObjects4CrPr.clear();
     pActors4CrPr.clear();
-	//---------------------------------------------------------
-	pCurrentControlEntity = NULL;
-
-	//---------------------------------------------------------
-	m_dwCL_PingLastSendTime = 0;
-	m_dwCL_PingDeltaSend = 1000;
-	m_dwRealPing = 0;
-
-	//---------------------------------------------------------	
-	m_writer = NULL;
-	m_reader = NULL;
-	m_DemoPlay = FALSE;
-	m_DemoPlayStarted	= FALSE;
-	m_DemoPlayStoped	= FALSE;
-	m_DemoSave = FALSE;
-	m_DemoSaveStarted = FALSE;
-	m_current_spectator = NULL;
-	m_msg_filter = NULL;
-	m_demoplay_control = NULL;
-	m_demo_info	= NULL;
-
     g_player_hud = xr_new<player_hud>();
     g_player_hud->load_default();
     Msg("%s", Core.Params);
@@ -202,8 +179,8 @@ CLevel::~CLevel()
 #ifdef DEBUG
     xr_delete(m_debug_renderer);
 #endif
-
-    ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorLevel);
+    if (!g_dedicated_server)
+        ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorLevel);
     xr_delete(game);
     xr_delete(game_events);
     xr_delete(m_pBulletManager);
@@ -462,10 +439,14 @@ void CLevel::ProcessGameEvents()
             }
             case M_STATISTIC_UPDATE:
             {
+                if (GameID() != eGameIDSingle)
+                    Game().m_WeaponUsageStatistic->OnUpdateRequest(&P);
                 break;
             }
             case M_FILE_TRANSFER:
             {
+                if (m_file_transfer) // in case of net_Stop
+                    m_file_transfer->on_message(&P);
                 break;
             }
             case M_GAMEMESSAGE:
@@ -481,6 +462,8 @@ void CLevel::ProcessGameEvents()
             }
         }
     }
+    if (OnServer() && GameID() != eGameIDSingle)
+        Game().m_WeaponUsageStatistic->Send_Check_Respond();
 }
 
 #ifdef DEBUG_MEMORY_MANAGER
@@ -534,7 +517,9 @@ void CLevel::OnFrame()
 #endif
     Fvector	temp_vector;
     m_feel_deny.feel_touch_update(temp_vector, 0.f);
-
+    if (GameID() != eGameIDSingle)
+        psDeviceFlags.set(rsDisableObjectsAsCrows, true);
+    else
         psDeviceFlags.set(rsDisableObjectsAsCrows, false);
     // commit events from bullet manager from prev-frame
     Device.Statistic->TEST0.Begin();
@@ -543,6 +528,13 @@ void CLevel::OnFrame()
     // Client receive
     if (net_isDisconnected())
     {
+        if (OnClient() && GameID() != eGameIDSingle)
+        {
+#ifdef DEBUG
+            Msg("--- I'm disconnected, so clear all objects...");
+#endif
+            ClearAllObjects();
+        }
         Engine.Event.Defer("kernel:disconnect");
         return;
     }
@@ -555,12 +547,13 @@ void CLevel::OnFrame()
     ProcessGameEvents();
     if (m_bNeed_CrPr)
         make_NetCorrectionPrediction();
-
+    if (!g_dedicated_server)
+    {
         if (g_mt_config.test(mtMap))
             Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_map_manager, &CMapManager::Update));
         else
             MapManager().Update();
-        if (Device.dwPrecacheFrame == 0)
+        if (IsGameTypeSingle() && Device.dwPrecacheFrame == 0)
         {
             // XXX nitrocaster: was enabled in x-ray 1.5; to be restored or removed
             //if (g_mt_config.test(mtMap))
@@ -571,10 +564,11 @@ void CLevel::OnFrame()
             //else
             GameTaskManager().UpdateTasks();
         }
+    }
     // Inherited update
     inherited::OnFrame();
     // Draw client/server stats
-    if (psDeviceFlags.test(rsStatistic))
+    if (!g_dedicated_server && psDeviceFlags.test(rsStatistic))
     {
         CGameFont* F = UI().Font().pFontDI;
         if (!psNET_direct_connect)
@@ -659,13 +653,15 @@ void CLevel::OnFrame()
 #endif
     g_pGamePersistent->Environment().SetGameTime(GetEnvironmentGameDayTimeSec(),
         game->GetEnvironmentGameTimeFactor());
-    ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->update();
+    if (!g_dedicated_server)
+        ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->update();
     m_ph_commander->update();
     m_ph_commander_scripts->update();
     Device.Statistic->TEST0.Begin();
     BulletManager().CommitRenderSet();
     Device.Statistic->TEST0.End();
     // update static sounds
+    if (!g_dedicated_server)
     {
         if (g_mt_config.test(mtLevelSounds))
         {
@@ -676,6 +672,7 @@ void CLevel::OnFrame()
             m_level_sound_manager->Update();
     }
     // defer LUA-GC-STEP
+    if (!g_dedicated_server)
     {
         if (g_mt_config.test(mtLUA_GC))
             Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(this, &CLevel::script_gc));
@@ -753,6 +750,12 @@ void CLevel::OnRender()
             CTeamBaseZone* team_base_zone = smart_cast<CTeamBaseZone*>(_O);
             if (team_base_zone)
                 team_base_zone->OnRender();
+            if (GameID() != eGameIDSingle)
+            {
+                CInventoryItem* pIItem = smart_cast<CInventoryItem*>(_O);
+                if (pIItem)
+                    pIItem->OnRender();
+            }
             if (dbg_net_Draw_Flags.test(dbg_draw_skeleton)) //draw skeleton
             {
                 CGameObject* pGO = smart_cast<CGameObject*>	(_O);
@@ -987,7 +990,22 @@ bool CLevel::InterpolationDisabled()
 
 void CLevel::PhisStepsCallback(u32 Time0, u32 Time1)
 {
-	return;
+    if (!Level().game)
+        return;
+    if (GameID() == eGameIDSingle)
+        return;
+    //#pragma todo("Oles to all: highly inefficient and slow!!!")
+    //fixed (Andy)
+    /*
+    for (xr_vector<CObject*>::iterator O=Level().Objects.objects.begin(); O!=Level().Objects.objects.end(); ++O)
+    {
+    if( smart_cast<CActor*>((*O)){
+    CActor* pActor = smart_cast<CActor*>(*O);
+    if (!pActor || pActor->Remote()) continue;
+    pActor->UpdatePosStack(Time0, Time1);
+    }
+    };
+    */
 }
 
 void CLevel::SetNumCrSteps(u32 NumSteps)
@@ -1097,6 +1115,7 @@ void CLevel::OnAlifeSimulatorLoaded()
 
 void CLevel::OnSessionTerminate(LPCSTR reason)
 {
+    MainMenu()->OnSessionTerminate(reason);
 }
 
 u32	GameID()

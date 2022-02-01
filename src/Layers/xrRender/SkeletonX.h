@@ -1,6 +1,9 @@
 ﻿// SkeletonX.h: interface for the CSkeletonX class.
 //
 //////////////////////////////////////////////////////////////////////
+
+#ifndef SkeletonXH
+#define SkeletonXH
 #pragma once
 
 #include "SkeletonCustom.h"
@@ -126,3 +129,5 @@ BOOL pick_bone(CKinematics* Parent, IKinematics::pick_result &r, float dist, con
 	return intersect;
 }
 #endif	//	USE_DX10
+
+#endif // SkeletonXH

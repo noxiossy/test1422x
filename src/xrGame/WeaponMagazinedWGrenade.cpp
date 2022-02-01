@@ -322,7 +322,8 @@ void  CWeaponMagazinedWGrenade::LaunchGrenade()
             }
             E->g_fireParams(this, p1, d);
         }
-		p1.set						(get_LastFP2());
+        if (IsGameTypeSingle())
+            p1.set(get_LastFP2());
 
         Fmatrix							launch_matrix;
         launch_matrix.identity();

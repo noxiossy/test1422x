@@ -9,9 +9,11 @@ u64		g_qwStartGameTime		= 12*60*60*1000;
 float	g_fTimeFactor			= pSettings->r_float("alife","time_factor");
 u64		g_qwEStartGameTime		= 12*60*60*1000;
 
+ENGINE_API	bool g_dedicated_server;
+EGameIDs ParseStringToGameType(LPCSTR str);
+
 game_PlayerState::game_PlayerState(NET_Packet* account_info)
 {
-	GameID				= 0;
 	skin				= 0;
 	m_online_time		= 0;
 	team				= 0;
@@ -34,7 +36,13 @@ game_PlayerState::game_PlayerState(NET_Packet* account_info)
 		net_Import(*account_info);
 	} else
 	{
-		m_account.load_account();
+		if (g_dedicated_server)
+		{
+			setFlag(GAME_PLAYER_FLAG_SKIP);
+		} else
+		{
+			m_account.load_account();
+		}
 	}
 }
 
@@ -193,7 +201,7 @@ game_TeamState::game_TeamState()
 
 game_GameState::game_GameState()
 {
-	m_type						= eGameIDSingle;// EGameIDs(u32(0));
+	m_type						= EGameIDs(u32(0));
 	m_phase						= GAME_PHASE_NONE;
 	m_round						= -1;
 	m_round_start_time_str[0]	= 0;
@@ -209,7 +217,54 @@ game_GameState::game_GameState()
 
 CLASS_ID game_GameState::getCLASS_ID(LPCSTR game_type_name, bool isServer)
 {
-	return (isServer)?TEXT2CLSID("SV_SINGL"):TEXT2CLSID("CL_SINGL");
+/*	if (!g_dedicated_server)
+	{
+		string_path		S;
+		FS.update_path	(S,"$game_config$","script.ltx");
+		CInifile		*l_tpIniFile = xr_new<CInifile>(S);
+		R_ASSERT		(l_tpIniFile);
+
+		string256				I;
+		xr_strcpy(I,l_tpIniFile->r_string("common","game_type_clsid_factory"));
+
+		luabind::functor<LPCSTR>	result;
+		R_ASSERT					(ai().script_engine().functor(I,result));
+		shared_str clsid = result		(game_type_name, isServer);
+
+		xr_delete			(l_tpIniFile);
+		if(clsid.size()==0)
+			Debug.fatal		(DEBUG_INFO,"Unknown game type: %s",game_type_name);
+
+		return				(TEXT2CLSID(*clsid));
+	}*/
+	
+	EGameIDs gameID = ParseStringToGameType(game_type_name);
+	switch(gameID)
+	{
+	case eGameIDSingle:
+		return			(isServer)?TEXT2CLSID("SV_SINGL"):TEXT2CLSID("CL_SINGL");
+		break;
+
+	case eGameIDDeathmatch:
+		return			(isServer)?TEXT2CLSID("SV_DM"):TEXT2CLSID("CL_DM");
+		break;
+
+	case eGameIDTeamDeathmatch:
+		return			(isServer)?TEXT2CLSID("SV_TDM"):TEXT2CLSID("CL_TDM");
+		break;
+
+	case eGameIDArtefactHunt:
+		return			(isServer)?TEXT2CLSID("SV_AHUNT"):TEXT2CLSID("CL_AHUNT");
+		break;
+
+	case eGameIDCaptureTheArtefact:
+		return			(isServer)?TEXT2CLSID("SV_CTA"):TEXT2CLSID("CL_CTA");
+		break;
+
+	default:
+		return			(TEXT2CLSID(""));
+		break;
+	}
 }
 
 void game_GameState::switch_Phase		(u32 new_phase)

@@ -129,13 +129,13 @@ void			xrGameSpyServer::Update				()
 int				xrGameSpyServer::GetPlayersCount()
 {
 	int NumPlayers = net_players.ClientsCount();
-	if ( NumPlayers < 1) return NumPlayers;
+	if (!g_dedicated_server || NumPlayers < 1) return NumPlayers;
 	return NumPlayers - 1;
 };
 
 bool			xrGameSpyServer::NeedToCheckClient_GameSpy_CDKey	(IClient* CL)
 {
-	if (!m_bCDKey_Initialized)
+	if (!m_bCDKey_Initialized || (CL == GetServerClient() && g_dedicated_server))
 	{
 		return false;
 	};
@@ -167,9 +167,18 @@ u32				xrGameSpyServer::OnMessage(NET_Packet& P, ClientID sender)			// Non-Zero 
 	{
 	case M_GAMESPY_CDKEY_VALIDATION_CHALLENGE_RESPOND:
 		{
-			string128 ResponseStr;
-			P.r_stringZ(ResponseStr);
-			
+            string128 ResponseStr = "";
+            u32 bytesRemain = P.r_elapsed();
+            if (bytesRemain == 0 || bytesRemain > sizeof(ResponseStr))
+            {
+                xr_string clientIp = CL->m_cAddress.to_string();
+                Msg("! WARNING: Validation challenge respond from client [%s] is %s. DoS attack?",
+                    clientIp.c_str(), bytesRemain == 0 ? "empty" : "too long");
+                DisconnectClient(CL, "");
+                // XXX nitrocaster: block IP address after X such attempts
+                return 0;
+            }
+            P.r_stringZ(ResponseStr);
 			if (!CL->m_bCDKeyAuth)
 			{
 #ifndef MASTER_GOLD

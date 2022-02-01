@@ -13,6 +13,7 @@
 #include "weapon.h"
 #include "eatable_item_object.h" 
 #include "Missile.h"
+#include "game_cl_base_weapon_usage_statistic.h"
 #include "clsid_game.h"
 
 //#define DELAYED_ROUND_TIME	7000
@@ -208,6 +209,8 @@ void game_sv_Deathmatch::OnPlayerKillPlayer(game_PlayerState* ps_killer, game_Pl
 	KILL_RES KillRes					= GetKillResult (ps_killer, ps_killed);
 	bool CanGiveBonus					= OnKillResult		(KillRes, ps_killer, ps_killed);
 
+	Game().m_WeaponUsageStatistic->OnPlayerKillPlayer		(ps_killer,KillType,SpecialKillType);
+
 	if (CanGiveBonus) 
 		OnGiveBonus						(KillRes, ps_killer, ps_killed, KillType, SpecialKillType, pWeaponA);
 }
@@ -229,6 +232,7 @@ void game_sv_Deathmatch::Processing_Victim(game_PlayerState* pVictim, game_Playe
 	SetPlayersDefItems					(pVictim);
 
 	Victim_Exp							(pVictim);
+	Game().m_WeaponUsageStatistic->OnPlayerKilled(pVictim);
 };
 
 void game_sv_Deathmatch::Victim_Exp(game_PlayerState* pVictim)
@@ -447,8 +451,8 @@ void	game_sv_Deathmatch::Update()
 		break;
 	case GAME_PHASE_PENDING:
 		{
-			//CheckStatisticsReady();
-			//checkForRoundStart	();
+			CheckStatisticsReady();
+			checkForRoundStart	();
 		}
 		break;
 	case GAME_PHASE_PLAYER_SCORES:
@@ -1771,7 +1775,7 @@ void game_sv_Deathmatch::OnPlayerConnect(ClientID id_who)
 	ps_who->resetFlag(GAME_PLAYER_FLAG_SKIP);
 	
 
-	if ( (m_bSpectatorMode) && (xrCData == m_server->GetServerClient()) )
+	if ( (g_dedicated_server||m_bSpectatorMode) && (xrCData == m_server->GetServerClient()) )
 	{
 		ps_who->setFlag(GAME_PLAYER_FLAG_SKIP);
 		return;
@@ -2100,7 +2104,7 @@ void	game_sv_Deathmatch::ReadOptions				(shared_str &options)
 	g_sv_dm_dwAnomalySetLengthTime = get_option_i(*options, "anslen", g_sv_dm_dwAnomalySetLengthTime); //in (min)
 	//-----------------------------------------------------------------------
 	m_bSpectatorMode = false;
-	if ((get_option_i(*options,"spectr",-1) != -1))
+	if (!g_dedicated_server && (get_option_i(*options,"spectr",-1) != -1))
 	{
 		m_bSpectatorMode = true;
 		m_dwSM_SwitchDelta =  get_option_i(*options,"spectr",0)*1000;

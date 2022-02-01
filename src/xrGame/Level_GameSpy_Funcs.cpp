@@ -6,7 +6,7 @@
 
 
 #include "../xrEngine/igame_persistent.h"
-/*void						CLevel::OnGameSpyChallenge			(NET_Packet* P)
+void						CLevel::OnGameSpyChallenge			(NET_Packet* P)
 {
 #ifndef MASTER_GOLD
 	Msg("xrGS::CDKey::Level : Responding on Challenge");
@@ -31,4 +31,3 @@
 	g_pGamePersistent->LoadTitle();
 };
 
-*/

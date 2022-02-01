@@ -22,7 +22,7 @@
 //-AVO
 
 #pragma warning(push)
-#pragma warning(disable:4995 4297 4913)
+#pragma warning(disable:4995)
 #include <luabind/luabind.hpp>
 #pragma warning(pop)
 

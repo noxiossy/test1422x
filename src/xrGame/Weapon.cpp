@@ -108,7 +108,12 @@ void CWeapon::UpdateXForm()
     CEntityAlive*			E = smart_cast<CEntityAlive*>(H_Parent());
 
     if (!E)
-       return;
+    {
+        if (!IsGameTypeSingle())
+            UpdatePosition(H_Parent()->XFORM());
+
+        return;
+    }
 
     const CInventoryOwner	*parent = smart_cast<const CInventoryOwner*>(E);
     if (parent && parent->use_simplified_visual())
@@ -411,6 +416,7 @@ void CWeapon::Load(LPCSTR section)
     {
         shared_str scope_tex_name = pSettings->r_string(cNameSect(), "scope_texture");
         m_zoom_params.m_fScopeZoomFactor = pSettings->r_float(cNameSect(), "scope_zoom_factor");
+        if (!g_dedicated_server)
         {
             m_UIScope = xr_new<CUIWindow>();
             if (!pWpnScopeXml)
@@ -752,7 +758,10 @@ void CWeapon::OnHiddenItem()
 {
     m_BriefInfo_CalcFrame = 0;
 
-    SwitchState(eHiding);
+    if (IsGameTypeSingle())
+        SwitchState(eHiding);
+    else
+        SwitchState(eHidden);
 
     OnZoomOut();
     inherited::OnHiddenItem();
@@ -803,7 +812,10 @@ void CWeapon::UpdateCL()
     UpdateFlameParticles();
     UpdateFlameParticles2();
 
-    if ((GetNextState() == GetState()) && H_Parent() == Level().CurrentEntity())
+    if (!IsGameTypeSingle())
+        make_Interpolation();
+
+    if ((GetNextState() == GetState()) && IsGameTypeSingle() && H_Parent() == Level().CurrentEntity())
     {
         CActor* pActor = smart_cast<CActor*>(H_Parent());
         if (pActor && !pActor->AnyMove() && this == pActor->inventory().ActiveItem())
@@ -1049,7 +1061,7 @@ void CWeapon::SpawnAmmo(u32 boxCurr, LPCSTR ammoSect, u32 ParentID)
         D->ID_Phantom = 0xffff;
         D->s_flags.assign(M_SPAWN_OBJECT_LOCAL);
         D->RespawnTime = 0;
-		l_pA->m_tNodeID				= ai_location().level_vertex_id();
+        l_pA->m_tNodeID = g_dedicated_server ? u32(-1) : ai_location().level_vertex_id();
 
         if (boxCurr == 0xffffffff)
             boxCurr = l_pA->m_boxSize;
@@ -1554,6 +1566,14 @@ int		g_iWeaponRemove = 1;
 
 bool CWeapon::NeedToDestroyObject()	const
 {
+    if (GameID() == eGameIDSingle) return false;
+    if (Remote()) return false;
+    if (H_Parent()) return false;
+    if (g_iWeaponRemove == -1) return false;
+    if (g_iWeaponRemove == 0) return true;
+    if (TimePassedAfterIndependant() > m_dwWeaponRemoveTime)
+        return true;
+
     return false;
 }
 

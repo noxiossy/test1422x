@@ -231,7 +231,13 @@ void CParticlesPlayer::AutoStopParticles(const shared_str& ps_name, u16 bone_id,
 		if(pInfo) pInfo->life_time = life_time;
 	}
 }
-
+struct SRP
+{
+	bool operator	() (CParticlesPlayer::SParticlesInfo& pi)
+	{
+		return ! pi.ps;
+	}
+};
 void CParticlesPlayer::UpdateParticles()
 {
 	if	(!m_bActiveBones)	return;
@@ -269,12 +275,8 @@ void CParticlesPlayer::UpdateParticles()
 				m_bActiveBones  = true;
 		}
 
-			const auto RI = std::remove_if(b_info.particles.begin(), b_info.particles.end(), [](const SParticlesInfo& PI)
-			{
-				return !PI.ps;
-			});
-
-		b_info.particles.erase(RI, b_info.particles.end());
+		ParticlesInfoListIt RI=std::remove_if(b_info.particles.begin(),b_info.particles.end(),SRP());
+		b_info.particles.erase(RI,b_info.particles.end());
 	}
 }
 

@@ -147,7 +147,7 @@ CSE_Abstract::CSE_Abstract					(LPCSTR caSection)
 
 		}
 		else
-			Msg( "ERROR! cannot open config file %s", raw_file_name );
+			Msg					( "! cannot open config file %s", raw_file_name );
 	}
 
 #ifndef AI_COMPILER

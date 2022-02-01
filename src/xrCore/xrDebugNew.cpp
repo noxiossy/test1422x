@@ -4,7 +4,7 @@
 #include "os_clipboard.h"
 
 #include <sal.h>
-#include "../3rd party/DxErr/src/dxerr.h"
+#include <dxerr.h>
 
 #pragma warning(push)
 #pragma warning(disable:4995)

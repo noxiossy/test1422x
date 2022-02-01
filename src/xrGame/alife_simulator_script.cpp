@@ -284,22 +284,12 @@ void CALifeSimulator__release					(CALifeSimulator *self, CSE_Abstract *object, 
 //	self->release						(object,true);
 
 	THROW								(object);
-    if (!object) return;
 	CSE_ALifeObject						*alife_object = smart_cast<CSE_ALifeObject*>(object);
 	THROW								(alife_object);
-    if (!alife_object) return;
 	if (!alife_object->m_bOnline) {
 		self->release					(object,true);
 		return;
 	}
-
-	// awesome hack, for everyone only
-	CObject* obj = Level().Objects.net_Find(object->ID);
-	if (!obj)
-		return;
-
-	if (obj->getDestroy())
-		return;
 
 	// awful hack, for stohe only
 	NET_Packet							packet;

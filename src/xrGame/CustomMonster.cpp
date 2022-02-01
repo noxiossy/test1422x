@@ -116,9 +116,11 @@ CCustomMonster::~CCustomMonster	()
 
 #ifdef DEBUG
 	Msg							("dumping client spawn manager stuff for object with id %d",ID());
-	Level().client_spawn_manager().dump	(ID());
+	if(!g_dedicated_server)
+		Level().client_spawn_manager().dump	(ID());
 #endif // DEBUG
-	Level().client_spawn_manager().clear(ID());
+	if(!g_dedicated_server)
+		Level().client_spawn_manager().clear(ID());
 
 }
 
@@ -1367,6 +1369,9 @@ void CCustomMonster::destroy_anim_mov_ctrl	()
 void CCustomMonster::ForceTransform(const Fmatrix& m)
 {
 	character_physics_support()->ForceTransform( m );
+	const float block_damage_time_seconds = 2.f;
+	if(!IsGameTypeSingle())
+		character_physics_support()->movement()->BlockDamageSet( u64( block_damage_time_seconds/fixed_step ) );
 }
 
 Fvector	CCustomMonster::spatial_sector_point	( )

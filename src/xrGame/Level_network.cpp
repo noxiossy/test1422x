@@ -21,6 +21,7 @@
 #include "../xrNetServer/NET_AuthCheck.h"
 
 #include "../xrphysics/physicscommon.h"
+ENGINE_API bool g_dedicated_server;
 
 const int max_objects_size			= 2*1024;
 const int max_objects_size_in_save	= 8*1024;
@@ -29,6 +30,7 @@ extern bool	g_b_ClearGameCaptions;
 
 void CLevel::remove_objects	()
 {
+	if (!IsGameTypeSingle()) Msg("CLevel::remove_objects - Start");
 	BOOL						b_stored = psDeviceFlags.test(rsDisableObjectsAsCrows);
 	
 	int loop = 5;
@@ -74,12 +76,14 @@ void CLevel::remove_objects	()
 	ph_commander().clear		();
 	ph_commander_scripts().clear();
 
-	space_restriction_manager().clear	();
+	if(!g_dedicated_server)
+		space_restriction_manager().clear	();
 
 	psDeviceFlags.set			(rsDisableObjectsAsCrows, b_stored);
 	g_b_ClearGameCaptions		= true;
 
-	ai().script_engine().collect_all_garbage	();
+	if (!g_dedicated_server)
+		ai().script_engine().collect_all_garbage	();
 
 	stalker_animation_data_storage().clear		();
 	
@@ -89,9 +93,11 @@ void CLevel::remove_objects	()
 	Render->clear_static_wallmarks				();
 
 #ifdef DEBUG
-	if (!client_spawn_manager().registry().empty())
-		client_spawn_manager().dump				();
+	if(!g_dedicated_server)
+		if (!client_spawn_manager().registry().empty())
+			client_spawn_manager().dump				();
 #endif // DEBUG
+	if(!g_dedicated_server)
 	{
 		VERIFY										(client_spawn_manager().registry().empty());
 		client_spawn_manager().clear			();
@@ -101,6 +107,7 @@ void CLevel::remove_objects	()
 
 //.	xr_delete									(m_seniority_hierarchy_holder);
 //.	m_seniority_hierarchy_holder				= xr_new<CSeniorityHierarchyHolder>();
+	if (!IsGameTypeSingle()) Msg("CLevel::remove_objects - End");
 }
 
 #ifdef DEBUG
@@ -156,7 +163,8 @@ void CLevel::net_Stop		()
 		xr_delete				(Server);
 	}
 
-	ai().script_engine().collect_all_garbage	();
+	if (!g_dedicated_server)
+		ai().script_engine().collect_all_garbage	();
 
 #ifdef DEBUG
 	show_animation_stats		();
@@ -166,8 +174,17 @@ void CLevel::net_Stop		()
 
 void CLevel::ClientSend()
 {
+	if (GameID() == eGameIDSingle || OnClient())
+	{
+		if ( !net_HasBandwidth() ) return;
+	};
+
 	NET_Packet				P;
 	u32						start	= 0;
+	//----------- for E3 -----------------------------
+//	if () 
+	{
+//		if (!(Game().local_player) || Game().local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
 		if (CurrentControlEntity()) 
 		{
 			CObject* pObj = CurrentControlEntity();
@@ -188,7 +205,12 @@ void CLevel::ClientSend()
 				}				
 			}			
 		}		
-
+	};
+	if (m_file_transfer)
+	{
+		m_file_transfer->update_transfer();
+		m_file_transfer->stop_obsolete_receivers();
+	}
 	if (OnClient()) 
 	{
 		Flush_Send_Buffer();
@@ -278,6 +300,12 @@ void CLevel::Send		(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 		Server->OnMessageSync	(P,Game().local_svdpnid	);
 	}else											
 		IPureClient::Send	(P,dwFlags,dwTimeout	);
+
+	if (g_pGameLevel && Level().game && GameID() != eGameIDSingle && !g_SV_Disable_Auth_Check)		{
+		// anti-cheat
+		phTimefactor		= 1.f					;
+		psDeviceFlags.set	(rsConstantFPS,FALSE)	;	
+	}
 }
 
 void CLevel::net_Update	()
@@ -439,12 +467,32 @@ void CLevel::OnConnectResult(NET_Packet*	P)
 			}break;
 		case ecr_have_been_banned:
 			{
-
+				if (!xr_strlen(ResultStr))
+				{
+					MainMenu()->OnSessionTerminate(
+						CStringTable().translate("st_you_have_been_banned").c_str()
+					);
+				} else
+				{
+					MainMenu()->OnSessionTerminate(
+						CStringTable().translate(ResultStr).c_str()
+					);
+				}
 			}break;
 		case ecr_profile_error:
 			{
-				
-			}break;
+				if (!xr_strlen(ResultStr))
+				{
+					MainMenu()->OnSessionTerminate(
+						CStringTable().translate("st_profile_error").c_str()
+					);
+				} else
+				{
+					MainMenu()->OnSessionTerminate(
+						CStringTable().translate(ResultStr).c_str()
+					);
+				}
+			}
 		}
 	};	
 	m_sConnectResult			= ResultStr;
