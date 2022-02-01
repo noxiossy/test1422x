@@ -5,12 +5,13 @@
 
 #include <sal.h>
 #include <dxerr.h>
-
+#include "blackbox/CrashHandler.h"
 #pragma warning(push)
 #pragma warning(disable:4995)
 #include <malloc.h>
 #include <direct.h>
 #pragma warning(pop)
+#include <intrin.h>
 
 #include "../build_config_defines.h"
 
@@ -28,7 +29,7 @@ static BOOL bException = TRUE;
 #ifndef NO_BUG_TRAP
 # define USE_BUG_TRAP
 #endif //-!NO_BUG_TRAP
-# define DEBUG_INVOKE __asm int 3
+#	define DEBUG_INVOKE	__debugbreak()
 static BOOL bException = FALSE;
 #endif
 
@@ -150,10 +151,10 @@ void xrDebug::gather_info(const char* expression, const char* description, const
     memory_monitor::flush_each_time(false);
 #endif //-USE_MEMORY_MONITOR
 
-    if (!IsDebuggerPresent() && !strstr(GetCommandLine(), "-no_call_stack_assert"))
+    if (!strstr(GetCommandLine(), "-no_call_stack_assert"))
     {
         if (shared_str_initialized)
-            Msg("stack trace:\n");
+            Msg("stack trace:");
 
 #ifdef USE_OWN_ERROR_MESSAGE_WINDOW
         buffer += xr_sprintf(buffer, assertion_size - u32(buffer - buffer_base), "stack trace:%s%s", endline, endline);
@@ -710,6 +711,8 @@ void format_message(LPSTR buffer, const u32& buffer_size)
 //AVO: simplify function
 LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 {
+	Msg("\n%s", GetFaultReason(pExceptionInfo));
+
     string256 error_message;
     format_message(error_message, sizeof(error_message));
 
@@ -718,7 +721,7 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
     *pExceptionInfo->ContextRecord = save;
 
     if (shared_str_initialized)
-        Msg("stack trace:\n");
+        Msg("stack trace:");
 
     if (!IsDebuggerPresent())
     {

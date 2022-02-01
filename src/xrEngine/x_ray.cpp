@@ -339,7 +339,7 @@ void Startup()
     destroyEngine();
 }
 
-static BOOL CALLBACK logDlgProc(HWND hw, UINT msg, WPARAM wp, LPARAM lp)
+static INT_PTR CALLBACK logDlgProc( HWND hw, UINT msg, WPARAM wp, LPARAM lp )
 {
     switch (msg)
     {
@@ -674,7 +674,7 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
     }
 #endif
 
-    SetThreadAffinityMask(GetCurrentThread(), 1);
+    //SetThreadAffinityMask(GetCurrentThread(), 1);
 
     // Title window
     logoWindow = CreateDialog(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_STARTUP), 0, logDlgProc);
