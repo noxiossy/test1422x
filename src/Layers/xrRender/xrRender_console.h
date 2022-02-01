@@ -1,6 +1,4 @@
-﻿#ifndef xrRender_consoleH
-#define xrRender_consoleH
-#pragma once
+﻿#pragma once
 
 // Common
 //Alundaio
@@ -220,5 +218,3 @@ RFLAG_ACTOR_SHADOW = (1<<0),
 extern void						xrRender_initconsole	();
 extern BOOL						xrRender_test_hw		();
 extern void						xrRender_apply_tf		();
-
-#endif
