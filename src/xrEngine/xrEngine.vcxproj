@@ -673,16 +673,16 @@
     <ProjectReference Include="..\..\sdk\include\jpeg\vs2013\libjpeg.vcxproj">
       <Project>{938C5808-85A1-4B5A-8CB4-D2D9D7851CB8}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\sdk\include\ogg\vs2013\libogg_static.vcxproj">
+    <ProjectReference Include="..\..\sdk\include\libogg\win32\VS2010\libogg_static.vcxproj">
       <Project>{893887A1-3ABF-40A0-B931-CD0867010785}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\sdk\include\theora\vs2013\libtheora_static.vcxproj">
+    <ProjectReference Include="..\..\sdk\include\libtheora\win32\VS2010\libtheora_static.vcxproj">
       <Project>{0BDF3377-F84E-4B42-A605-B45AAA244CB6}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\sdk\include\vorbis\vs2013\libvorbisfile_static.vcxproj">
+    <ProjectReference Include="..\..\sdk\include\libvorbis\win32\VS2010\libvorbisfile\libvorbisfile_static.vcxproj">
       <Project>{CEBDE98B-A6AA-46E6-BC79-FAAF823DB9EC}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\sdk\include\vorbis\vs2013\libvorbis_static.vcxproj">
+    <ProjectReference Include="..\..\sdk\include\libvorbis\win32\VS2010\libvorbis\libvorbis_static.vcxproj">
       <Project>{3A214E06-B95E-4D61-A291-1F8DF2EC10FD}</Project>
     </ProjectReference>
     <ProjectReference Include="..\3rd party\crypto\crypto.vcxproj">
