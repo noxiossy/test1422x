@@ -113,10 +113,11 @@ void CUIZoneMap::Render			()
 
 void CUIZoneMap::Update()
 {
+	if ( !visible ) return;
 	CActor* pActor = smart_cast<CActor*>( Level().CurrentViewEntity() );
 	if ( !pActor ) return;
 
-	if ( !( Device.dwFrame % 20 ) && IsGameTypeSingle() )
+	if ( !( Device.dwFrame % 20 )  )
 	{
 		string16	text_str;
 		xr_strcpy( text_str, sizeof(text_str), "" );

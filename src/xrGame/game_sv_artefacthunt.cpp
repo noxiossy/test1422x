@@ -618,7 +618,6 @@ void		game_sv_ArtefactHunt::OnObjectEnterTeamBase	(u16 id, u16 zone_team)
 			if (C.end()!=c)
 			{
 				OnArtefactOnBase		(eActor->owner->ID);
-				Game().m_WeaponUsageStatistic->OnPlayerBringArtefact(ps);
 			};
 		}
 	};

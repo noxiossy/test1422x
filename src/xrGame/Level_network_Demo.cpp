@@ -73,17 +73,6 @@ void CLevel::StartPlayDemo()
 	m_starting_spawns_dtime	= 0;
 	Msg("! ------------- Demo Started ------------");
 	CatchStartingSpawns	();
-
-	//if using some filter ...
-#ifdef MP_LOGGING
-	message_filter* tmp_msg_filter = GetMessageFilter();
-	if (tmp_msg_filter)
-	{
-		string_path demo_msg_path;
-		FS.update_path(demo_msg_path, "$logs$", "dbg_msg.log");
-		tmp_msg_filter->dbg_set_message_log_file(demo_msg_path);
-	}
-#endif //#ifdef MP_LOGGING
 }
 
 void CLevel::RestartPlayDemo()
@@ -152,21 +141,8 @@ void CLevel::SaveDemoHeader(shared_str const & server_options)
 
 void CLevel::SaveDemoInfo()
 {
-	game_cl_mp* tmp_game = smart_cast<game_cl_mp*>(&Game());
-	if (!tmp_game)
-		return;
+	return;
 	
-	R_ASSERT(m_writer);
-	
-	u32 old_pos = m_writer->tell();
-	m_writer->seek(m_demo_info_file_pos);
-	if (!m_demo_info)
-	{
-		m_demo_info = xr_new<demo_info>();
-	}
-	m_demo_info->load_from_game();
-	m_demo_info->write_to_file(m_writer);
-	m_writer->seek(old_pos);
 }
 
 void CLevel::SavePacket(NET_Packet& packet)
@@ -286,48 +262,6 @@ demoplay_control* CLevel::GetDemoPlayControl()
 	m_demoplay_control = xr_new<demoplay_control>();
 	return m_demoplay_control;
 }
-/*
-void CLevel::SetDemoPlayPos(float const pos)
-{
-	if (!IsDemoPlayStarted())
-	{
-		Msg("! ERROR: demo play not started");
-		return;
-	}
-	if (pos > 1.f)
-	{
-		Msg("! ERROR: incorect demo play position");
-		return;
-	}
-	float cur_pos = GetDemoPlayPos();
-	if (cur_pos >= pos)
-	{
-		Msg("! demo play position must be greater than current position");
-		return;
-	}
-	
-	u32 old_file_pos = m_reader->tell();
-
-	u32				file_pos = u32(float(m_reader->length()) * pos);
-	if (file_pos <= old_file_pos)
-	{
-		Msg("! demo play position already at the current point");
-		return;
-	}
-
-	DemoPacket		tmp_hdr;
-	u32				time_shift = 0;
-	
-	while (m_reader->tell() < file_pos)
-	{
-		m_reader->r		(&tmp_hdr, sizeof(DemoPacket));
-		m_reader->seek	(m_reader->tell() + tmp_hdr.m_packet_size);
-		time_shift		+= tmp_hdr.m_time_global_delta;
-	}
-	m_StartGlobalTime	-= time_shift;
-	m_rewind			= TRUE;
-	m_reader->seek		(old_file_pos);
-}*/
 
 float CLevel::GetDemoPlaySpeed() const
 {

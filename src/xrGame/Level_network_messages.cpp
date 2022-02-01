@@ -322,7 +322,7 @@ void CLevel::ClientReceive()
 			}break;
 		case M_GAMESPY_CDKEY_VALIDATION_CHALLENGE:
 			{
-				OnGameSpyChallenge(P);
+
 			}break;
 		case M_AUTH_CHALLENGE:
 			{
@@ -359,7 +359,6 @@ void CLevel::ClientReceive()
 			}break;
 		case M_SV_DIGEST:
 			{
-				SendClientDigestToServer();
 			}break;
 		case M_CHANGE_LEVEL_GAME:
 			{
@@ -431,9 +430,6 @@ void CLevel::ClientReceive()
 			}break;
 		case M_BULLET_CHECK_RESPOND:
 			{
-				if (!game) break;
-				if (GameID() != eGameIDSingle)
-					Game().m_WeaponUsageStatistic->On_Check_Respond(P);
 			}break;
 		case M_STATISTIC_UPDATE:
 			{
@@ -444,10 +440,7 @@ void CLevel::ClientReceive()
 			}break;
 		case M_STATISTIC_UPDATE_RESPOND: //deprecated, see  xrServer::OnMessage
 			{
-				/*Msg("--- CL: On Update Respond");
-				if (!game) break;
-				if (GameID() != eGameIDSingle)
-					Game().m_WeaponUsageStatistic->OnUpdateRespond(P);*/
+
 			}break;
 		case M_FILE_TRANSFER:
 			{

@@ -383,9 +383,6 @@ bool CInventory::Slot(u16 slot_id, PIItem pIItem, bool bNotActivate, bool strict
 					GetOwner()->object_id(), pIItem->object_id(), real_parent).c_str()
 			);
 		}
-#ifdef MP_LOGGING
-		Msg("--- Actor [%d] places to slot item [%d]", GetOwner()->object_id(), pIItem->object_id());
-#endif //#ifdef MP_LOGGING
 	} else
 	{
 		if (it_ruck != m_ruck.end())
@@ -498,9 +495,6 @@ bool CInventory::Ruck(PIItem pIItem, bool strict_placement)
 				make_string("! ERROR: CL: Actor[%d] tries to place to ruck not own item [%d], real item owner is [%d]",
 				inventory_owner_id, pIItem->object_id(), item_parent_id).c_str()
 			);
-#ifdef MP_LOGGING
-			Msg("--- Actor [%d] place to ruck item [%d]", inventory_owner_id, pIItem->object_id());
-#endif
 		}
 	}
 	
@@ -1085,9 +1079,6 @@ bool CInventory::Eat(PIItem pIItem)
 	if (!pItemToEat->UseBy(entity_alive))
 		return false;
 
-#ifdef MP_LOGGING
-	Msg( "--- Actor [%d] use or eat [%d][%s]", entity_alive->ID(), pItemToEat->object().ID(), pItemToEat->object().cNameSect().c_str() );
-#endif // MP_LOGGING
 
 	luabind::functor<bool>	funct;
 	if (ai().script_engine().functor("_G.CInventory__eat", funct))

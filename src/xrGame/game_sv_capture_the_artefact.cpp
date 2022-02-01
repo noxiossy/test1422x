@@ -398,17 +398,6 @@ void game_sv_CaptureTheArtefact::OnPlayerConnect(ClientID id_who)
 	ps_who->setFlag(GAME_PLAYER_FLAG_SPECTATOR);
 	
 	ps_who->resetFlag(GAME_PLAYER_FLAG_SKIP);
-
-	if ((g_dedicated_server || m_bSpectatorMode) && (xrCData == m_server->GetServerClient()) )
-	{
-		ps_who->setFlag(GAME_PLAYER_FLAG_SKIP);
-		return;
-	}
-
-	/*if (!xrCData->flags.bReconnect) 
-		Money_SetStart				(id_who);
-
-	SetPlayersDefItems				(ps_who);*/
 }
 void game_sv_CaptureTheArtefact::OnPlayerConnectFinished(ClientID id_who)
 {
@@ -1531,7 +1520,6 @@ void game_sv_CaptureTheArtefact::OnPlayerKillPlayer(game_PlayerState* ps_killer,
 	bool CanGiveBonus					= OnKillResult(KillRes, ps_killer, ps_killed);
 	if (CanGiveBonus) 
 		OnGiveBonus						(KillRes, ps_killer, ps_killed, KillType, SpecialKillType, pWeaponA);
-	Game().m_WeaponUsageStatistic->OnPlayerKillPlayer(ps_killer,KillType,SpecialKillType);
 	signal_Syncronize();
 }
 
@@ -1591,7 +1579,6 @@ void game_sv_CaptureTheArtefact::ProcessPlayerDeath(game_PlayerState *playerStat
 			childArtefactTeam->second.artefactOwner->ID,
 			childArtefactTeam->second.artefact->ID, true);*/
 	}
-	Game().m_WeaponUsageStatistic->OnPlayerKilled(playerState);
 }
 
 /*void game_sv_CaptureTheArtefact::ProcessPlayerKill(game_PlayerState * playerState)
@@ -2177,7 +2164,6 @@ void game_sv_CaptureTheArtefact::ActorDeliverArtefactOnBase(CSE_ActorMP *actor, 
 	Set_RankUp_Allowed(false);
 	
 	signal_Syncronize();
-	Game().m_WeaponUsageStatistic->OnPlayerBringArtefact(ps);
 	AskAllToUpdateStatistics();
 	StartNewRound();
 }
@@ -2489,7 +2475,7 @@ void game_sv_CaptureTheArtefact::ReadOptions(shared_str &options)
 	g_sv_cta_activatedArtefactRet = get_option_i(*options,"actret",	g_sv_cta_activatedArtefactRet);	// in (sec)
 
 	m_bSpectatorMode = false;
-	if (!g_dedicated_server && (get_option_i(*options,"spectr",-1) != -1))
+	if ((get_option_i(*options,"spectr",-1) != -1))
 	{
 		m_bSpectatorMode = true;
 		m_dwSM_SwitchDelta =  get_option_i(*options,"spectr",0)*1000;
