@@ -212,7 +212,7 @@ u8 CWeaponShotgun::AddCartridge		(u8 cnt)
 
 
 	if (m_DefaultCartridge.m_LocalAmmoType != m_ammoType.type1)
-		m_DefaultCartridge.Load(m_ammoTypes[m_ammoType.type1].c_str(), m_ammoType.type1, m_APk);
+		m_DefaultCartridge.Load(m_ammoTypes[m_ammoType.type1].c_str(), m_ammoType.type1);
 
 	CCartridge l_cartridge = m_DefaultCartridge;
 	while(cnt)
