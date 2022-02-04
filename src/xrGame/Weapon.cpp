@@ -569,7 +569,7 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
 	if (m_ammoType.type1 >= (u8)m_ammoTypes.size())
 		m_ammoType.type1 = 0;
 
-	m_DefaultCartridge.Load(m_ammoTypes[m_ammoType.type1].c_str(), m_ammoType.type1, m_APk);
+	m_DefaultCartridge.Load(m_ammoTypes[m_ammoType.type1].c_str(), m_ammoType.type1);
     if (m_ammoElapsed.type1)
     {
         m_fCurrentCartirdgeDisp = m_DefaultCartridge.param_s.kDisp;
@@ -1858,12 +1858,12 @@ float CWeapon::Weight() const
         res += pSettings->r_float(GetSilencerName(), "inv_weight");
     }
 
-    if (iAmmoElapsed)
+    if (m_ammoElapsed.type1)
     {
         float w = pSettings->r_float(m_ammoTypes[m_ammoType].c_str(), "inv_weight");
         float bs = pSettings->r_float(m_ammoTypes[m_ammoType].c_str(), "box_size");
 
-        res += w*(iAmmoElapsed / bs);
+        res += w*(m_ammoElapsed.type1 / bs);
     }
     return res;
 }
