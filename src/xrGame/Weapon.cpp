@@ -1773,7 +1773,7 @@ void CWeapon::SetAmmoElapsed(int ammo_count)
         if (uAmmo > m_magazine.size())
         {
             CCartridge			l_cartridge;
-			l_cartridge.Load(m_ammoTypes[m_ammoType.type1].c_str(), m_ammoType.type1, m_APk);
+	l_cartridge.Load(m_ammoTypes[m_ammoType.type1].c_str(), m_ammoType.type1);
             while (uAmmo > m_magazine.size())
                 m_magazine.push_back(l_cartridge);
         }
