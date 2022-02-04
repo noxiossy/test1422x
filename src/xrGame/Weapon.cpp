@@ -50,10 +50,12 @@ CWeapon::CWeapon()
     m_iAmmoCurrentTotal = 0;
     m_BriefInfo_CalcFrame = 0;
 
-    iAmmoElapsed = -1;
-    iMagazineSize = -1;
-    m_ammoType = 0;
-
+	m_ammoElapsed.data = 0;
+    iMagazineSize = 0;
+	iMagazineSize2 = 0;
+    m_ammoType.data = 0;
+	m_bGrenadeMode = false;
+	
     eHandDependence = hdNone;
 
     m_zoom_params.m_fCurrentZoomFactor = g_fov;
@@ -79,7 +81,7 @@ CWeapon::CWeapon()
     m_set_next_ammoType_on_reload = undefined_ammo_type;
     m_crosshair_inertion = 0.f;
     m_activation_speed_is_overriden = false;
-    m_cur_scope = NULL;
+	m_cur_addon.data = 0;
     m_bRememberActorNVisnStatus = false;
 }
 
@@ -234,8 +236,9 @@ void CWeapon::Load(LPCSTR section)
         }
     }
 
-    iAmmoElapsed = pSettings->r_s32(section, "ammo_elapsed");
+    m_ammoElapsed.type1 = pSettings->r_s32(section, "ammo_elapsed");
     iMagazineSize = pSettings->r_s32(section, "ammo_mag_size");
+	iMagazineSize2 = 1;
 
     ////////////////////////////////////////////////////
     // дисперсия стрельбы
@@ -424,16 +427,38 @@ void CWeapon::Load(LPCSTR section)
 
     if (m_eSilencerStatus == ALife::eAddonAttachable)
     {
-        m_sSilencerName = pSettings->r_string(section, "silencer_name");
-        m_iSilencerX = pSettings->r_s32(section, "silencer_x");
-        m_iSilencerY = pSettings->r_s32(section, "silencer_y");
+		if (pSettings->line_exist(section, "silencer_sect"))
+		{
+			LPCSTR str = pSettings->r_string(section, "silencer_sect");
+			for (int i = 0, count = _GetItemCount(str); i < count; ++i)
+			{
+				string128						scope_section;
+				_GetItem(str, i, scope_section);
+				m_silencers.push_back(scope_section);
+			}
+		}
+		else
+		{
+			m_silencers.push_back(section);
+		}
     }
 
     if (m_eGrenadeLauncherStatus == ALife::eAddonAttachable)
     {
-        m_sGrenadeLauncherName = pSettings->r_string(section, "grenade_launcher_name");
-        m_iGrenadeLauncherX = pSettings->r_s32(section, "grenade_launcher_x");
-        m_iGrenadeLauncherY = pSettings->r_s32(section, "grenade_launcher_y");
+		if (pSettings->line_exist(section, "grenade_launcher_sect"))
+		{
+			LPCSTR str = pSettings->r_string(section, "grenade_launcher_sect");
+			for (int i = 0, count = _GetItemCount(str); i < count; ++i)
+			{
+				string128						scope_section;
+				_GetItem(str, i, scope_section);
+				m_launchers.push_back(scope_section);
+			}
+		}
+		else
+		{
+			m_launchers.push_back(section);
+		}
     }
 
     InitAddons();
@@ -513,18 +538,42 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
     CSE_Abstract					*e = (CSE_Abstract*) (DC);
     CSE_ALifeItemWeapon			    *E = smart_cast<CSE_ALifeItemWeapon*>(e);
 
-    //iAmmoCurrent					= E->a_current;
-    iAmmoElapsed = E->a_elapsed;
+	m_cur_addon.data = E->a_current_addon.data;
+	if (m_cur_addon.scope >= (u16)m_scopes.size())
+		m_cur_addon.scope = 0;
+	if (m_cur_addon.silencer >= (u16)m_silencers.size())
+		m_cur_addon.silencer = 0;
+	if (m_cur_addon.launcher >= (u16)m_launchers.size())
+		m_cur_addon.launcher = 0;
+
+
+	if (m_bGrenadeMode) //normal ammo will be in *2
+	{
+		m_ammoElapsed.type1 = E->a_elapsed.type2;
+		m_ammoType.type1 = E->ammo_type.type2;
+		m_ammoElapsed.type2 = E->a_elapsed.type1;
+		m_ammoType.type2 = E->ammo_type.type1;
+	}
+	else {
+		m_ammoElapsed.type1 = E->a_elapsed.type1;
+		m_ammoType.type1 = E->ammo_type.type1;
+		m_ammoElapsed.type2 = E->a_elapsed.type2;
+		m_ammoType.type2 = E->ammo_type.type2;
+	}
+
     m_flagsAddOnState = E->m_addon_flags.get();
-    m_ammoType = E->ammo_type;
+   
     SetState(E->wpn_state);
     SetNextState(E->wpn_state);
 
-    m_DefaultCartridge.Load(m_ammoTypes[m_ammoType].c_str(), m_ammoType);
-    if (iAmmoElapsed)
+	if (m_ammoType.type1 >= (u8)m_ammoTypes.size())
+		m_ammoType.type1 = 0;
+
+	m_DefaultCartridge.Load(m_ammoTypes[m_ammoType.type1].c_str(), m_ammoType.type1, m_APk);
+    if (m_ammoElapsed.type1)
     {
         m_fCurrentCartirdgeDisp = m_DefaultCartridge.param_s.kDisp;
-        for (int i = 0; i < iAmmoElapsed; ++i)
+        for (int i = 0; i < m_ammoElapsed.type1; ++i)
             m_magazine.push_back(m_DefaultCartridge);
     }
 
@@ -533,7 +582,7 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
 
     m_dwWeaponIndependencyTime = 0;
 
-    VERIFY((u32) iAmmoElapsed == m_magazine.size());
+    VERIFY((u32) m_ammoElapsed.type1 == m_magazine.size());
     m_bAmmoWasSpawned = false;
 
     return bResult;
@@ -566,11 +615,14 @@ void CWeapon::net_Export(NET_Packet& P)
 
     u8 need_upd = IsUpdating() ? 1 : 0;
     P.w_u8(need_upd);
-    P.w_u16(u16(iAmmoElapsed));
+    P.w_u16(m_ammoElapsed.data);
     P.w_u8(m_flagsAddOnState);
-    P.w_u8(m_ammoType);
+    P.w_u8(m_ammoType.data);
     P.w_u8((u8) GetState());
     P.w_u8((u8) IsZoomed());
+
+	if (g_actor && this->parent_id() == g_actor->ID())
+		SyncronizeWeaponToServer();
 }
 
 void CWeapon::net_Import(NET_Packet& P)
@@ -584,8 +636,7 @@ void CWeapon::net_Import(NET_Packet& P)
     u8 flags = 0;
     P.r_u8(flags);
 
-    u16 ammo_elapsed = 0;
-    P.r_u16(ammo_elapsed);
+    P.r_u16(m_ammoElapsed.data);
 
     u8						NewAddonState;
     P.r_u8(NewAddonState);
@@ -593,8 +644,8 @@ void CWeapon::net_Import(NET_Packet& P)
     m_flagsAddOnState = NewAddonState;
     UpdateAddonsVisibility();
 
-    u8 ammoType, wstate;
-    P.r_u8(ammoType);
+    u8 wstate;
+    P.r_u8(m_ammoType.data);
     P.r_u8(wstate);
 
     u8 Zoom;
@@ -615,26 +666,25 @@ void CWeapon::net_Import(NET_Packet& P)
     }break;
     default:
     {
-        if (ammoType >= m_ammoTypes.size())
+        if (m_ammoType.type1 >= m_ammoTypes.size())
             Msg("!! Weapon [%d], State - [%d]", ID(), wstate);
         else
         {
-            m_ammoType = ammoType;
-            SetAmmoElapsed((ammo_elapsed));
+            SetAmmoElapsed((m_ammoElapsed.type1));
         }
     }break;
     }
 
-    VERIFY((u32) iAmmoElapsed == m_magazine.size());
+    VERIFY((u32) m_ammoElapsed.type1 == m_magazine.size());
 }
 
 void CWeapon::save(NET_Packet &output_packet)
 {
     inherited::save(output_packet);
-    save_data(iAmmoElapsed, output_packet);
-    save_data(m_cur_scope, output_packet);
+	save_data(m_ammoElapsed.data, output_packet);
+    save_data((u8)0, output_packet);
     save_data(m_flagsAddOnState, output_packet);
-    save_data(m_ammoType, output_packet);
+    save_data(m_ammoType.data, output_packet);
     save_data(m_zoom_params.m_bIsZoomModeNow, output_packet);
     save_data(m_bRememberActorNVisnStatus, output_packet);
 }
@@ -642,11 +692,12 @@ void CWeapon::save(NET_Packet &output_packet)
 void CWeapon::load(IReader &input_packet)
 {
     inherited::load(input_packet);
-    load_data(iAmmoElapsed, input_packet);
-    load_data(m_cur_scope, input_packet);
+	load_data(m_ammoElapsed.data, input_packet);
+	u8 dummyu8;
+    load_data(dummyu8, input_packet);
     load_data(m_flagsAddOnState, input_packet);
     UpdateAddonsVisibility();
-    load_data(m_ammoType, input_packet);
+    load_data(m_ammoType.data, input_packet);
     load_data(m_zoom_params.m_bIsZoomModeNow, input_packet);
 
     if (m_zoom_params.m_bIsZoomModeNow)
@@ -769,8 +820,8 @@ void CWeapon::SendHiddenItem()
         CHudItem::object().u_EventGen(P, GE_WPN_STATE_CHANGE, CHudItem::object().ID());
         P.w_u8(u8(eHiding));
         P.w_u8(u8(m_sub_state));
-        P.w_u8(m_ammoType);
-        P.w_u8(u8(iAmmoElapsed & 0xff));
+        P.w_u8(m_ammoType.data);
+        P.w_u8(u8(m_ammoElapsed.type1 & 0xff));
         P.w_u8(m_set_next_ammoType_on_reload);
         CHudItem::object().u_EventSend(P, net_flags(TRUE, TRUE, FALSE, TRUE));
         SetPending(TRUE);
@@ -996,16 +1047,16 @@ bool CWeapon::SwitchAmmoType(u32 flags)
     if (!(flags & CMD_START))
         return false;
 
-    u8 l_newType = m_ammoType;
+    u8 l_newType = m_ammoType.type1;
     bool b1, b2;
     do
     {
         l_newType = u8((u32(l_newType + 1)) % m_ammoTypes.size());
-        b1 = (l_newType != m_ammoType);
+		b1 = (l_newType != m_ammoType.type1);
         b2 = unlimited_ammo() ? false : (!m_pInventory->GetAny(m_ammoTypes[l_newType].c_str()));
     } while (b1 && b2);
 
-    if (l_newType != m_ammoType)
+	if (l_newType != m_ammoType.type1)
     {
         m_set_next_ammoType_on_reload = l_newType;
         if (OnServer())
@@ -1072,7 +1123,7 @@ void CWeapon::SpawnAmmo(u32 boxCurr, LPCSTR ammoSect, u32 ParentID)
 
 int CWeapon::GetSuitableAmmoTotal(bool use_item_to_spawn) const
 {
-    int ae_count = iAmmoElapsed;
+    int ae_count = m_ammoElapsed.type1;
     if (!m_pInventory)
     {
         return ae_count;
@@ -1229,47 +1280,83 @@ shared_str wpn_silencer = "wpn_silencer";
 shared_str wpn_grenade_launcher = "wpn_launcher";
 
 void CWeapon::UpdateHUDAddonsVisibility()
-{//actor only
-    if (!GetHUDmode())										return;
+{
+    if (!GetHUDmode()) return;
 
-    //.	return;
+	if (m_eScopeStatus == ALife::eAddonAttachable)
+		if (IsScopeAttached())
+			HudItemData()->set_bone_visible(GetScopeBoneName(), TRUE, TRUE);
+		else
+		{
+			HudItemData()->set_bone_visible(wpn_scope, FALSE, TRUE);
+			SCOPES_VECTOR_IT it = m_scopes.begin();
+			for (; it != m_scopes.end(); it++)
+			{
+				LPCSTR section = pSettings->r_string((*it), "scope_name");
+				LPCSTR bone_name = READ_IF_EXISTS(pSettings, r_string, section, "addon_bone", "");
+				if (bone_name)
+					HudItemData()->set_bone_visible(bone_name, FALSE, TRUE);
+			}
+		}
+	else if (m_eScopeStatus == ALife::eAddonDisabled)
+		 HudItemData()->set_bone_visible(wpn_scope, FALSE, TRUE);
+    else if (m_eScopeStatus == ALife::eAddonPermanent)
+		HudItemData()->set_bone_visible(wpn_scope, TRUE, TRUE);
 
-    if (ScopeAttachable())
-    {
-        HudItemData()->set_bone_visible(wpn_scope, IsScopeAttached());
-    }
-
-    if (m_eScopeStatus == ALife::eAddonDisabled)
-    {
-        HudItemData()->set_bone_visible(wpn_scope, FALSE, TRUE);
-    }
-    else
-        if (m_eScopeStatus == ALife::eAddonPermanent)
-            HudItemData()->set_bone_visible(wpn_scope, TRUE, TRUE);
-
-    if (SilencerAttachable())
-    {
-        HudItemData()->set_bone_visible(wpn_silencer, IsSilencerAttached());
-    }
-    if (m_eSilencerStatus == ALife::eAddonDisabled)
-    {
+	if (m_eSilencerStatus == ALife::eAddonAttachable)
+		if (IsSilencerAttached())
+			HudItemData()->set_bone_visible(GetSilencerBoneName(), TRUE, TRUE);
+		else
+		{
+			HudItemData()->set_bone_visible(wpn_silencer, FALSE, TRUE);
+			SCOPES_VECTOR_IT it = m_silencers.begin();
+			for (; it != m_silencers.end(); it++)
+			{
+				LPCSTR section = pSettings->r_string((*it), "silencer_name");
+				LPCSTR bone_name = READ_IF_EXISTS(pSettings, r_string, section, "addon_bone", "");
+				if (bone_name)
+					HudItemData()->set_bone_visible(bone_name, FALSE, TRUE);
+			}
+		}
+    else if (m_eSilencerStatus == ALife::eAddonDisabled)
         HudItemData()->set_bone_visible(wpn_silencer, FALSE, TRUE);
-    }
-    else
-        if (m_eSilencerStatus == ALife::eAddonPermanent)
-            HudItemData()->set_bone_visible(wpn_silencer, TRUE, TRUE);
+    else if (m_eSilencerStatus == ALife::eAddonPermanent)
+		HudItemData()->set_bone_visible(wpn_silencer, TRUE, TRUE);
 
-    if (GrenadeLauncherAttachable())
-    {
-        HudItemData()->set_bone_visible(wpn_grenade_launcher, IsGrenadeLauncherAttached());
-    }
-    if (m_eGrenadeLauncherStatus == ALife::eAddonDisabled)
-    {
-        HudItemData()->set_bone_visible(wpn_grenade_launcher, FALSE, TRUE);
-    }
-    else
-        if (m_eGrenadeLauncherStatus == ALife::eAddonPermanent)
-            HudItemData()->set_bone_visible(wpn_grenade_launcher, TRUE, TRUE);
+	if (m_eGrenadeLauncherStatus == ALife::eAddonAttachable)
+		if (IsGrenadeLauncherAttached())
+			HudItemData()->set_bone_visible(GetGrenadeLauncherBoneName(), TRUE, TRUE);
+		else
+		{
+			HudItemData()->set_bone_visible(wpn_grenade_launcher, FALSE, TRUE);
+			SCOPES_VECTOR_IT it = m_launchers.begin();
+			for (; it != m_launchers.end(); it++)
+			{
+				LPCSTR section = pSettings->r_string((*it), "grenade_launcher_name");
+				LPCSTR bone_name = READ_IF_EXISTS(pSettings, r_string, section, "addon_bone", "");
+				if (bone_name)
+					HudItemData()->set_bone_visible(bone_name, FALSE, TRUE);
+			}
+		}
+    else if (m_eGrenadeLauncherStatus == ALife::eAddonDisabled)
+         HudItemData()->set_bone_visible(wpn_grenade_launcher, FALSE, TRUE);
+    else if (m_eGrenadeLauncherStatus == ALife::eAddonPermanent)
+		HudItemData()->set_bone_visible(wpn_grenade_launcher, TRUE, TRUE);
+}
+
+bool CWeapon::SetBoneVisible(IKinematics* m_model, const shared_str& bone_name, BOOL bVisibility, BOOL bSilent)
+{
+	u16 bone_id = m_model->LL_BoneID(bone_name);
+	if (bone_id == BI_NONE)
+	{
+		if (bSilent)
+			return false;
+		R_ASSERT2(0, make_string("model [%s] has no bone [%s]", pSettings->r_string(cNameSect().c_str(), "item_visual"), bone_name.c_str()).c_str());
+	}
+	BOOL bVisibleNow = m_model->LL_GetBoneVisible(bone_id);
+	if (bVisibleNow != bVisibility)
+		m_model->LL_SetBoneVisible(bone_id, bVisibility, TRUE);
+	return true;
 }
 
 void CWeapon::UpdateAddonsVisibility()
@@ -1282,66 +1369,65 @@ void CWeapon::UpdateAddonsVisibility()
     pWeaponVisual->CalculateBones_Invalidate();
 
     bone_id = pWeaponVisual->LL_BoneID(wpn_scope);
-    if (ScopeAttachable())
-    {
+	if (m_eScopeStatus == ALife::eAddonAttachable)
         if (IsScopeAttached())
-        {
-            if (!pWeaponVisual->LL_GetBoneVisible(bone_id))
-                pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
-        }
+			SetBoneVisible(pWeaponVisual, GetScopeBoneName(), TRUE, TRUE);
         else
         {
-            if (pWeaponVisual->LL_GetBoneVisible(bone_id))
-                pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
+			SetBoneVisible(pWeaponVisual, wpn_scope, FALSE, TRUE);
+			SCOPES_VECTOR_IT it = m_scopes.begin();
+			for (; it != m_scopes.end(); it++)
+			{
+				LPCSTR section = pSettings->r_string((*it), "scope_name");
+				LPCSTR bone_name = READ_IF_EXISTS(pSettings, r_string, section, "addon_bone", "");
+				if (bone_name)
+					SetBoneVisible(pWeaponVisual, bone_name, FALSE, TRUE);
+			}
         }
-    }
-    if (m_eScopeStatus == ALife::eAddonDisabled && bone_id != BI_NONE &&
-        pWeaponVisual->LL_GetBoneVisible(bone_id))
-    {
-        pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
-        //		Log("scope", pWeaponVisual->LL_GetBoneVisible		(bone_id));
-    }
-    bone_id = pWeaponVisual->LL_BoneID(wpn_silencer);
-    if (SilencerAttachable())
-    {
-        if (IsSilencerAttached())
-        {
-            if (!pWeaponVisual->LL_GetBoneVisible(bone_id))
-                pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
-        }
-        else
-        {
-            if (pWeaponVisual->LL_GetBoneVisible(bone_id))
-                pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
-        }
-    }
-    if (m_eSilencerStatus == ALife::eAddonDisabled && bone_id != BI_NONE &&
-        pWeaponVisual->LL_GetBoneVisible(bone_id))
-    {
-        pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
-        //		Log("silencer", pWeaponVisual->LL_GetBoneVisible	(bone_id));
-    }
+	else if (m_eScopeStatus == ALife::eAddonDisabled)
+		SetBoneVisible(pWeaponVisual, wpn_scope, FALSE, TRUE);
+	else if (m_eScopeStatus == ALife::eAddonPermanent)
+		SetBoneVisible(pWeaponVisual, wpn_scope, TRUE, TRUE);
 
-    bone_id = pWeaponVisual->LL_BoneID(wpn_grenade_launcher);
-    if (GrenadeLauncherAttachable())
-    {
-        if (IsGrenadeLauncherAttached())
-        {
-            if (!pWeaponVisual->LL_GetBoneVisible(bone_id))
-                pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
-        }
-        else
-        {
-            if (pWeaponVisual->LL_GetBoneVisible(bone_id))
-                pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
-        }
-    }
-    if (m_eGrenadeLauncherStatus == ALife::eAddonDisabled && bone_id != BI_NONE &&
-        pWeaponVisual->LL_GetBoneVisible(bone_id))
-    {
-        pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
-        //		Log("gl", pWeaponVisual->LL_GetBoneVisible			(bone_id));
-    }
+	if (m_eSilencerStatus == ALife::eAddonAttachable)
+		if (IsSilencerAttached())
+			SetBoneVisible(pWeaponVisual, GetSilencerBoneName(), TRUE, TRUE);
+		else
+		{
+			SetBoneVisible(pWeaponVisual, wpn_silencer, FALSE, TRUE);
+			SCOPES_VECTOR_IT it = m_silencers.begin();
+			for (; it != m_silencers.end(); it++)
+			{
+				LPCSTR section = pSettings->r_string((*it), "silencer_name");
+				LPCSTR bone_name = READ_IF_EXISTS(pSettings, r_string, section, "addon_bone", "");
+				if (bone_name)
+					SetBoneVisible(pWeaponVisual, bone_name, FALSE, TRUE);
+			}
+		}
+    else if (m_eSilencerStatus == ALife::eAddonDisabled)
+		SetBoneVisible(pWeaponVisual, wpn_silencer, FALSE, TRUE);
+	else if (m_eSilencerStatus == ALife::eAddonPermanent)
+		SetBoneVisible(pWeaponVisual, wpn_silencer, TRUE, TRUE);
+
+	if (m_eGrenadeLauncherStatus == ALife::eAddonAttachable)
+		if (IsGrenadeLauncherAttached())
+			SetBoneVisible(pWeaponVisual, GetGrenadeLauncherBoneName(), TRUE, TRUE);
+		else
+		{
+			SetBoneVisible(pWeaponVisual, wpn_grenade_launcher, FALSE, TRUE);
+			SCOPES_VECTOR_IT it = m_launchers.begin();
+			for (; it != m_launchers.end(); it++)
+			{
+				LPCSTR section = pSettings->r_string((*it), "grenade_launcher_name");
+				LPCSTR bone_name = READ_IF_EXISTS(pSettings, r_string, section, "addon_bone", "");
+				if (bone_name)
+					SetBoneVisible(pWeaponVisual, bone_name, FALSE, TRUE);
+			}
+		}
+	else if (m_eGrenadeLauncherStatus == ALife::eAddonDisabled)
+		SetBoneVisible(pWeaponVisual, wpn_grenade_launcher, FALSE, TRUE);
+	else if (m_eGrenadeLauncherStatus == ALife::eAddonPermanent)
+		SetBoneVisible(pWeaponVisual, wpn_grenade_launcher, TRUE, TRUE);
 
     pWeaponVisual->CalculateBones_Invalidate();
     pWeaponVisual->CalculateBones(TRUE);
@@ -1437,8 +1523,8 @@ void CWeapon::SwitchState(u32 S)
         CHudItem::object().u_EventGen(P, GE_WPN_STATE_CHANGE, CHudItem::object().ID());
         P.w_u8(u8(S));
         P.w_u8(u8(m_sub_state));
-        P.w_u8(m_ammoType);
-        P.w_u8(u8(iAmmoElapsed & 0xff));
+		P.w_u8(m_ammoType.data);
+        P.w_u8(u8(m_ammoElapsed.type1 & 0xff));
         P.w_u8(m_set_next_ammoType_on_reload);
         CHudItem::object().u_EventSend(P, net_flags(TRUE, TRUE, FALSE, TRUE));
     }
@@ -1446,7 +1532,7 @@ void CWeapon::SwitchState(u32 S)
 
 void CWeapon::OnMagazineEmpty()
 {
-    VERIFY((u32) iAmmoElapsed == m_magazine.size());
+    VERIFY((u32) m_ammoElapsed.type1 == m_magazine.size());
 }
 
 void CWeapon::reinit()
@@ -1678,16 +1764,16 @@ void CWeapon::UpdateHudAdditonal(Fmatrix& trans)
 
 void CWeapon::SetAmmoElapsed(int ammo_count)
 {
-    iAmmoElapsed = ammo_count;
+    m_ammoElapsed.type1 = ammo_count;
 
-    u32 uAmmo = u32(iAmmoElapsed);
+	u32 uAmmo = u32(m_ammoElapsed.type1);
 
     if (uAmmo != m_magazine.size())
     {
         if (uAmmo > m_magazine.size())
         {
             CCartridge			l_cartridge;
-            l_cartridge.Load(m_ammoTypes[m_ammoType].c_str(), m_ammoType);
+			l_cartridge.Load(m_ammoTypes[m_ammoType.type1].c_str(), m_ammoType.type1, m_APk);
             while (uAmmo > m_magazine.size())
                 m_magazine.push_back(l_cartridge);
         }
@@ -1745,15 +1831,12 @@ void CWeapon::render_item_ui()
 
 bool CWeapon::unlimited_ammo()
 {
-    if (IsGameTypeSingle())
-    {
-        if (m_pInventory)
-        {
-            return inventory_owner().unlimited_ammo() && m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited);
-        }
-        else
-            return false;
-    }
+	if (m_pInventory)
+	{
+		return inventory_owner().unlimited_ammo() && m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited);
+	}
+	else
+		return false;
 
     return ((GameID() == eGameIDDeathmatch) &&
         m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited));
@@ -1762,7 +1845,7 @@ bool CWeapon::unlimited_ammo()
 float CWeapon::Weight() const
 {
     float res = CInventoryItemObject::Weight();
-    if (IsGrenadeLauncherAttached() && GetGrenadeLauncherName().size())
+    if (IsGrenadeLauncherAttached() && m_launchers.size())
     {
         res += pSettings->r_float(GetGrenadeLauncherName(), "inv_weight");
     }
@@ -1770,7 +1853,7 @@ float CWeapon::Weight() const
     {
         res += pSettings->r_float(GetScopeName(), "inv_weight");
     }
-    if (IsSilencerAttached() && GetSilencerName().size())
+    if (IsSilencerAttached() && m_silencers.size())
     {
         res += pSettings->r_float(GetSilencerName(), "inv_weight");
     }
@@ -1844,7 +1927,7 @@ void CWeapon::debug_draw_firedeps()
 const float &CWeapon::hit_probability() const
 {
     VERIFY((g_SingleGameDifficulty >= egdNovice) && (g_SingleGameDifficulty <= egdMaster));
-    return					(m_hit_probability[egdNovice]);
+    return					(m_hit_probability[g_SingleGameDifficulty]);
 }
 
 void CWeapon::OnStateSwitch(u32 S)
@@ -1854,7 +1937,7 @@ void CWeapon::OnStateSwitch(u32 S)
 
     if (GetState() == eReload)
     {
-        if (iAmmoElapsed == 0) //Swartz: re-written to use reload empty DOF
+        if (m_ammoElapsed.type1 == 0)
         {
             if (H_Parent() == Level().CurrentEntity() && !fsimilar(m_zoom_params.m_ReloadEmptyDof.w, -1.0f))
             {
@@ -1935,7 +2018,7 @@ void CWeapon::ZoomDec()
 u32 CWeapon::Cost() const
 {
     u32 res = CInventoryItem::Cost();
-    if (IsGrenadeLauncherAttached() && GetGrenadeLauncherName().size())
+    if (IsGrenadeLauncherAttached() && m_launchers.size())
     {
         res += pSettings->r_u32(GetGrenadeLauncherName(), "cost");
     }
@@ -1943,17 +2026,29 @@ u32 CWeapon::Cost() const
     {
         res += pSettings->r_u32(GetScopeName(), "cost");
     }
-    if (IsSilencerAttached() && GetSilencerName().size())
+    if (IsSilencerAttached() && m_silencers.size())
     {
         res += pSettings->r_u32(GetSilencerName(), "cost");
     }
 
-    if (iAmmoElapsed)
+	if (m_ammoElapsed.type1)
     {
-        float w = pSettings->r_float(m_ammoTypes[m_ammoType].c_str(), "cost");
-        float bs = pSettings->r_float(m_ammoTypes[m_ammoType].c_str(), "box_size");
+        float w = pSettings->r_float(m_ammoTypes[m_ammoType.type1].c_str(), "cost");
+		float bs = pSettings->r_float(m_ammoTypes[m_ammoType.type1].c_str(), "box_size");
 
-        res += iFloor(w*(iAmmoElapsed / bs));
+		res += iFloor(w*(m_ammoElapsed.type1 / bs));
     }
     return res;
+}
+
+void CWeapon::SyncronizeWeaponToServer()
+{
+	CGameObject *obj = smart_cast<CGameObject*>(this);
+	NET_Packet packet;
+	obj->u_EventGen(packet, GE_WEAPON_SYNCRONIZE, obj->ID());
+	packet.w_u16(m_cur_addon.data);
+	packet.w_u8(m_ammoType.data);
+	packet.w_u16(m_ammoElapsed.data);
+	packet.w_u8(m_bGrenadeMode?1:0);
+	obj->u_EventSend(packet, net_flags(TRUE, TRUE, FALSE, TRUE));
 }
