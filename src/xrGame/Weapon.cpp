@@ -1860,8 +1860,8 @@ float CWeapon::Weight() const
 
     if (m_ammoElapsed.type1)
     {
-        float w = pSettings->r_float(m_ammoTypes[m_ammoType].c_str(), "inv_weight");
-        float bs = pSettings->r_float(m_ammoTypes[m_ammoType].c_str(), "box_size");
+        float w = pSettings->r_float(m_ammoTypes[m_ammoType.type1].c_str(), "inv_weight");
+        float bs = pSettings->r_float(m_ammoTypes[m_ammoType.type1].c_str(), "box_size");
 
         res += w*(m_ammoElapsed.type1 / bs);
     }
