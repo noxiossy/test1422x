@@ -969,6 +969,7 @@
     <Image Include="stalker_cs.ico">
       <Filter>General\Resources</Filter>
     </Image>
+    <Image Include="a_splash.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="My Amplifier Results\r000hs\r000hs.ampl">
