@@ -525,6 +525,14 @@ void CWeapon::LoadFireParams(LPCSTR section)
     CShootingObject::LoadFireParams(section);
 };
 
+void createWpnScopeXML()
+{
+	if (!pWpnScopeXml)
+	{
+		pWpnScopeXml = xr_new<CUIXml>();
+		pWpnScopeXml->Load(CONFIG_PATH, UI_PATH, "scopes.xml");
+	}
+}
 
 void CWeapon::LoadCurrentScopeParams(LPCSTR section)
 {
@@ -1302,6 +1310,10 @@ bool CWeapon::SilencerAttachable()
 {
     return (ALife::eAddonAttachable == m_eSilencerStatus);
 }
+
+shared_str wpn_scope = "wpn_scope";
+shared_str wpn_silencer = "wpn_silencer";
+shared_str wpn_grenade_launcher = "wpn_launcher";
 
 void CWeapon::UpdateHUDAddonsVisibility()
 {
