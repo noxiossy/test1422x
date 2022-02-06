@@ -83,7 +83,98 @@ CWeapon::CWeapon()
     m_activation_speed_is_overriden = false;
 	m_cur_addon.data = 0;
     m_bRememberActorNVisnStatus = false;
+	bUseAltScope = false;
 	bScopeIsHasTexture = false;
+
+const shared_str CWeapon::GetScopeName() const
+{
+	if (bUseAltScope)
+	{
+		return m_scopes[m_cur_addon.scope];
+	}
+	else
+	{
+		return pSettings->r_string(m_scopes[m_cur_addon.scope], "scope_name");
+	}
+}
+
+void CWeapon::UpdateAltScope()
+{
+	if (m_eScopeStatus != ALife::eAddonAttachable || !bUseAltScope)
+		return;
+
+	shared_str sectionNeedLoad;
+
+	sectionNeedLoad = IsScopeAttached() ? GetNameWithAttachment() : m_section_id;
+
+	if (!pSettings->section_exist(sectionNeedLoad))
+		return;
+
+	shared_str vis = pSettings->r_string(sectionNeedLoad, "visual");
+
+	if (vis != cNameVisual())
+	{
+		cNameVisual_set(vis);
+	}
+
+	shared_str new_hud = pSettings->r_string(sectionNeedLoad, "hud");
+	if (new_hud != hud_sect)
+	{
+		hud_sect = new_hud;
+	}
+}
+
+shared_str CWeapon::GetNameWithAttachment()
+{
+	string64 str;
+	if (pSettings->line_exist(m_section_id.c_str(), "parent_section"))
+	{
+		shared_str parent = pSettings->r_string(m_section_id.c_str(), "parent_section");
+		xr_sprintf(str, "%s_%s", parent.c_str(), GetScopeName().c_str());
+	}
+	else
+	{
+		xr_sprintf(str, "%s_%s", m_section_id.c_str(), GetScopeName().c_str());
+	}
+	return (shared_str)str;
+}
+
+int CWeapon::GetScopeX()
+{
+	if (bUseAltScope)
+	{
+		if (m_eScopeStatus != ALife::eAddonPermanent && IsScopeAttached())
+		{
+			return pSettings->r_s32(GetNameWithAttachment(), "scope_x");
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		return pSettings->r_s32(m_scopes[m_cur_addon.scope], "scope_x");
+	}
+}
+
+int CWeapon::GetScopeY()
+{
+	if (bUseAltScope)
+	{
+		if (m_eScopeStatus != ALife::eAddonPermanent && IsScopeAttached())
+		{
+			return pSettings->r_s32(GetNameWithAttachment(), "scope_y");
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		return pSettings->r_s32(m_scopes[m_cur_addon.scope], "scope_y");
+	}
 }
 
 CWeapon::~CWeapon()
@@ -397,6 +488,59 @@ void CWeapon::Load(LPCSTR section)
     m_zoom_params.m_bZoomEnabled = !!pSettings->r_bool(section, "zoom_enabled");
     m_zoom_params.m_fZoomRotateTime = pSettings->r_float(section, "zoom_rotate_time");
 
+
+	bUseAltScope = !!bLoadAltScopesParams(section);
+
+	if (!bUseAltScope)
+		LoadOriginalScopesParams(section);
+	UpdateAltScope();
+}
+
+bool CWeapon::bReloadSectionScope(LPCSTR section)
+{
+	if (!pSettings->line_exist(section, "scopes"))
+		return false;
+
+	if (pSettings->r_string(section, "scopes") == NULL)
+		return false;
+
+	if (xr_strcmp(pSettings->r_string(section, "scopes"), "none") == 0)
+		return false;
+
+	return true;
+}
+
+bool CWeapon::bLoadAltScopesParams(LPCSTR section)
+{
+	if (!pSettings->line_exist(section, "scopes"))
+		return false;
+
+	if (pSettings->r_string(section, "scopes") == NULL)
+		return false;
+
+	if (xr_strcmp(pSettings->r_string(section, "scopes"), "none") == 0)
+		return false;
+
+	if (m_eScopeStatus == ALife::eAddonAttachable)
+	{
+		LPCSTR str = pSettings->r_string(section, "scopes");
+		for (int i = 0, count = _GetItemCount(str); i < count; ++i)
+		{
+			string128 scope_section;
+			_GetItem(str, i, scope_section);
+			m_scopes.push_back(scope_section);
+		}
+	}
+	else if (m_eScopeStatus == ALife::eAddonPermanent)
+	{
+		LoadCurrentScopeParams(section);
+	}
+
+	return true;
+}
+
+void CWeapon::LoadOriginalScopesParams(LPCSTR section)
+{
     if (m_eScopeStatus == ALife::eAddonAttachable)
     {
         if (pSettings->line_exist(section, "scopes_sect"))
@@ -601,6 +745,8 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
 
     m_flagsAddOnState = E->m_addon_flags.get();
    
+	if (E->m_cur_addon.scope < m_scopes.size() && m_scopes.size()>1)
+		m_cur_addon.scope = E->m_cur_addon.scope;
     SetState(E->wpn_state);
     SetNextState(E->wpn_state);
 
@@ -615,6 +761,7 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
             m_magazine.push_back(m_DefaultCartridge);
     }
 
+	UpdateAltScope();
     UpdateAddonsVisibility();
     InitAddons();
 
@@ -688,6 +835,11 @@ void CWeapon::net_Import(NET_Packet& P)
 
     u8 Zoom;
     P.r_u8((u8) Zoom);
+
+	u8 scope;
+	P.r_u8(scope);
+
+	m_cur_addon.scope = scope;
 
     if (H_Parent() && H_Parent()->Remote())
     {
@@ -1612,6 +1764,8 @@ void CWeapon::reload(LPCSTR section)
         m_strap_bone1 = pSettings->r_string(section, "strap_bone1");
     else
         m_can_be_strapped = false;
+
+	bUseAltScope = !!bReloadSectionScope(section);
 
     if (m_eScopeStatus == ALife::eAddonAttachable)
     {
