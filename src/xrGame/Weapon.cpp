@@ -113,7 +113,7 @@ void CWeapon::UpdateXForm()
        return;
 
     const CInventoryOwner	*parent = smart_cast<const CInventoryOwner*>(E);
-    if (parent && parent->use_simplified_visual())
+    if (!parent || parent && parent->use_simplified_visual())
         return;
 
     if (parent->attached(this))
@@ -133,7 +133,10 @@ void CWeapon::UpdateXForm()
     if ((HandDependence() == hd1Hand) || (GetState() == eReload) || (!E->g_Alive()))
         boneL = boneR2;
 
-    V->CalculateBones();
+	// РѕС‚ mortan:
+	// https://www.gameru.net/forum/index.php?s=&showtopic=23443&view=findpost&p=1677678
+	V->CalculateBones_Invalidate();
+	V->CalculateBones( true ); //V->CalculateBones	();
     Fmatrix& mL = V->LL_GetTransform(u16(boneL));
     Fmatrix& mR = V->LL_GetTransform(u16(boneR));
     // Calculate
@@ -734,7 +737,7 @@ void CWeapon::OnEvent(NET_Packet& P, u16 type)
             m_set_next_ammoType_on_reload = NextAmmo;
 
         if (OnClient()) SetAmmoElapsed(int(AmmoElapsed));
-        OnStateSwitch(u32(state));
+        OnStateSwitch(u32(state), GetState());
     }
     break;
     default:
@@ -1027,7 +1030,7 @@ bool CWeapon::Action(u16 cmd, u32 flags)
 
     case kWPN_ZOOM_INC:
     case kWPN_ZOOM_DEC:
-        if (IsZoomEnabled() && IsZoomed())
+        if (IsZoomEnabled() && IsZoomed() && (flags&CMD_START) )
         {
             if (cmd == kWPN_ZOOM_INC)  ZoomInc();
             else					ZoomDec();
@@ -1842,6 +1845,24 @@ bool CWeapon::unlimited_ammo()
         m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited));
 };
 
+float CWeapon::GetMagazineWeight(const decltype(CWeapon::m_magazine)& mag) const
+{
+    float res = 0;
+    const char* last_type = nullptr;
+    float last_ammo_weight = 0;
+    for (auto& c : mag)
+    {
+        // Usually ammos in mag have same type, use this fact to improve performance
+        if (last_type != c.m_ammoSect.c_str())
+        {
+            last_type = c.m_ammoSect.c_str();
+            last_ammo_weight = c.Weight();
+        }
+        res += last_ammo_weight;
+    }
+    return res;
+}
+
 float CWeapon::Weight() const
 {
     float res = CInventoryItemObject::Weight();
@@ -1857,14 +1878,8 @@ float CWeapon::Weight() const
     {
         res += pSettings->r_float(GetSilencerName(), "inv_weight");
     }
+    res += GetMagazineWeight(m_magazine);
 
-    if (m_ammoElapsed.type1)
-    {
-        float w = pSettings->r_float(m_ammoTypes[m_ammoType.type1].c_str(), "inv_weight");
-        float bs = pSettings->r_float(m_ammoTypes[m_ammoType.type1].c_str(), "box_size");
-
-        res += w*(m_ammoElapsed.type1 / bs);
-    }
     return res;
 }
 
@@ -1930,9 +1945,9 @@ const float &CWeapon::hit_probability() const
     return					(m_hit_probability[g_SingleGameDifficulty]);
 }
 
-void CWeapon::OnStateSwitch(u32 S)
+void CWeapon::OnStateSwitch(u32 S, u32 oldState)
 {
-    inherited::OnStateSwitch(S);
+    inherited::OnStateSwitch(S, oldState);
     m_BriefInfo_CalcFrame = 0;
 
     if (GetState() == eReload)

@@ -447,7 +447,7 @@ protected:
     virtual void			SetDefaults();
 
     virtual bool			MovingAnimAllowedNow();
-    virtual void			OnStateSwitch(u32 S);
+    virtual void			OnStateSwitch(u32 S, u32 oldState);
     virtual void			OnAnimationEnd(u32 state);
 
     //трассирование полета пули
@@ -677,6 +677,9 @@ public:
     {
         return m_can_be_strapped;
     };
+
+	const decltype(m_magazine)& GetMagazine() { return m_magazine; };
+    float					GetMagazineWeight(const decltype(m_magazine)& mag) const;
 
 protected:
     u32						m_ef_main_weapon_type;

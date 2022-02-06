@@ -427,7 +427,7 @@ void CWeaponMagazinedWGrenade::ReloadMagazine()
     }
 }
 
-void CWeaponMagazinedWGrenade::OnStateSwitch(u32 S)
+void CWeaponMagazinedWGrenade::OnStateSwitch(u32 S, u32 oldState)
 {
     switch (S)
     {
@@ -441,7 +441,7 @@ void CWeaponMagazinedWGrenade::OnStateSwitch(u32 S)
     }break;
     }
 
-    inherited::OnStateSwitch(S);
+    inherited::OnStateSwitch(S, oldState);
 	UpdateGrenadeVisibility(!!m_ammoElapsed.type1 || S == eReload);
 }
 
@@ -832,6 +832,14 @@ void CWeaponMagazinedWGrenade::net_Import(NET_Packet& P)
 {
 	m_bGrenadeMode = !!P.r_u8();
     inherited::net_Import(P);
+}
+
+float CWeaponMagazinedWGrenade::Weight() const
+{
+    float res = inherited::Weight();
+    res += GetMagazineWeight(m_magazine2);
+
+    return res;
 }
 
 bool CWeaponMagazinedWGrenade::IsNecessaryItem(const shared_str& item_sect)
