@@ -495,75 +495,6 @@ void CWeapon::Load(LPCSTR section)
 
 	if (!bUseAltScope)
 		LoadOriginalScopesParams(section);
-	UpdateAltScope();
-}
-
-bool CWeapon::bReloadSectionScope(LPCSTR section)
-{
-	if (!pSettings->line_exist(section, "scopes"))
-		return false;
-
-	if (pSettings->r_string(section, "scopes") == NULL)
-		return false;
-
-	if (xr_strcmp(pSettings->r_string(section, "scopes"), "none") == 0)
-		return false;
-
-	return true;
-}
-
-bool CWeapon::bLoadAltScopesParams(LPCSTR section)
-{
-	if (!pSettings->line_exist(section, "scopes"))
-		return false;
-
-	if (pSettings->r_string(section, "scopes") == NULL)
-		return false;
-
-	if (xr_strcmp(pSettings->r_string(section, "scopes"), "none") == 0)
-		return false;
-
-	if (m_eScopeStatus == ALife::eAddonAttachable)
-	{
-		LPCSTR str = pSettings->r_string(section, "scopes");
-		for (int i = 0, count = _GetItemCount(str); i < count; ++i)
-		{
-			string128 scope_section;
-			_GetItem(str, i, scope_section);
-			m_scopes.push_back(scope_section);
-		}
-	}
-	else if (m_eScopeStatus == ALife::eAddonPermanent)
-	{
-		LoadCurrentScopeParams(section);
-	}
-
-	return true;
-}
-
-void CWeapon::LoadOriginalScopesParams(LPCSTR section)
-{
-    if (m_eScopeStatus == ALife::eAddonAttachable)
-    {
-        if (pSettings->line_exist(section, "scopes_sect"))
-        {
-            LPCSTR str = pSettings->r_string(section, "scopes_sect");
-            for (int i = 0, count = _GetItemCount(str); i < count; ++i)
-            {
-                string128						scope_section;
-                _GetItem(str, i, scope_section);
-                m_scopes.push_back(scope_section);
-            }
-        }
-        else
-        {
-            m_scopes.push_back(section);
-        }
-    }
-    else if (m_eScopeStatus == ALife::eAddonPermanent)
-    {
-		LoadCurrentScopeParams(section);
-    }
 
     if (m_eSilencerStatus == ALife::eAddonAttachable)
     {
@@ -601,7 +532,9 @@ void CWeapon::LoadOriginalScopesParams(LPCSTR section)
 		}
     }
 
+	UpdateAltScope();
     InitAddons();
+
     if (pSettings->line_exist(section, "weapon_remove_time"))
         m_dwWeaponRemoveTime = pSettings->r_u32(section, "weapon_remove_time");
     else
@@ -670,6 +603,76 @@ void CWeapon::LoadFireParams(LPCSTR section)
 
     CShootingObject::LoadFireParams(section);
 };
+
+
+bool CWeapon::bReloadSectionScope(LPCSTR section)
+{
+	if (!pSettings->line_exist(section, "scopes"))
+		return false;
+
+	if (pSettings->r_string(section, "scopes") == NULL)
+		return false;
+
+	if (xr_strcmp(pSettings->r_string(section, "scopes"), "none") == 0)
+		return false;
+
+	return true;
+}
+
+bool CWeapon::bLoadAltScopesParams(LPCSTR section)
+{
+	if (!pSettings->line_exist(section, "scopes"))
+		return false;
+
+	if (pSettings->r_string(section, "scopes") == NULL)
+		return false;
+
+	if (xr_strcmp(pSettings->r_string(section, "scopes"), "none") == 0)
+		return false;
+
+	if (m_eScopeStatus == ALife::eAddonAttachable)
+	{
+		LPCSTR str = pSettings->r_string(section, "scopes");
+		for (int i = 0, count = _GetItemCount(str); i < count; ++i)
+		{
+			string128 scope_section;
+			_GetItem(str, i, scope_section);
+			m_scopes.push_back(scope_section);
+		}
+	}
+	else if (m_eScopeStatus == ALife::eAddonPermanent)
+	{
+		LoadCurrentScopeParams(section);
+	}
+
+	return true;
+}
+
+void CWeapon::LoadOriginalScopesParams(LPCSTR section)
+{
+    if (m_eScopeStatus == ALife::eAddonAttachable)
+    {
+        if (pSettings->line_exist(section, "scopes_sect"))
+        {
+            LPCSTR str = pSettings->r_string(section, "scopes_sect");
+            for (int i = 0, count = _GetItemCount(str); i < count; ++i)
+            {
+                string128						scope_section;
+                _GetItem(str, i, scope_section);
+                m_scopes.push_back(scope_section);
+            }
+        }
+        else
+        {
+            m_scopes.push_back(section);
+        }
+    }
+    else if (m_eScopeStatus == ALife::eAddonPermanent)
+    {
+		LoadCurrentScopeParams(section);
+    }
+}
+
 
 void createWpnScopeXML()
 {
@@ -747,8 +750,8 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
 
     m_flagsAddOnState = E->m_addon_flags.get();
    
-	if (E->m_cur_addon.scope < m_scopes.size() && m_scopes.size()>1)
-		m_cur_addon.scope = E->m_cur_addon.scope;
+	if (E->cur_scope < m_scopes.size() && m_scopes.size()>1)
+		m_cur_addon.scope = E->cur_scope;
     SetState(E->wpn_state);
     SetNextState(E->wpn_state);
 
