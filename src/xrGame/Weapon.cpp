@@ -1332,7 +1332,6 @@ void CWeapon::UpdateHUDAddonsVisibility()
 
 	if (bone_id != BI_NONE)
 	{
-		HudItemData()->set_bone_visible(bone_id_c, TRUE, TRUE);
 		if (m_eScopeStatus == ALife::eAddonAttachable)
 		{
 			if (IsScopeAttached())
