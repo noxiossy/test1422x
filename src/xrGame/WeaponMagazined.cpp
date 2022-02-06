@@ -25,17 +25,6 @@
 
 #include "../build_config_defines.h"
 
-CUIXml*				pWpnScopeXml = NULL;
-
-void createWpnScopeXML()
-{
-    if (!pWpnScopeXml)
-    {
-        pWpnScopeXml = xr_new<CUIXml>();
-        pWpnScopeXml->Load(CONFIG_PATH, UI_PATH, "scopes.xml");
-    }
-}
-
 CWeaponMagazined::CWeaponMagazined(ESoundTypes eSoundType) : CWeapon()
 {
     m_eSoundShow = ESoundTypes(SOUND_TYPE_ITEM_TAKING | eSoundType);

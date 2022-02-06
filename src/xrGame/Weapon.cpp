@@ -34,7 +34,7 @@
 #define ROTATION_TIME			0.25f
 
 BOOL	b_toggle_weapon_aim = FALSE;
-extern CUIXml*	pWpnScopeXml;
+extern CUIXml* pWpnScopeXml = NULL;
 
 CWeapon::CWeapon()
 {
