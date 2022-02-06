@@ -438,16 +438,17 @@ void CSE_ALifeTraderAbstract::set_specific_character	(shared_str new_spec_char)
 		n					+= "_";
 		n					+= itoa(::Random.randI(name_cnt),S,10);
 		m_character_name	= *(CStringTable().translate(n.c_str()));
-		m_character_name	+= " ";
 
-	if (psHUD_Flags.test(A_LAST_NAME))
-	{ 
-		n					= "lname_";
-		n					+= subset;
-		n					+= "_";
-		n					+= itoa(::Random.randI(last_name_cnt),S,10);
-		m_character_name	+= *(CStringTable().translate(n.c_str()));
-	}
+		if (psHUD_Flags.test(A_LAST_NAME))
+		{ 
+			m_character_name	+= " ";
+
+			n					= "lname_";
+			n					+= subset;
+			n					+= "_";
+			n					+= itoa(::Random.randI(last_name_cnt),S,10);
+			m_character_name	+= *(CStringTable().translate(n.c_str()));
+		}
 
 	
 	}

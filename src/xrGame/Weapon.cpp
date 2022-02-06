@@ -86,6 +86,8 @@ CWeapon::CWeapon()
 	bUseAltScope = false;
 	bScopeIsHasTexture = false;
 
+}
+
 const shared_str CWeapon::GetScopeName() const
 {
 	if (bUseAltScope)
