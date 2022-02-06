@@ -1328,9 +1328,9 @@ void CWeapon::UpdateHUDAddonsVisibility()
 		HudItemData()->set_bone_visible(wpn_collimator, (IsZoomed() && !IsRotatingToZoom()), TRUE);
 	}
 		
-	u16 bone_id = HudItemData()->m_model->LL_BoneID(GetScopeBoneName());
+	//u16 bone_id = HudItemData()->m_model->LL_BoneID(wpn_scope);
 
-	if (bone_id != BI_NONE)
+	//if (bone_id != BI_NONE)
 	{
 		if (m_eScopeStatus == ALife::eAddonAttachable)
 		{
