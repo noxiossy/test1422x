@@ -34,6 +34,9 @@ public:
     CWeapon();
     virtual					~CWeapon();
 
+	bool			bScopeIsHasTexture;
+	void			LoadCurrentScopeParams(LPCSTR section);
+
     // Generic
     virtual void			Load(LPCSTR section);
 
@@ -182,7 +185,7 @@ public:
 
     virtual bool UseScopeTexture()
     {
-        return true;
+        return bScopeIsHasTexture;
     };
 	
     //обновление видимости для косточек аддонов

@@ -267,7 +267,12 @@ void CDetailManager::UpdateVisibleM()
 
 	CFrustum View;
 	View.CreateFromMatrix(RDEVICE.mFullTransform_saved, FRUSTUM_P_LRTB + FRUSTUM_P_FAR);
-		
+			
+ 	CFrustum	View_old;
+ 	Fmatrix		Viewm_old = RDEVICE.mFullTransform;
+ 	View_old.CreateFromMatrix		(Viewm_old, FRUSTUM_P_LRTB + FRUSTUM_P_FAR);
+	
+
 	float fade_limit = dm_fade;
 	fade_limit = fade_limit * fade_limit;
 	float fade_start = 1.f;
@@ -428,8 +433,7 @@ void __stdcall	CDetailManager::MT_CALC		()
 #endif    
 
 	MT.Enter					();
-	if (m_frame_calc!=RDEVICE.dwFrame)	
-		if ((m_frame_rendered+1)==RDEVICE.dwFrame) //already rendered
+		if (m_frame_calc != RDEVICE.dwFrame && (m_frame_rendered + 1) == RDEVICE.dwFrame)
 		{
 			Fvector		EYE				= RDEVICE.vCameraPosition_saved;
 

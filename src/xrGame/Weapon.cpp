@@ -83,6 +83,7 @@ CWeapon::CWeapon()
     m_activation_speed_is_overriden = false;
 	m_cur_addon.data = 0;
     m_bRememberActorNVisnStatus = false;
+	bScopeIsHasTexture = false;
 }
 
 CWeapon::~CWeapon()
@@ -415,17 +416,7 @@ void CWeapon::Load(LPCSTR section)
     }
     else if (m_eScopeStatus == ALife::eAddonPermanent)
     {
-        shared_str scope_tex_name = pSettings->r_string(cNameSect(), "scope_texture");
-        m_zoom_params.m_fScopeZoomFactor = pSettings->r_float(cNameSect(), "scope_zoom_factor");
-        {
-            m_UIScope = xr_new<CUIWindow>();
-            if (!pWpnScopeXml)
-            {
-                pWpnScopeXml = xr_new<CUIXml>();
-                pWpnScopeXml->Load(CONFIG_PATH, UI_PATH, "scopes.xml");
-            }
-            CUIXmlInit::InitWindow(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
-        }
+		LoadCurrentScopeParams(section);
     }
 
     if (m_eSilencerStatus == ALife::eAddonAttachable)
@@ -533,6 +524,42 @@ void CWeapon::LoadFireParams(LPCSTR section)
 
     CShootingObject::LoadFireParams(section);
 };
+
+
+void CWeapon::LoadCurrentScopeParams(LPCSTR section)
+{
+	shared_str scope_tex_name = "none";
+	bScopeIsHasTexture = false;
+	if (pSettings->line_exist(section, "scope_texture"))
+	{
+		scope_tex_name = pSettings->r_string(section, "scope_texture");
+		if (xr_strcmp(scope_tex_name, "none") != 0)
+			bScopeIsHasTexture = true;
+	}
+
+	m_zoom_params.m_fScopeZoomFactor = pSettings->r_float(section, "scope_zoom_factor");
+
+	if (bScopeIsHasTexture)
+	{
+		m_zoom_params.m_sUseZoomPostprocess = READ_IF_EXISTS(pSettings, r_string, section, "scope_nightvision", 0);
+		m_zoom_params.m_bUseDynamicZoom = READ_IF_EXISTS(pSettings, r_bool, section, "scope_dynamic_zoom", FALSE);
+		m_zoom_params.m_sUseBinocularVision = READ_IF_EXISTS(pSettings, r_string, section, "scope_alive_detector", 0);
+	}
+
+	m_fRTZoomFactor = m_zoom_params.m_fScopeZoomFactor;
+
+	if (m_UIScope)
+	{
+		xr_delete(m_UIScope);
+	}
+
+	if (bScopeIsHasTexture)
+	{
+		m_UIScope = xr_new<CUIWindow>();
+		createWpnScopeXML();
+		CUIXmlInit::InitWindow(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
+	}
+}
 
 BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
 {
@@ -1216,8 +1243,6 @@ float CWeapon::GetConditionMisfireProbability() const
 
 BOOL CWeapon::CheckForMisfire()
 {
-    if (OnClient()) return FALSE;
-
     float rnd = ::Random.randF(0.f, 1.f);
     float mp = GetConditionMisfireProbability();
     if (rnd < mp)
@@ -1277,10 +1302,6 @@ bool CWeapon::SilencerAttachable()
 {
     return (ALife::eAddonAttachable == m_eSilencerStatus);
 }
-
-shared_str wpn_scope = "wpn_scope";
-shared_str wpn_silencer = "wpn_silencer";
-shared_str wpn_grenade_launcher = "wpn_launcher";
 
 void CWeapon::UpdateHUDAddonsVisibility()
 {
