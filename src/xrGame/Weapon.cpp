@@ -838,10 +838,10 @@ void CWeapon::net_Import(NET_Packet& P)
     u8 Zoom;
     P.r_u8((u8) Zoom);
 
-//	u8 scope;
-//	P.r_u8(scope);
+	u8 scope;
+	P.r_u8(scope);
 
-//	m_cur_addon.scope = scope;
+	m_cur_addon.scope = scope;
 
     if (H_Parent() && H_Parent()->Remote())
     {
