@@ -19,7 +19,8 @@
 #include "../../../ActorCondition.h"
 #include "../../../xr_level_controller.h"
 #include "../../../weapon.h"
-
+#include "../../../../xrCore/_vector3d_ext.h"
+#include "../../../GamePersistent.h"
 
 CPseudoGigant::CPseudoGigant()
 {
