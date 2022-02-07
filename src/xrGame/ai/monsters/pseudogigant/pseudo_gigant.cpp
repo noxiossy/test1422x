@@ -15,6 +15,10 @@
 #include "../../../detail_path_manager.h"
 #include "../../../CharacterPhysicsSupport.h"
 #include "../control_path_builder_base.h"
+#include "../../../Inventory.h"
+#include "../../../ActorCondition.h"
+#include "../../../xr_level_controller.h"
+#include "../../../weapon.h"
 
 
 CPseudoGigant::CPseudoGigant()
