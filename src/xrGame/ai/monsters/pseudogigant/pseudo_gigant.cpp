@@ -15,6 +15,10 @@
 #include "../../../detail_path_manager.h"
 #include "../../../CharacterPhysicsSupport.h"
 #include "../control_path_builder_base.h"
+#include "../../../Inventory.h"
+#include "../../../ActorCondition.h"
+#include "../../../xr_level_controller.h"
+#include "../../../weapon.h"
 
 
 CPseudoGigant::CPseudoGigant()
@@ -198,13 +202,26 @@ void CPseudoGigant::event_on_step()
 	{
 		float dist_to_actor = pActor->Position().distance_to(Position());
 		float max_dist		= MAX_STEP_RADIUS;
-		if (dist_to_actor < max_dist) 
+		if (dist_to_actor < max_dist)
+		{
 			Actor()->Cameras().AddCamEffector(xr_new<CPseudogigantStepEffector>(
 				step_effector.time, 
 				step_effector.amplitude, 
 				step_effector.period_number, 
 				(max_dist - dist_to_actor) / (1.2f * max_dist))
 			);
+			Fvector dir					=	Actor()->Direction();
+			if ( dir.y < 0.f )
+			{
+				dir.y					=	-dir.y;
+			}
+			active_weapon->SetActivationSpeedOverride ( normalize(dir) * 8 );
+
+			if ( !Actor()->inventory().Action((u16)kDROP, CMD_STOP) )
+			{
+				Actor()->g_PerformDrop		();
+			}
+		}
 	}
 	//////////////////////////////////
 }
