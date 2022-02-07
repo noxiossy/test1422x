@@ -160,6 +160,11 @@ BOOL CAI_Crow::net_Spawn		(CSE_Abstract* DC)
 		st_target = ECrowStates::eFlyIdle;
 		// disable UpdateCL, enable only on HIT
 		processing_deactivate();
+		auto tmp = Actor()->Position();
+		tmp.x = tmp.x + ::Random.randF(-50.0f, 50.0f);
+		tmp.y = tmp.y + ::Random.randF(20.0f, 50.0f);
+		tmp.z = tmp.z + ::Random.randF(-50.0f, 50.0f);
+		Position().set(tmp);
 	}
 	else
 	{
@@ -342,8 +347,8 @@ void CAI_Crow::shedule_Update		(u32 DT)
 		// At random times, change the direction (goal) of the plane
 		if(fGoalChangeTime<=0)	{
 			fGoalChangeTime += fGoalChangeDelta+fGoalChangeDelta*Random.randF(-0.5f,0.5f);
-			Fvector			vP = Actor()->Position();
-			vP.y			+= +fMinHeight;
+			Fvector vP;
+			vP.set(Device.vCameraPosition.x,Device.vCameraPosition.y+fMinHeight,Device.vCameraPosition.z);
 			vGoalDir.x		= vP.x+vVarGoal.x*Random.randF(-0.5f,0.5f); 
 			vGoalDir.y		= vP.y+vVarGoal.y*Random.randF(-0.5f,0.5f);
 			vGoalDir.z		= vP.z+vVarGoal.z*Random.randF(-0.5f,0.5f);
