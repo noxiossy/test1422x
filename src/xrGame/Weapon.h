@@ -36,6 +36,9 @@ public:
 
 	bool			bUseAltScope;
 	bool			bScopeIsHasTexture;
+	bool			bLoadAltScopesParams(LPCSTR section);
+	bool            bReloadSectionScope(LPCSTR section);
+	void			LoadOriginalScopesParams(LPCSTR section);
 	void			LoadCurrentScopeParams(LPCSTR section);
 	void			UpdateAltScope();
 

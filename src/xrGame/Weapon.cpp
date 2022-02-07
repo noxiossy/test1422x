@@ -749,9 +749,6 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
 	}
 
     m_flagsAddOnState = E->m_addon_flags.get();
-   
-	if (E->cur_scope < m_scopes.size() && m_scopes.size()>1)
-		m_cur_addon.scope = E->cur_scope;
     SetState(E->wpn_state);
     SetNextState(E->wpn_state);
 
