@@ -1,4 +1,4 @@
-version: xray_mlr_{build}
+version: xray_lrc_base_{build}
 image: Visual Studio 2019
 configuration: Release
 platform: Win32
@@ -17,7 +17,11 @@ build:
   verbosity: minimal
 after_build:
 - cmd: >-
-    set APPVEYOR_VERSION=%APPVEYOR_BUILD_VERSION%
+    set COR_PLAT=%PLATFORM%
+
+    IF "%COR_PLAT%" == "Win32" set COR_PLAT=x86
+
+    set APPVEYOR_VERSION=%APPVEYOR_BUILD_VERSION%_%COR_PLAT%
 
     echo %APPVEYOR_VERSION%
     
@@ -31,7 +35,7 @@ after_build:
 
     copy src\intermediate\%PLATFORM%-%CONFIGURATION%\*.dll dist\engine\bin\
     
-    copy sdk\binaries\x86\lua51.dll dist\engine\bin\
+    copy sdk\binaries\%COR_PLAT%\lua51.dll dist\engine\bin\
 
     echo appveyor PushArtifact %APPVEYOR_REPO_TAG_NAME%.7z release
 

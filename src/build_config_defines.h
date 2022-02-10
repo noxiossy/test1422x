@@ -47,8 +47,9 @@
 	#define LAYERED_SND_SHOOT								// see comment down below 
 //-SOUND
 
-
+// ADDITIONAL:
 	//#define EQUAL_WEAPONS_SLOTS
+//-ADDITIONAL
 
 /*LAYERED_SND_SHOOT by Alundaio
 When defined, it will allow you to play a group of sounds from a specified section for snd_shoot.

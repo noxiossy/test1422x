@@ -203,15 +203,13 @@ void CPseudoGigant::event_on_step()
 	{
 		float dist_to_actor = pActor->Position().distance_to(Position());
 		float max_dist		= MAX_STEP_RADIUS;
-		if (dist_to_actor < max_dist)
-		{
+		if (dist_to_actor < max_dist) 
 			Actor()->Cameras().AddCamEffector(xr_new<CPseudogigantStepEffector>(
 				step_effector.time, 
 				step_effector.amplitude, 
 				step_effector.period_number, 
 				(max_dist - dist_to_actor) / (1.2f * max_dist))
 			);
-		}
 	}
 	//////////////////////////////////
 }

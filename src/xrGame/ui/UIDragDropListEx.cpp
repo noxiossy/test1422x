@@ -4,8 +4,10 @@
 #include "object_broker.h"
 #include "UICellItem.h"
 #include "UICursor.h"
+#include "../Level.h"
 //Alundaio
-#include "../Inventory.h" 
+#include "../Inventory.h"
+#include <dinput.h>
 //-Alundaio
 
 CUIDragItem* CUIDragDropListEx::m_drag_item = NULL;
@@ -146,8 +148,8 @@ void CUIDragDropListEx::DestroyDragItem()
 }
 
 Fvector2 CUIDragDropListEx::GetDragItemPosition()
-{
-	return m_drag_item->GetPosition();
+{	//Alun: More accurate then Left-Top of dragged icon
+	return GetUICursor().GetCursorPosition(); //m_drag_item->GetPosition();
 }
 
 
@@ -188,12 +190,15 @@ void CUIDragDropListEx::OnItemDrop(CUIWindow* w, void* pData)
 	if(old_owner&&new_owner && !b)
 	{
 		CUICellItem* i					= old_owner->RemoveItem(itm, (old_owner==new_owner) );
-		while(i->ChildsCount())
+		if (new_owner->CanSetItem(i))
 		{
-			CUICellItem* _chld				= i->PopChild(NULL);
-			new_owner->SetItem				(_chld, old_owner->GetDragItemPosition());
+			while(i->ChildsCount())
+			{
+				CUICellItem* _chld				= i->PopChild(NULL);
+				new_owner->SetItem				(_chld, old_owner->GetDragItemPosition());
+			}
+			new_owner->SetItem				(i,old_owner->GetDragItemPosition());
 		}
-		new_owner->SetItem				(i,old_owner->GetDragItemPosition());
 	}
 	DestroyDragItem						();
 }
@@ -804,7 +809,7 @@ u32 CUICellContainer::GetCellsInRange(const Irect& rect, UI_CELLS_VEC& res)
 		for(int y=rect.y1;y<=rect.y2;++y)
 			res.push_back	(GetCellAt(Ivector2().set(x,y)));
 
-	std::unique				(res.begin(), res.end());
+	res.erase(std::unique(res.begin(), res.end()), res.end());
 	return res.size			();
 }
 

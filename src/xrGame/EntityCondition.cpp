@@ -201,7 +201,7 @@ void CEntityCondition::ChangeBleeding(const float percent)
 	for(WOUND_VECTOR_IT it = m_WoundVector.begin(); m_WoundVector.end() != it; ++it)
 	{
 		(*it)->Incarnation			(percent, m_fMinWoundSize);
-		if(0 == (*it)->TotalSize	())
+		if(fis_zero((*it)->TotalSize()))
 			(*it)->SetDestroy		(true);
 	}
 }

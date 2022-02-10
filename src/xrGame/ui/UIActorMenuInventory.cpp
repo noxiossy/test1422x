@@ -395,7 +395,10 @@ void CUIActorMenu::InitCellForSlot( u16 slot_idx )
 		return;
 	}
 
-	CUIDragDropListEx* curr_list	= GetSlotList( slot_idx );
+	CUIDragDropListEx* curr_list = GetSlotList( slot_idx );
+	if (!curr_list)
+		return;
+
 	CUICellItem* cell_item			= create_cell_item( item );
 	curr_list->SetItem( cell_item );
 	if ( m_currMenuMode == mmTrade && m_pPartnerInvOwner )
@@ -585,6 +588,9 @@ bool CUIActorMenu::ToSlot(CUICellItem* itm, bool force_place, u16 slot_id)
 			old_owner->SetItem(child);
 		}
 
+		if (!new_owner->CanSetItem(i))
+			return ToSlot(i, true, slot_id);
+		
 		new_owner->SetItem					(i);
 
 		SendEvent_Item2Slot					(iitem, m_pActorInvOwner->object_id(), slot_id);
@@ -880,6 +886,9 @@ bool CUIActorMenu::ToQuickSlot(CUICellItem* itm)
 		
 	u8 slot_idx = u8(m_pQuickSlot->PickCell(GetUICursor().GetCursorPosition()).x);
 	if(slot_idx==255)
+		return false;
+	
+	if (!m_pQuickSlot->CanSetItem(itm))
 		return false;
 
 	m_pQuickSlot->SetItem(create_cell_item(iitem), GetUICursor().GetCursorPosition());
