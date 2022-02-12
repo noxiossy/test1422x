@@ -232,10 +232,6 @@ void CUIActorMenu::Update()
 		}
 	case mmDeadBodySearch:
 		{
-			//Debrovski: dead bodies can be looted by others, when we loot them by ourselfs.
-			//...so we should show changes in inventory
-			if (m_pPartnerInvOwner && m_pPartnerInvOwner->inventory().ModifyFrame() != m_trade_partner_inventory_state)
-				RefreshDeadBodyInventoryContents();
 			//CheckDistance();
 			break;
 		}
