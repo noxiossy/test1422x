@@ -398,7 +398,7 @@ bool CHudItem::TryPlayAnimIdle()
 }
 
 //AVO: check if animation exists
-bool CHudItem::HudAnimationExist(LPCSTR anim_name)
+bool CHudItem::HudAnimationExist(LPCSTR anim_name) const
 {
     if (HudItemData()) // First person
     {
@@ -412,9 +412,9 @@ bool CHudItem::HudAnimationExist(LPCSTR anim_name)
     }
     else // Third person
     {
-        if (g_player_hud->motion_length(anim_name, HudSection(), m_current_motion_def) > 100)
+        const CMotionDef* temp_motion_def;
+        if (g_player_hud->motion_length(anim_name, HudSection(), temp_motion_def) > 100)
             return true;
-
     }
 #ifdef DEBUG
     Msg("~ [WARNING] ------ Animation [%s] does not exist in [%s]", anim_name, HudSection().c_str());
@@ -453,7 +453,7 @@ void CHudItem::OnMovementChanged(ACTOR_DEFS::EMoveCommand cmd)
     }
 }
 
-attachable_hud_item* CHudItem::HudItemData()
+attachable_hud_item* CHudItem::HudItemData() const
 {
     attachable_hud_item* hi = NULL;
     if (!g_player_hud)
