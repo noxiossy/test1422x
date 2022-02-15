@@ -31,6 +31,7 @@ rnd_motion*	rnd_motion::	setup		( IKinematicsAnimated* k, LPCSTR s )
 			motions.push_back(m);
 		}
 		else
+		{
 			msg("death_anims: motion: %s not found!", n);
 		}
 	}
