@@ -1612,9 +1612,9 @@ void CWeapon::UpdateAddonsVisibility()
 					pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
 			}
 		}
-		if (m_eScopeStatus == CSE_ALifeItemWeapon::eAddonDisabled && bone_id != BI_NONE && pWeaponVisual->LL_GetBoneVisible(bone_id))
+		if (m_eScopeStatus == ALife::eAddonDisabled && bone_id != BI_NONE && pWeaponVisual->LL_GetBoneVisible(bone_id))
 			pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
-		else if (m_eScopeStatus == CSE_ALifeItemWeapon::eAddonPermanent && bone_id != BI_NONE && !pWeaponVisual->LL_GetBoneVisible(bone_id))
+		else if (m_eScopeStatus == ALife::eAddonPermanent && bone_id != BI_NONE && !pWeaponVisual->LL_GetBoneVisible(bone_id))
 			pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
 	}        
 
