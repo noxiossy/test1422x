@@ -262,6 +262,9 @@ public:
 
 	std::vector<shared_str> m_sWpn_scope_bones;
 	std::vector<shared_str> m_sHud_wpn_scope_bones;
+private:
+	std::vector<shared_str> hidden_bones;
+
 protected:
     //состояние подключенных аддонов
     u8 m_flagsAddOnState;
