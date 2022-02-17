@@ -259,6 +259,9 @@ public:
     {
         m_flagsAddOnState = st;
     }//dont use!!! for buy menu only!!!
+
+	std::vector<shared_str> m_sWpn_scope_bones;
+	std::vector<shared_str> m_sHud_wpn_scope_bones;
 protected:
     //состояние подключенных аддонов
     u8 m_flagsAddOnState;
