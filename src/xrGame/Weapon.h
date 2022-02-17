@@ -264,6 +264,7 @@ public:
 	std::vector<shared_str> m_sHud_wpn_scope_bones;
 private:
 	std::vector<shared_str> hidden_bones;
+	std::vector<shared_str> hud_hidden_bones;
 
 protected:
     //состояние подключенных аддонов
