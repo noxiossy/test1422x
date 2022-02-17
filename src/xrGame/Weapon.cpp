@@ -532,6 +532,86 @@ void CWeapon::Load(LPCSTR section)
 		}
     }
 
+	// Кости мировой модели оружия
+	if (pSettings->line_exist(section, "scope_bone"))
+	{
+		const char* S = pSettings->r_string(section, "scope_bone");
+		if (S && strlen(S))
+		{
+			const int count = _GetItemCount(S);
+			string128 _scope_bone{};
+			for (int it = 0; it < count; ++it)
+			{
+				_GetItem(S, it, _scope_bone);
+				m_sWpn_scope_bones.push_back(_scope_bone);
+			}
+		}
+		else
+			m_sWpn_scope_bones.push_back(wpn_scope_def_bone);
+	}
+	else
+		m_sWpn_scope_bones.push_back(wpn_scope_def_bone);
+	m_sWpn_silencer_bone = READ_IF_EXISTS(pSettings, r_string, section, "silencer_bone", wpn_silencer_def_bone);
+	m_sWpn_launcher_bone = READ_IF_EXISTS(pSettings, r_string, section, "launcher_bone", wpn_launcher_def_bone_shoc);
+	m_sWpn_laser_bone = READ_IF_EXISTS(pSettings, r_string, section, "laser_ray_bones", "");
+	m_sWpn_flashlight_bone = READ_IF_EXISTS(pSettings, r_string, section, "torch_cone_bones", "");
+
+	if (pSettings->line_exist(section, "hidden_bones"))
+	{
+		const char* S = pSettings->r_string(section, "hidden_bones");
+		if (S && strlen(S))
+		{
+			const int count = _GetItemCount(S);
+			string128 _hidden_bone{};
+			for (int it = 0; it < count; ++it)
+			{
+				_GetItem(S, it, _hidden_bone);
+				hidden_bones.push_back(_hidden_bone);
+			}
+		}
+	}
+
+	// Кости худовой модели оружия - если не прописаны, используются имена из конфига мировой модели.
+	if (pSettings->line_exist(hud_sect, "scope_bone"))
+	{
+		const char* S = pSettings->r_string(hud_sect, "scope_bone");
+		if (S && strlen(S))
+		{
+			const int count = _GetItemCount(S);
+			string128 _scope_bone{};
+			for (int it = 0; it < count; ++it)
+			{
+				_GetItem(S, it, _scope_bone);
+				m_sHud_wpn_scope_bones.push_back(_scope_bone);
+			}
+		}
+		else
+			m_sHud_wpn_scope_bones = m_sWpn_scope_bones;
+	}
+	else
+		m_sHud_wpn_scope_bones = m_sWpn_scope_bones;
+	m_sHud_wpn_silencer_bone = READ_IF_EXISTS(pSettings, r_string, hud_sect, "silencer_bone", m_sWpn_silencer_bone);
+	m_sHud_wpn_launcher_bone = READ_IF_EXISTS(pSettings, r_string, hud_sect, "launcher_bone", m_sWpn_launcher_bone);
+	m_sHud_wpn_laser_bone = READ_IF_EXISTS(pSettings, r_string, hud_sect, "laser_ray_bones", m_sWpn_laser_bone);
+	m_sHud_wpn_flashlight_bone = READ_IF_EXISTS(pSettings, r_string, hud_sect, "torch_cone_bones", m_sWpn_flashlight_bone);
+
+	if (pSettings->line_exist(hud_sect, "hidden_bones"))
+	{
+		const char* S = pSettings->r_string(hud_sect, "hidden_bones");
+		if (S && strlen(S))
+		{
+			const int count = _GetItemCount(S);
+			string128 _hidden_bone{};
+			for (int it = 0; it < count; ++it)
+			{
+				_GetItem(S, it, _hidden_bone);
+				hud_hidden_bones.push_back(_hidden_bone);
+			}
+		}
+	}
+	else
+		hud_hidden_bones = hidden_bones;
+
 	UpdateAltScope();
     InitAddons();
 
@@ -1489,24 +1569,14 @@ void CWeapon::UpdateHUDAddonsVisibility()
 		if (m_eScopeStatus == ALife::eAddonAttachable)
 		{
 			if (IsScopeAttached())
-				HudItemData()->set_bone_visible(GetScopeBoneName(), TRUE, TRUE);
+				HudItemData()->set_bone_visible(m_sHud_wpn_scope_bones, TRUE, TRUE);
 			else
-			{
-				HudItemData()->set_bone_visible(wpn_scope, FALSE, TRUE);
-				SCOPES_VECTOR_IT it = m_scopes.begin();
-				for (; it != m_scopes.end(); it++)
-				{
-					LPCSTR section = pSettings->r_string((*it), "scope_name");
-					LPCSTR bone_name = READ_IF_EXISTS(pSettings, r_string, section, "addon_bone", "");
-					if (bone_name)
-						HudItemData()->set_bone_visible(bone_name, FALSE, TRUE);
-				}
-			}
+				HudItemData()->set_bone_visible(m_sHud_wpn_scope_bones, FALSE, TRUE);
 		}
 		else if (m_eScopeStatus == ALife::eAddonDisabled)
-			 HudItemData()->set_bone_visible(wpn_scope, FALSE, TRUE);
+			 HudItemData()->set_bone_visible(m_sHud_wpn_scope_bones, FALSE, TRUE);
 	    else if (m_eScopeStatus == ALife::eAddonPermanent)
-			HudItemData()->set_bone_visible(wpn_scope, TRUE, TRUE);
+			HudItemData()->set_bone_visible(m_sHud_wpn_scope_bones, TRUE, TRUE);
 	}
 
 	if (m_eSilencerStatus == ALife::eAddonAttachable)
@@ -1569,33 +1639,33 @@ void CWeapon::UpdateAddonsVisibility()
 {
     IKinematics* pWeaponVisual = smart_cast<IKinematics*>(Visual()); R_ASSERT(pWeaponVisual);
 
-    u16  bone_id;
+    u16  bone_id{};
     UpdateHUDAddonsVisibility();
 
     pWeaponVisual->CalculateBones_Invalidate();
 
-    bone_id = pWeaponVisual->LL_BoneID(wpn_scope);
-	if (m_eScopeStatus == ALife::eAddonAttachable)
+	for (const auto& sbone : m_sWpn_scope_bones)
 	{
-        if (IsScopeAttached())
-			SetBoneVisible(pWeaponVisual, GetScopeBoneName(), TRUE, TRUE);
-        else
-        {
-			SetBoneVisible(pWeaponVisual, wpn_scope, FALSE, TRUE);
-			SCOPES_VECTOR_IT it = m_scopes.begin();
-			for (; it != m_scopes.end(); it++)
+		bone_id = pWeaponVisual->LL_BoneID(sbone);
+
+		if (ScopeAttachable())
+		{
+			if (IsScopeAttached())
 			{
-				LPCSTR section = pSettings->r_string((*it), "scope_name");
-				LPCSTR bone_name = READ_IF_EXISTS(pSettings, r_string, section, "addon_bone", "");
-				if (bone_name)
-					SetBoneVisible(pWeaponVisual, bone_name, FALSE, TRUE);
+				if (!pWeaponVisual->LL_GetBoneVisible(bone_id))
+					pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
 			}
-        }
-	}
-	else if (m_eScopeStatus == ALife::eAddonDisabled)
-		SetBoneVisible(pWeaponVisual, wpn_scope, FALSE, TRUE);
-	else if (m_eScopeStatus == ALife::eAddonPermanent)
-		SetBoneVisible(pWeaponVisual, wpn_scope, TRUE, TRUE);
+			else
+			{
+				if (pWeaponVisual->LL_GetBoneVisible(bone_id))
+					pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
+			}
+		}
+		if (m_eScopeStatus == CSE_ALifeItemWeapon::eAddonDisabled && bone_id != BI_NONE && pWeaponVisual->LL_GetBoneVisible(bone_id))
+			pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
+		else if (m_eScopeStatus == CSE_ALifeItemWeapon::eAddonPermanent && bone_id != BI_NONE && !pWeaponVisual->LL_GetBoneVisible(bone_id))
+			pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
+	}        
 
 	if (m_eSilencerStatus == ALife::eAddonAttachable)
 		if (IsSilencerAttached())
