@@ -35,16 +35,28 @@
 #include "Weapon.h"
 
 extern u32 hud_adj_mode;
-
+extern u32 hud_adj_item_idx;
+extern u8 hud_addon_index;
 void CActor::IR_OnKeyboardPress(int cmd)
 {
-	if(hud_adj_mode && pInput->iGetAsyncKeyState(DIK_LSHIFT))	return;
+	if (hud_adj_mode && pInput->iGetAsyncKeyState(DIK_LSHIFT))
+	{
+		if (pInput->iGetAsyncKeyState(DIK_RETURN) || pInput->iGetAsyncKeyState(DIK_BACKSPACE) ||
+			pInput->iGetAsyncKeyState(DIK_DELETE))
+			g_player_hud->tune(Ivector().set(0, 0, 0));
 
 	if (Remote())		return;
 
 	if (IsTalking())	return;
 	if (m_input_external_handler && !m_input_external_handler->authorized(cmd))	return;
 	
+	if (pInput->iGetAsyncKeyState(DIK_ADD))
+		inventory().Action((u16)kWPN_ZOOM_INC, CMD_START);
+	else if (pInput->iGetAsyncKeyState(DIK_SUBTRACT))
+		inventory().Action((u16)kWPN_ZOOM_DEC, CMD_START);
+	else if (pInput->iGetAsyncKeyState(DIK_HOME))
+		inventory().Action((u16)kWPN_NV_CHANGE, CMD_START);
+
 	switch (cmd)
 	{
 	case kWPN_FIRE:
@@ -239,9 +251,73 @@ void CActor::IR_OnKeyboardRelease(int cmd)
 	}
 }
 
+void CActor::set_addon_for_adjust(bool up)
+{
+	/*CWeapon* wpn = smart_cast<CWeapon*>(inventory().ActiveItem());
+
+	if (!wpn) return;
+
+	if (wpn->addons_attached.empty() || wpn->addons_attached.size() == 1) return;
+
+	if (up)
+	{
+		if (hud_addon_index + 1 < wpn->addons_attached.size())
+			hud_addon_index++;
+		else 
+			hud_addon_index = 0;
+	}
+	else
+	{
+		if (hud_addon_index - 1 >= 0)
+			hud_addon_index--;
+		else
+			hud_addon_index = wpn->addons_attached.size() - 1;
+	}*/
+}
+
+void CActor::custom_tune_adjust(Ivector _values)
+{
+	/*if (hud_adj_mode == 8 || hud_adj_mode == 9)
+	{
+		CWeapon* wpn = smart_cast<CWeapon*>(inventory().ActiveItem());
+		if (wpn && !wpn->addons_attached.empty() && hud_addon_index < wpn->addons_attached.size())
+		{
+			UWAddon* addn = wpn->addons_attached[hud_addon_index];
+			WeaponAddon* addon = smart_cast<WeaponAddon*>(addn);
+
+			g_player_hud->AddonTune(_values, addon->bone_offset[0][0], addon->bone_offset[0][0], addon->GetSectionName());
+		}
+	}
+	else 
+		g_player_hud->tune(_values);*/
+
+	g_player_hud->tune(_values);
+}
+
 void CActor::IR_OnKeyboardHold(int cmd)
 {
-	if(hud_adj_mode && pInput->iGetAsyncKeyState(DIK_LSHIFT))	return;
+	if (hud_adj_mode && pInput->iGetAsyncKeyState(DIK_LSHIFT) && g_player_hud)
+	{	
+		u8 idx = g_player_hud->attached_item(hud_adj_item_idx)->m_parent_hud_item->GetCurrentHudOffsetIdx();
+
+		bool bIsRot = (hud_adj_mode == 2) && (idx != 0);
+
+		if (pInput->iGetAsyncKeyState(bIsRot ? DIK_RIGHT : DIK_UP))
+			custom_tune_adjust(Ivector().set(0, 1, 0));
+		if (pInput->iGetAsyncKeyState(bIsRot ? DIK_LEFT : DIK_DOWN))
+			custom_tune_adjust(Ivector().set(0, -1, 0));
+		if (pInput->iGetAsyncKeyState(bIsRot ? DIK_DOWN : DIK_LEFT))
+			custom_tune_adjust(Ivector().set(1, 0, 0));
+		if (pInput->iGetAsyncKeyState(bIsRot ? DIK_UP : DIK_RIGHT))
+			custom_tune_adjust(Ivector().set(-1, 0, 0));
+		if (pInput->iGetAsyncKeyState(DIK_PRIOR))
+			custom_tune_adjust(Ivector().set(0, 0, 1));
+		if (pInput->iGetAsyncKeyState(DIK_NEXT))
+			custom_tune_adjust(Ivector().set(0, 0, -1));
+		if (pInput->iGetAsyncKeyState(DIK_RETURN))
+			custom_tune_adjust(Ivector().set(0, 0, 0));
+		return;
+	}
 
 	if (Remote() || !g_Alive())					return;
 	if (m_input_external_handler && !m_input_external_handler->authorized(cmd))	return;

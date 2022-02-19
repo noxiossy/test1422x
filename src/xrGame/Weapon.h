@@ -44,6 +44,93 @@ public:
 
 	shared_str		GetNameWithAttachment();
 
+
+//Adjusting world position
+
+	virtual Fvector get_angle_offset()
+	{
+		VERIFY(m_dbgItem);
+		Fvector v;
+		m_strapped_mode ? m_StrapOffset.getHPB(v) : m_Offset.getHPB(v);
+		return v;
+	};
+	virtual Fvector get_pos_offset()
+	{
+		VERIFY(m_dbgItem);
+		return m_strapped_mode ? m_StrapOffset.c : m_Offset.c;
+	};
+	virtual void set_angle_offset(Fvector val)
+	{
+		Fvector c = get_pos_offset();
+		Fmatrix& mat = m_strapped_mode ? m_StrapOffset : m_Offset;
+		mat.setHPB(VPUSH(val));
+		mat.c = c;
+	}
+	virtual void rot(int axis, float val)
+	{
+		Fvector v = get_angle_offset();
+		v[axis] += val;
+		set_angle_offset(v);
+	}
+	virtual void rot_dx(float val)
+	{
+		Fvector v = get_angle_offset();
+		v.x += val;
+		set_angle_offset(v);
+	}
+	virtual void rot_dy(float val)
+	{
+		Fvector v = get_angle_offset();
+		v.y += val;
+		set_angle_offset(v);
+	}
+	virtual void rot_dz(float val)
+	{
+		Fvector v = get_angle_offset();
+		v.z += val;
+		set_angle_offset(v);
+	}
+
+	virtual void mov(int axis, float val)
+	{
+		Fvector c = get_pos_offset();
+		c[axis] += val;
+		if (m_strapped_mode)
+			m_StrapOffset.c = c;
+		else
+			m_Offset.c = c;
+	}
+	virtual void mov_dx(float val)
+	{
+		Fvector c = get_pos_offset();
+		c.x += val;
+		if (m_strapped_mode)
+			m_StrapOffset.c = c;
+		else
+			m_Offset.c = c;
+	}
+	virtual void mov_dy(float val)
+	{
+		Fvector c = get_pos_offset();
+		c.y += val;
+		if (m_strapped_mode)
+			m_StrapOffset.c = c;
+		else
+			m_Offset.c = c;
+	}
+	virtual void mov_dz(float val)
+	{
+		Fvector c = get_pos_offset();
+		c.z += val;
+		if (m_strapped_mode)
+			m_StrapOffset.c = c;
+		else
+			m_Offset.c = c;
+	}
+	virtual void SaveAttachableParams();
+	virtual void ParseCurrentItem(CGameFont* F);
+	//End=================================
+
     // Generic
     virtual void			Load(LPCSTR section);
 
@@ -334,10 +421,7 @@ public:
     };
     CUIWindow*				ZoomTexture();
 
-    bool			ZoomHideCrosshair()
-    {
-        return m_zoom_params.m_bHideCrosshairInZoom || ZoomTexture();
-    }
+	bool			ZoomHideCrosshair();
 
     IC float				GetZoomFactor() const
     {
