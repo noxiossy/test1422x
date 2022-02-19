@@ -45,6 +45,14 @@ void CActor::IR_OnKeyboardPress(int cmd)
 			pInput->iGetAsyncKeyState(DIK_DELETE))
 			g_player_hud->tune(Ivector().set(0, 0, 0));
 
+		if (pInput->iGetAsyncKeyState(DIK_ADD))
+			set_addon_for_adjust(true);
+		else if (pInput->iGetAsyncKeyState(DIK_SUBTRACT))
+			set_addon_for_adjust(false);
+
+		return;
+	}
+
 	if (Remote())		return;
 
 	if (IsTalking())	return;
