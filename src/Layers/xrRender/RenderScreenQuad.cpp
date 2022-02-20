@@ -39,7 +39,7 @@ void CRenderTarget::RenderScreenQuad(const u32 w, const u32 h, ID3DRenderTargetV
 	RCache.Render(D3DPT_TRIANGLELIST, Offset, 0, 4, 0, 2);
 }
 
-void CRenderTarget::RenderScreenQuad(const u32 w, const u32 h, ref_rt& rt, ref_selement& sh, string_unordered_map<const char*, Fvector4*>* consts)
+void CRenderTarget::RenderScreenQuad(const u32 w, const u32 h, ref_rt& rt, ref_selement& sh, std::map<LPCSTR, Fvector4*>* consts)
 {
 	RenderScreenQuad(w, h, rt ? rt->pRT : nullptr, sh, consts);
 }
