@@ -32,8 +32,10 @@ void CRenderTarget::RenderScreenQuad(const u32 w, const u32 h, ID3DRenderTargetV
 	RCache.set_Element(sh);
 
 	if (consts)
-		for (const auto&[k, v] : *consts)
-			RCache.set_c(k, *v);
+	{
+		for (const auto &C : *consts)
+			RCache.set_c(C.first, *C.second);
+	}
 
 	RCache.set_Geometry(g_combine);
 	RCache.Render(D3DPT_TRIANGLELIST, Offset, 0, 4, 0, 2);
