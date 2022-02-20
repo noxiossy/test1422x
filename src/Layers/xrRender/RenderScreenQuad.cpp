@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-void CRenderTarget::RenderScreenQuad(const u32 w, const u32 h, ID3DRenderTargetView* rt, ref_selement& sh, string_unordered_map<const char*, Fvector4*>* consts)
+void CRenderTarget::RenderScreenQuad(const u32 w, const u32 h, ID3DRenderTargetView* rt, ref_selement& sh, std::map<LPCSTR, Fvector4*>* consts)
 {
 	u32 Offset = 0;
 	constexpr float d_Z = EPS_S;
