@@ -314,8 +314,8 @@ public:
 #endif
 
 private:
-	void RenderScreenQuad(const u32 w, const u32 h, ID3DRenderTargetView* rt, ref_selement& sh, string_unordered_map<const char*, Fvector4*>* consts = nullptr);
-	void RenderScreenQuad(const u32 w, const u32 h, ref_rt& rt, ref_selement& sh, string_unordered_map<const char*, Fvector4*>* consts = nullptr);
+	void RenderScreenQuad(const u32 w, const u32 h, ID3DRenderTargetView* rt, ref_selement& sh, std::unordered_map<const char*, Fvector4*>* consts = nullptr);
+	void RenderScreenQuad(const u32 w, const u32 h, ref_rt& rt, ref_selement& sh, std::unordered_map<const char*, Fvector4*>* consts = nullptr);
 
 	// Anti Aliasing
 	ref_shader s_pp_antialiasing;
