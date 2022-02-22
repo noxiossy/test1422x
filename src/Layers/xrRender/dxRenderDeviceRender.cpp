@@ -347,22 +347,16 @@ void dxRenderDeviceRender::End()
     if (HW.Caps.SceneMode)	overdrawEnd();
 
     RCache.OnFrameEnd	();
-    Memory.dbg_check		();
+    //Memory.dbg_check		();
 
     DoAsyncScreenshot();
 
 #if defined(USE_DX10) || defined(USE_DX11)
-    //AVO: functional vsync by avbaula
-#ifdef VSYNC_FIX
-    HW.m_pSwapChain->Present( psDeviceFlags.test(rsVSync) ? 1 : 0, 0 );
-#else //!VSYNC_FIX
     HW.m_pSwapChain->Present( 0, 0 );
-#endif //-VSYNC_FIX
-    //-AVO
 #else //!USE_DX10 || USE_DX11
     CHK_DX				(HW.pDevice->EndScene());
 
-    HW.pDevice->Present( NULL, NULL, NULL, NULL );
+    HW.pDevice->Present( nullptr, nullptr, nullptr, nullptr );
 #endif //-USE_DX10
     //HRESULT _hr		= HW.pDevice->Present( NULL, NULL, NULL, NULL );
     //if				(D3DERR_DEVICELOST==_hr)	return;			// we will handle this later

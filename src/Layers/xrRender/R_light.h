@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #define LT_DIRECT		0
 #define LT_POINT		1

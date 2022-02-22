@@ -62,23 +62,16 @@ void CHW::Reset		(HWND hwnd)
     // Windoze
     DevPP.SwapEffect			= bWindowed?D3DSWAPEFFECT_COPY:D3DSWAPEFFECT_DISCARD;
     DevPP.Windowed				= bWindowed;
-
-    //AVO: fucntional vsync by avbaula
-#ifdef VSYNC_FIX
-
-    DevPP.PresentationInterval = selectPresentInterval(); // Vsync
-    if(!bWindowed) // Refresh rate
-        DevPP.FullScreen_RefreshRateInHz = selectRefresh(DevPP.BackBufferWidth,DevPP.BackBufferHeight,Caps.fTarget);
-    else
-        DevPP.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
-
-#else //!VSYNC_FIX
-    DevPP.PresentationInterval	= D3DPRESENT_INTERVAL_IMMEDIATE;
-    if( !bWindowed )		DevPP.FullScreen_RefreshRateInHz	= selectRefresh	(DevPP.BackBufferWidth,DevPP.BackBufferHeight,Caps.fTarget);
-    else					DevPP.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;
-#endif //-VSYNC_FIX
-    //-AVO
-
+	if( !bWindowed )
+	{
+		DevPP.PresentationInterval	= selectPresentInterval();
+		DevPP.FullScreen_RefreshRateInHz	= selectRefresh	(DevPP.BackBufferWidth,DevPP.BackBufferHeight,Caps.fTarget);
+	}
+	else
+	{
+		DevPP.PresentationInterval	= D3DPRESENT_INTERVAL_IMMEDIATE;
+		DevPP.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;
+	}
 #endif //-_EDITOR
 
     while	(TRUE)	{
@@ -325,19 +318,17 @@ void		CHW::CreateDevice		(HWND m_hWnd, bool move_window)
     P.AutoDepthStencilFormat= fDepth;
     P.Flags					= 0;	//. D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL;
 
-    //AVO: functional vsync by avbaula
-#ifdef VSYNC_FIX
-    P.PresentationInterval = selectPresentInterval(); // Vsync
-    if(!bWindowed)		
-        P.FullScreen_RefreshRateInHz = selectRefresh(P.BackBufferWidth, P.BackBufferHeight,fTarget);
-#else //!VSYNC_FIX
-    // Refresh rate
-    P.PresentationInterval	= D3DPRESENT_INTERVAL_IMMEDIATE;
-    if( !bWindowed )		P.FullScreen_RefreshRateInHz	= selectRefresh	(P.BackBufferWidth, P.BackBufferHeight,fTarget);
-#endif //-VSYNC_FIX
-    //-AVO
-    else					P.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;
-
+	// Refresh rate
+    if( !bWindowed )
+	{
+		P.PresentationInterval	= selectPresentInterval();
+		P.FullScreen_RefreshRateInHz	= selectRefresh	(P.BackBufferWidth, P.BackBufferHeight,fTarget);
+	}
+    else
+	{
+		P.PresentationInterval	= D3DPRESENT_INTERVAL_IMMEDIATE;
+		P.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;
+	}
     // Create the device
     u32 GPU		= selectGPU();	
     HRESULT R	= HW.pD3D->CreateDevice(DevAdapter,
@@ -355,15 +346,9 @@ void		CHW::CreateDevice		(HWND m_hWnd, bool move_window)
                                         &P,
                                         &pDevice );
     }
-    if (D3DERR_DEVICELOST==R)	{
-        // Fatal error! Cannot create rendering device AT STARTUP !!!
-        Msg					("Failed to initialize graphics hardware.\n"
-                             "Please try to restart the game.\n"
-                             "CreateDevice returned 0x%08x(D3DERR_DEVICELOST)", R);
-        FlushLog			();
-        MessageBox			(NULL,"Failed to initialize graphics hardware.\nPlease try to restart the game.","Error!",MB_OK|MB_ICONERROR);
-        TerminateProcess	(GetCurrentProcess(),0);
-    };
+
+	CHECK_OR_EXIT(D3DERR_DEVICELOST != R, "Failed to initialize graphics hardware.\nPlease try to restart the game.\nCreateDevice returned D3DERR_DEVICELOST");
+
     R_CHK		(R);
 
     _SHOW_REF	("* CREATE: DeviceREF:",HW.pDevice);

@@ -62,6 +62,10 @@ void CUIActorMenu::InitTradeMode()
 	m_partner_trade->StartTradeEx	( m_pActorInvOwner );
 
 	UpdatePrices();
+
+	CActor *pActor = smart_cast<CActor*>(Level().CurrentEntity());
+	if (pActor) pActor->RepackAmmo();
+
 }
 bool is_item_in_list(CUIDragDropListEx* pList, PIItem item)
 {

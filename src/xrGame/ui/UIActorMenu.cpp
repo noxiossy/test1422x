@@ -188,6 +188,9 @@ void CUIActorMenu::Show(bool status)
 		SetMenuMode							(mmUndefined);
 	}
 	m_ActorStateInfo->Show					(status);
+
+	CActor *pActor = smart_cast<CActor*>(Level().CurrentEntity());
+	if (pActor) pActor->RepackAmmo();
 }
 
 void CUIActorMenu::Draw()

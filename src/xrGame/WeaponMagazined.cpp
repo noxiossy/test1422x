@@ -1294,7 +1294,9 @@ void CWeaponMagazined::PlayAnimHide()
 
 void CWeaponMagazined::PlayAnimReload()
 {
-    VERIFY(GetState() == eReload);
+	if (GetState() != eReload)
+		return;
+
 #ifdef NEW_ANIMS //AVO: use new animations
     if (bMisfire)
     {

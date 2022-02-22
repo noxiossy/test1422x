@@ -47,14 +47,15 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
 		(!bullet->flags.ricochet_was))			return FALSE;
 
 	BOOL bRes						= TRUE;
+	if (object){
 	CEntity*	entity			= smart_cast<CEntity*>(object);
 	if (entity&&entity->g_Alive()&&(entity->ID()!=bullet->parent_id)){
 		ICollisionForm*	cform	= entity->collidable.model;
 		if ((NULL!=cform) && (cftObject==cform->Type())){
 			CActor* actor		= smart_cast<CActor*>(entity);
-			CAI_Stalker* stalker= smart_cast<CAI_Stalker*>(entity);
+			//CAI_Stalker* stalker= smart_cast<CAI_Stalker*>(entity);
 			// в кого попали?
-			if (actor && IsGameTypeSingle()/**/||stalker/**/){
+			if (actor /*||stalker*/){
 				// попали в актера или сталкера
 				Fsphere S		= cform->getSphere();
 				entity->XFORM().transform_tiny	(S.P)	;
@@ -139,7 +140,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
 			}
 		}
 	}
-
+	}
 	
 	return bRes;
 }
@@ -159,19 +160,15 @@ void CBulletManager::FireShotmark (SBullet* bullet, const Fvector& vDir, const F
 
 	if (R.O)
 	{
-/*  add_SkeletonWallmark not implemented now...
 		particle_dir		 = vDir;
 		particle_dir.invert	();
 
 		//на текущем актере отметок не ставим
-		if(Level().CurrentEntity() && Level().CurrentEntity()->ID() == R.O->ID()) return;
-
-		if (mtl_pair && !mtl_pair->m_pCollideMarks->empty() && ShowMark)
+		if ( !smart_cast<CActor*>( R.O ) && mtl_pair && !mtl_pair->m_pCollideMarks->empty() && ShowMark )
 		{
 			//добавить отметку на материале
 			Fvector p;
 			p.mad(bullet->bullet_pos,bullet->dir,R.range-0.01f);
-			if(!g_dedicated_server)
 				::Render->add_SkeletonWallmark	(	&R.O->renderable.xform, 
 													PKinematics(R.O->Visual()), 
 													&*mtl_pair->m_pCollideMarks,
@@ -179,7 +176,6 @@ void CBulletManager::FireShotmark (SBullet* bullet, const Fvector& vDir, const F
 													bullet->dir, 
 													bullet->wallmark_size);
 		}
-*/
 	} 
 	else 
 	{

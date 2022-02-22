@@ -789,6 +789,10 @@ private:
 				mstate_wishful = state;
 			}
       
+public:
+	void RepackAmmo();
+
+private:
 DECLARE_SCRIPT_REGISTER_FUNCTION
 };
 add_to_type_list(CActor)
