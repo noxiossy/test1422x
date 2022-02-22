@@ -147,9 +147,11 @@ namespace std
 // this define is set if we're currently building a luabind file
 // select import or export depending on it
 #ifdef LUABIND_BUILDING
-#	define LUABIND_API 		__declspec(dllexport)
+#	define LUABIND_API
+//__declspec(dllexport)
 #else // #ifdef LUABIND_BUILDING
-#	define LUABIND_API		__declspec(dllimport)
+#	define LUABIND_API
+//__declspec(dllimport)
 #endif // #ifdef LUABIND_BUILDING
 
 #include <luabind/luabind_memory.h>
