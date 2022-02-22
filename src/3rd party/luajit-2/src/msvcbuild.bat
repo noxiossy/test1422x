@@ -13,6 +13,8 @@
 
 @if not defined INCLUDE goto :FAIL
 
+@if "%1"=="clean" goto :CLEAN
+
 @setlocal
 @set LJCOMPILE=cl /nologo /c /O2 /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_STDIO_INLINE=__declspec(dllexport)__inline
 @set LJLINK=link /nologo
@@ -76,9 +78,9 @@ buildvm -m folddef -o lj_folddef.h lj_opt_fold.c
 @if errorlevel 1 goto :BAD
 @goto :MTDLL
 :STATIC
-%LJCOMPILE% lj_*.c lib_*.c
+%LJCOMPILE% lj_*.c lib_*.c xr_*.c
 @if errorlevel 1 goto :BAD
-%LJLIB% /OUT:%LJLIBNAME% lj_*.obj lib_*.obj
+%LJLIB% /OUT:%LJLIBNAME% lj_*.obj lib_*.obj xr_*.obj
 @if errorlevel 1 goto :BAD
 @goto :MTDLL
 :AMALGDLL
@@ -109,6 +111,20 @@ if exist luajit.exe.manifest^
 @echo *******************************************************
 @echo *** Build FAILED -- Please check the error messages ***
 @echo *******************************************************
+@goto :END
+:CLEAN
+@del buildvm.ilk 2>NUL
+@del buildvm.pdb 2>NUL
+@del lua51.dll 2>NUL
+@del lua51.lib 2>NUL
+@del luajit.exe 2>NUL
+@del luajit.ilk 2>NUL
+@del luajit.pdb 2>NUL
+@del luajit.vcxproj.user 2>NUL
+@del minilua.ilk 2>NUL
+@del minilua.pdb 2>NUL
+@del vc140.pdb 2>NUL
+@rmdir /S /Q x64 2>NUL
 @goto :END
 :FAIL
 @echo You must open a "Visual Studio .NET Command Prompt" to run this script
