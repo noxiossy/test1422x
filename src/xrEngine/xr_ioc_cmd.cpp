@@ -17,6 +17,15 @@
 
 xr_token* vid_quality_token = NULL;
 
+xr_token FpsLockToken[] = {
+	{ "nofpslock",  0 },
+	{ "fpslock60",  60 },
+	{ "fpslock120", 120 },
+	{ "fpslock144", 144 },
+	{ "fpslock240", 240 },
+	{ nullptr, 0 }
+};
+
 xr_token vid_bpp_token[] =
 {
     {"16", 16},
@@ -761,6 +770,7 @@ void CCC_Register()
     // Render device states
     CMD4(CCC_Integer, "r__supersample", &ps_r__Supersample, 1, 4);
 
+	CMD3(CCC_Token, 	"r_fps_lock", 			&g_dwFPSlimit, FpsLockToken);
 
     CMD3(CCC_Mask, "rs_v_sync", &psDeviceFlags, rsVSync);
     // CMD3(CCC_Mask, "rs_disable_objects_as_crows",&psDeviceFlags, rsDisableObjectsAsCrows );

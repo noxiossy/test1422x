@@ -34,6 +34,7 @@ ENGINE_API CLoadScreenRenderer load_screen_renderer;
 
 
 ENGINE_API BOOL g_bRendering = FALSE;
+u32 g_dwFPSlimit = 60;
 
 BOOL g_bLoaded = FALSE;
 ref_light precache_light = 0;
@@ -198,8 +199,6 @@ void CRenderDevice::PreCache(u32 amount, bool b_draw_loadscreen, bool b_wait_use
 
 ENGINE_API xr_list<LOADING_EVENT> g_loading_events;
 
-extern bool IsMainMenuActive(); //ECO_RENDER add
-
 void CRenderDevice::on_idle()
 {
     if (!b_is_Ready)
@@ -207,6 +206,18 @@ void CRenderDevice::on_idle()
         Sleep(100);
         return;
     }
+
+	// FPS Lock
+	u32 menuFPSlimit = 60, pauseFPSlimit = 60; //constexpr 
+	u32 curFPSLimit = IsMainMenuActive() ? menuFPSlimit : Device.Paused() ? pauseFPSlimit : g_dwFPSlimit;
+	if (curFPSLimit > 0)
+	{
+		static DWORD dwLastFrameTime = 0;
+		DWORD dwCurrentTime = timeGetTime();
+		if (dwCurrentTime - dwLastFrameTime < 1000 / (curFPSLimit + 1))
+			return;
+		dwLastFrameTime = dwCurrentTime;
+	}
 
     if (psDeviceFlags.test(rsStatistic)) 
 		g_bEnableStatGather = TRUE;
@@ -255,19 +266,7 @@ void CRenderDevice::on_idle()
     mt_csLeave.Enter();
     mt_csEnter.Leave();
 
-#ifdef ECO_RENDER // ECO_RENDER START
-	static u32 time_frame = 0;
-	u32 time_curr = timeGetTime();
-	u32 time_diff = time_curr - time_frame;
-	time_frame = time_curr;
-	u32 optimal = 10;
-	if (Device.Paused() || IsMainMenuActive())
-		optimal = 32;
-	if (time_diff < optimal)
-		Sleep(optimal - time_diff);
-#else
 	Sleep(0);
-#endif // ECO_RENDER END
 
     Statistic->RenderTOTAL_Real.FrameStart();
     Statistic->RenderTOTAL_Real.Begin();

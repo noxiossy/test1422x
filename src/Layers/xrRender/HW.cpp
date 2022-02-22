@@ -35,8 +35,7 @@ CHW::CHW() :
     pDevice(NULL),
     pBaseRT(NULL),
     pBaseZB(NULL),
-    m_move_window(true),
-    maxRefreshRate(200)  //ECO_RENDER
+	m_move_window(true)
 {
     ;
 }
@@ -490,11 +489,7 @@ u32 CHW::selectRefresh(u32 dwWidth, u32 dwHeight, D3DFORMAT fmt)
             pD3D->EnumAdapterModes(DevAdapter,fmt,I,&Mode);
             if (Mode.Width==dwWidth && Mode.Height==dwHeight)
             {
-#ifndef ECO_RENDER
-                if (Mode.RefreshRate>selected) selected = Mode.RefreshRate;
-#else
-                if (Mode.RefreshRate <= (UINT)maxRefreshRate && Mode.RefreshRate>selected) selected = Mode.RefreshRate;  //ECO_RENDER modif.
-#endif
+				if (Mode.RefreshRate>selected) selected = Mode.RefreshRate;
             }
         }
         return selected;

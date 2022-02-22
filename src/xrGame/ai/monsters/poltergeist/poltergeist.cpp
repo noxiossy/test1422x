@@ -371,6 +371,7 @@ void CPoltergeist::Die(CObject* who)
 {
  	if (m_tele) {
  		if (state_invisible) {
+ 		 	state_invisible = false;
  			setVisible(true);
  
  			if (PPhysicsShell()) {
@@ -386,6 +387,7 @@ void CPoltergeist::Die(CObject* who)
 	inherited::Die				(who);
 	CTelekinesis::deactivate();
 	Energy::disable				();
+
 	ability()->on_die			();
 }
 

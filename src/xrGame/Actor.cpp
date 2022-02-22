@@ -892,7 +892,7 @@ void CActor::g_Physics(Fvector& _accel, float jump, float dt)
         }
     }
 }
-float g_fov = 75.0f;
+float g_fov = 70.0f;
 
 extern u32 hud_adj_mode;
 
@@ -1173,7 +1173,7 @@ void CActor::shedule_Update(u32 DT)
             mstate_wishful &= ~mcRLookout;
             mstate_wishful &= ~mcFwd;
             mstate_wishful &= ~mcBack;
-            if (!psActorFlags.test(AF_CROUCH_TOGGLE))
+			if( !psActorFlags.test(AF_CROUCH_TOGGLE) && !(mstate_real&(mcJump | mcFall)) )
                 mstate_wishful &= ~mcCrouch;
         }
     }
