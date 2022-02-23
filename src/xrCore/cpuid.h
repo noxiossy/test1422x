@@ -6,12 +6,13 @@ struct _processor_info {
 
 	_processor_info();
 
-    string32	vendor;								// vendor name
-    string64	brand;								// Name of model eg. Intel_Pentium_Pro
-    int			family;								// family of the processor, eg. Intel_Pentium_Pro is family 6 processor
-    int			model;								// model of processor, eg. Intel_Pentium_Pro is model 1 of family 6 processor
-    int			stepping;							// Processor revision number
-	unsigned int threadCount;						// number of available threads, both physical and logical
+	string32	vendor;			// vendor name
+	string64	brand;			// Name of model eg. Intel_Pentium_Pro
+	int			family;			// family of the processor, eg. Intel_Pentium_Pro is family 6 processor
+	int			model;			// model of processor, eg. Intel_Pentium_Pro is model 1 of family 6 processor
+	int			stepping;		// Processor revision number
+	unsigned int threadCount;	// number of available threads, both physical and logical
+	unsigned int coresCount;	// number of physical cores
 
 	void clearFeatures() {
 		m_f1_ECX = m_f1_EDX = m_f7_EBX = m_f7_ECX = m_f81_ECX = m_f81_EDX = 0;
