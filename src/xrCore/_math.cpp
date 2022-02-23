@@ -23,32 +23,44 @@ namespace FPU
 {
 XRCORE_API void m24(void)
 {
+#ifdef _M_IX86
     _control87(_PC_24, MCW_PC);
+#endif
     _control87(_RC_CHOP, MCW_RC);
 }
 XRCORE_API void m24r(void)
 {
+#ifdef _M_IX86
     _control87(_PC_24, MCW_PC);
+#endif
     _control87(_RC_NEAR, MCW_RC);
 }
 XRCORE_API void m53(void)
 {
+#ifdef _M_IX86
     _control87(_PC_53, MCW_PC);
+#endif
     _control87(_RC_CHOP, MCW_RC);
 }
 XRCORE_API void m53r(void)
 {
+#ifdef _M_IX86
     _control87(_PC_53, MCW_PC);
+#endif
     _control87(_RC_NEAR, MCW_RC);
 }
 XRCORE_API void m64(void)
 {
+#ifdef _M_IX86
     _control87(_PC_64, MCW_PC);
+#endif
     _control87(_RC_CHOP, MCW_RC);
 }
 XRCORE_API void m64r(void)
 {
+#ifdef _M_IX86
     _control87(_PC_64, MCW_PC);
+#endif
     _control87(_RC_NEAR, MCW_RC);
 }
 
@@ -168,13 +180,6 @@ u64 __fastcall GetCLK(void)
 
 void Detect()
 {
-    // General CPU identification
-    if (!_cpuid(&ID))
-    {
-        // Core.Fatal ("Fatal error: can't detect CPU/FPU.");
-        abort();
-    }
-
     // Timers & frequency
     u64 start, end;
     u32 dwStart, dwTest;
@@ -239,7 +244,7 @@ bool g_initialize_cpu_called = false;
 void _initialize_cpu(void)
 {
     Msg("* Detected CPU: %s [%s], F%d/M%d/S%d, %.2f mhz, %d-clk 'rdtsc'",
-        CPU::ID.model_name, CPU::ID.v_name,
+		CPU::ID.vendor, CPU::ID.brand,
         CPU::ID.family, CPU::ID.model, CPU::ID.stepping,
         float(CPU::clk_per_second / u64(1000000)),
         u32(CPU::clk_overhead)
@@ -248,31 +253,24 @@ void _initialize_cpu(void)
     // DUMP_PHASE;
 
     if (strstr(Core.Params, "-x86"))
-    {
-        CPU::ID.feature &= ~_CPU_FEATURE_MMX;
-        CPU::ID.feature &= ~_CPU_FEATURE_3DNOW;
-        CPU::ID.feature &= ~_CPU_FEATURE_SSE;
-        CPU::ID.feature &= ~_CPU_FEATURE_SSE2;
-        CPU::ID.feature &= ~_CPU_FEATURE_SSE3;
-        CPU::ID.feature &= ~_CPU_FEATURE_SSSE3;
-        CPU::ID.feature &= ~_CPU_FEATURE_SSE4_1;
-        CPU::ID.feature &= ~_CPU_FEATURE_SSE4_2;
-    };
+		CPU::ID.clearFeatures();
 
     string256 features;
     xr_strcpy(features, sizeof(features), "RDTSC");
-    if (CPU::ID.feature&_CPU_FEATURE_MMX) xr_strcat(features, ", MMX");
-    if (CPU::ID.feature&_CPU_FEATURE_3DNOW) xr_strcat(features, ", 3DNow!");
-    if (CPU::ID.feature&_CPU_FEATURE_SSE) xr_strcat(features, ", SSE");
-    if (CPU::ID.feature&_CPU_FEATURE_SSE2) xr_strcat(features, ", SSE2");
-    if (CPU::ID.feature&_CPU_FEATURE_SSE3) xr_strcat(features, ", SSE3");
-    if (CPU::ID.feature&_CPU_FEATURE_SSSE3) xr_strcat(features, ", SSSE3");
-    if (CPU::ID.feature&_CPU_FEATURE_SSE4_1)xr_strcat(features, ", SSE4.1");
-    if (CPU::ID.feature&_CPU_FEATURE_SSE4_2)xr_strcat(features, ", SSE4.2");
-    if (CPU::ID.feature&_CPU_FEATURE_HTT) xr_strcat(features, ", HTT");
-
-    Msg("* CPU features: %s", features);
-    Msg("* CPU cores/threads: %d/%d\n", CPU::ID.n_cores, CPU::ID.n_threads);
+    if (CPU::ID.hasMMX()) xr_strcat(features, ", MMX");
+    if (CPU::ID.has3DNOW()) xr_strcat(features, ", 3DNow!");
+    if (CPU::ID.hasSSE()) xr_strcat(features, ", SSE");
+    if (CPU::ID.hasSSE2()) xr_strcat(features, ", SSE2");
+    if (CPU::ID.hasSSE3()) xr_strcat(features, ", SSE3");
+	if (CPU::ID.hasMWAIT()) xr_strcat(features, ", MONITOR/MWAIT");
+    if (CPU::ID.hasSSSE3()) xr_strcat(features, ", SSSE3");
+    if (CPU::ID.hasSSE41())xr_strcat(features, ", SSE4.1");
+    if (CPU::ID.hasSSE42())xr_strcat(features, ", SSE4.2");
+    if (CPU::ID.hasSSE4a()) xr_strcat(features, ", SSE4a");
+	if (CPU::ID.hasAVX()) xr_strcat(features, ", AVX");
+	if (CPU::ID.hasAVX2()) xr_strcat(features, ", AVX2");
+	Msg("* CPU features: %s", features);
+	Msg("* CPU threads: %d\n", CPU::ID.threadCount);
 
     Fidentity.identity(); // Identity matrix
     Didentity.identity(); // Identity matrix
@@ -307,7 +305,7 @@ void _initialize_cpu_thread()
     // fpu & sse
     FPU::m24r();
 #endif // XRCORE_STATIC
-    if (CPU::ID.feature&_CPU_FEATURE_SSE)
+    if (CPU::ID.hasSSE())
     {
         //_mm_setcsr ( _mm_getcsr() | (_MM_FLUSH_ZERO_ON+_MM_DENORMALS_ZERO_ON) );
         _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);

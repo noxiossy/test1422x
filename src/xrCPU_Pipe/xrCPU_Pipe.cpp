@@ -37,7 +37,7 @@ extern "C" {
 	
 #if 0
 		// SSE
-		if ( ID->feature & _CPU_FEATURE_SSE) {
+		if (CPU::ID.hasSSE()) {
 			T->skin1W	= xrSkin1W_SSE;
 			T->skin2W	= xrSkin2W_SSE;
 			T->skin3W	= xrSkin3W_SSE;
