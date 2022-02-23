@@ -362,7 +362,8 @@ IReader* IReader::open_chunk(u32 ID)
 };
 void IReader::close()
 {
-	auto* self = this;
+    //xr_delete((IReader*)this);
+	IReader *self = this;
 	xr_delete(self);
 }
 

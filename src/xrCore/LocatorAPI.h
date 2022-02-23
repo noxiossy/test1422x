@@ -45,7 +45,7 @@ public:
     void LoadArchive(archive& A, LPCSTR entrypoint = NULL);
 
 private:
-    struct file_pred
+    struct file_pred : public std::binary_function < file&, file&, bool >
     {
         IC bool operator() (const file& x, const file& y) const
         {
