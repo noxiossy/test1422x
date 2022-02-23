@@ -2,7 +2,7 @@
 
 #include <bitset>
 
-struct _processor_info {
+struct _processor_info final  {
 
 	_processor_info();
 
@@ -18,6 +18,7 @@ struct _processor_info {
 		m_f1_ECX = m_f1_EDX = m_f7_EBX = m_f7_ECX = m_f81_ECX = m_f81_EDX = 0;
 	}
 	bool hasMMX() const { return m_f1_EDX[23]; }
+	bool has3DNOWExt() const { return m_f81_EDX[30]; }
 	bool has3DNOW() const { return m_f81_EDX[31]; }
 	bool hasSSE() const { return m_f1_EDX[25]; }
 	bool hasSSE2() const { return m_f1_EDX[26]; }

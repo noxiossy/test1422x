@@ -215,7 +215,7 @@ void Detect()
     }
     qpc_overhead /= 256;
 
-    SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
+	SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
     clk_per_second -= clk_overhead;
     clk_per_milisec = clk_per_second / 1000;
@@ -241,36 +241,36 @@ void Detect()
 bool g_initialize_cpu_called = false;
 
 //------------------------------------------------------------------------------------
-void _initialize_cpu(void)
+void _initialize_cpu()
 {
     Msg("* Detected CPU: %s [%s], F%d/M%d/S%d, %.2f mhz, %d-clk 'rdtsc'",
-		CPU::ID.vendor, CPU::ID.brand,
+		CPU::ID.brand, CPU::ID.vendor,
         CPU::ID.family, CPU::ID.model, CPU::ID.stepping,
         float(CPU::clk_per_second / u64(1000000)),
         u32(CPU::clk_overhead)
        );
 
-    // DUMP_PHASE;
-
-    if (strstr(Core.Params, "-x86"))
+	if (strstr(Core.Params, "-x86"))
 		CPU::ID.clearFeatures();
 
-    string256 features;
-    xr_strcpy(features, sizeof(features), "RDTSC");
-    if (CPU::ID.hasMMX()) xr_strcat(features, ", MMX");
-    if (CPU::ID.has3DNOW()) xr_strcat(features, ", 3DNow!");
-    if (CPU::ID.hasSSE()) xr_strcat(features, ", SSE");
-    if (CPU::ID.hasSSE2()) xr_strcat(features, ", SSE2");
-    if (CPU::ID.hasSSE3()) xr_strcat(features, ", SSE3");
+	string256 features;
+	xr_strcpy(features, sizeof(features), "RDTSC");
+	if (CPU::ID.hasMMX()) xr_strcat(features, ", MMX");
+	if (CPU::ID.has3DNOWExt()) xr_strcat(features, ", 3DNowExt!");
+	if (CPU::ID.has3DNOW()) xr_strcat(features, ", 3DNow!");
+	if (CPU::ID.hasSSE()) xr_strcat(features, ", SSE");
+	if (CPU::ID.hasSSE2()) xr_strcat(features, ", SSE2");
+	if (CPU::ID.hasSSE3()) xr_strcat(features, ", SSE3");
 	if (CPU::ID.hasMWAIT()) xr_strcat(features, ", MONITOR/MWAIT");
-    if (CPU::ID.hasSSSE3()) xr_strcat(features, ", SSSE3");
-    if (CPU::ID.hasSSE41())xr_strcat(features, ", SSE4.1");
-    if (CPU::ID.hasSSE42())xr_strcat(features, ", SSE4.2");
-    if (CPU::ID.hasSSE4a()) xr_strcat(features, ", SSE4a");
+	if (CPU::ID.hasSSSE3()) xr_strcat(features, ", SSSE3");
+	if (CPU::ID.hasSSE41()) xr_strcat(features, ", SSE4.1");
+	if (CPU::ID.hasSSE42()) xr_strcat(features, ", SSE4.2");
+	if (CPU::ID.hasSSE4a()) xr_strcat(features, ", SSE4a");
 	if (CPU::ID.hasAVX()) xr_strcat(features, ", AVX");
 	if (CPU::ID.hasAVX2()) xr_strcat(features, ", AVX2");
 	Msg("* CPU features: %s", features);
-	Msg("* CPU threads: %d\n", CPU::ID.threadCount);
+	Msg("* CPU cores: [%u], threads: [%u]", CPU::ID.coresCount, CPU::ID.threadCount);
+
 
     Fidentity.identity(); // Identity matrix
     Didentity.identity(); // Identity matrix
