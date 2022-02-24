@@ -37,14 +37,14 @@ extern "C" {
 		T->PLC_calc3 = PLC_calc3_x86;
 	
 		// SSE
-		if (CPU::ID.hasSSE()) {
+/*		if (CPU::ID.hasSSE()) {
 			T->skin1W	= xrSkin1W_SSE;
 			T->skin2W	= xrSkin2W_SSE;
 			T->skin3W	= xrSkin3W_SSE;
 			T->skin4W	= xrSkin4W_SSE;
 			skin4W_func = xrSkin4W_SSE;
 			T->PLC_calc3 = PLC_calc3_SSE;
-		}
+		}*/
 #endif
 
 		// Init helper threads
