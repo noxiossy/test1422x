@@ -123,7 +123,7 @@ if exist luajit.exe.manifest^
 @del luajit.vcxproj.user 2>NUL
 @del minilua.ilk 2>NUL
 @del minilua.pdb 2>NUL
-@del vc140.pdb 2>NUL
+@del vc142.pdb 2>NUL
 @rmdir /S /Q x64 2>NUL
 @goto :END
 :FAIL
