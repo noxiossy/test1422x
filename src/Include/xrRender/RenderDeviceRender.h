@@ -1,6 +1,4 @@
-﻿#ifndef RenderDeviceRender_included
-#define RenderDeviceRender_included
-#pragma once
+﻿#pragma once
 
 class IRenderDeviceRender
 {
@@ -59,5 +57,3 @@ public:
 	virtual void	SetCacheXform(Fmatrix &mView, Fmatrix &mProject) = 0;
 	virtual void	OnAssetsChanged() = 0;
 };
-
-#endif	//	RenderDeviceRender_included

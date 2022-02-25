@@ -107,7 +107,6 @@ void calc_cam_diff_rot(Fmatrix item_transform, Fvector diff, Fvector& res)
 
 void attachable_hud_item::tune(Ivector values)
 {
-#ifndef MASTER_GOLD
 	if(!is_attachable_item_tuning_mode() )
 		return;
 
@@ -120,7 +119,7 @@ void attachable_hud_item::tune(Ivector values)
 		{
 			if(values.x)	diff.x = (values.x>0)?_delta_pos:-_delta_pos;
 			if(values.y)	diff.y = (values.y>0)?_delta_pos:-_delta_pos;
-			if(values.z)	diff.z = (values.z>0)?_delta_pos:-_delta_pos;
+			if(values.z)	diff.z = (values.z<0)?_delta_pos:-_delta_pos;
 			
 			Fvector							d;
 			Fmatrix							ancor_m;
@@ -178,12 +177,10 @@ void attachable_hud_item::tune(Ivector values)
 			Log("-----------");
 		}
 	}
-#endif // #ifndef MASTER_GOLD
 }
 
 void attachable_hud_item::debug_draw_firedeps()
 {
-#ifdef DEBUG
 	bool bForce = (hud_adj_mode==3||hud_adj_mode==4);
 
 	if(hud_adj_mode==5||hud_adj_mode==6||hud_adj_mode==7 ||bForce)
@@ -202,13 +199,11 @@ void attachable_hud_item::debug_draw_firedeps()
 		if(hud_adj_mode==7)
 			render.draw_aabb(fd.vLastSP,0.005f,0.005f,0.005f,D3DCOLOR_XRGB(0,255,0));
 	}
-#endif // DEBUG
 }
 
 
 void player_hud::tune(Ivector _values)
 {
-#ifndef MASTER_GOLD
 	Ivector				values;
 	tune_remap			(_values,values);
 
@@ -221,6 +216,9 @@ void player_hud::tune(Ivector _values)
 		
 		float _curr_dr	= _delta_rot;
 
+		if (m_attached_items[hud_adj_item_idx] == nullptr)
+			return;
+
 		u8 idx			= m_attached_items[hud_adj_item_idx]->m_parent_hud_item->GetCurrentHudOffsetIdx();
 		if(idx)
 			_curr_dr	/= 20.0f;
@@ -230,17 +228,17 @@ void player_hud::tune(Ivector _values)
 
 		if(hud_adj_mode==1)
 		{
-			if(values.x)	diff.x = (values.x<0)?_delta_pos:-_delta_pos;
-			if(values.y)	diff.y = (values.y>0)?_delta_pos:-_delta_pos;
-			if(values.z)	diff.z = (values.z>0)?_delta_pos:-_delta_pos;
+			if(values.x)	diff.x = (values.x>0)?_delta_pos:-_delta_pos;
+			if(values.y)	diff.y = (values.y<0)?_delta_pos:-_delta_pos;
+			if(values.z)	diff.z = (values.z<0)?_delta_pos:-_delta_pos;
 
 			pos_.add		(diff);
 		}
 
 		if(hud_adj_mode==2)
 		{
-			if(values.x)	diff.x = (values.x>0)?_curr_dr:-_curr_dr;
-			if(values.y)	diff.y = (values.y>0)?_curr_dr:-_curr_dr;
+			if(values.x)	diff.y = (values.x>0)?_curr_dr:-_curr_dr;
+			if(values.y)	diff.x = (values.y>0)?_curr_dr:-_curr_dr;
 			if(values.z)	diff.z = (values.z>0)?_curr_dr:-_curr_dr;
 
 			rot_.add		(diff);
@@ -283,7 +281,6 @@ void player_hud::tune(Ivector _values)
 		if(!hi)	return;
 		hi->tune(values);
 	}
-#endif // #ifndef MASTER_GOLD
 }
 
 void hud_draw_adjust_mode()
@@ -292,9 +289,15 @@ void hud_draw_adjust_mode()
 		return;
 
 	LPCSTR _text = NULL;
-	if(pInput->iGetAsyncKeyState(DIK_LSHIFT) && hud_adj_mode)
-		_text = "press SHIFT+NUM 0-return 1-hud_pos 2-hud_rot 3-itm_pos 4-itm_rot 5-fire_point 6-fire_2_point 7-shell_point 8-pos_step 9-rot_step";
-
+	if (pInput->iGetAsyncKeyState(DIK_LSHIFT))
+	{
+		_text = "press SHIFT+NUM 0-return|1-hud_pos|2-hud_rot|3-itm_pos|4-itm_rot|5-fire_point|6-fire_2_point|7-shell_point|8-pos_step|9-rot_step";
+	}
+	else if (pInput->iGetAsyncKeyState(DIK_LCONTROL))
+	{
+		_text = "press CTRL+NUM 0-item idx 1|1-item idx 2";
+	}
+	else {
 	switch (hud_adj_mode)
 		{
 		case 1:

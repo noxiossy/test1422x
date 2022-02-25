@@ -1,6 +1,4 @@
-﻿#ifndef	xrApi_included
-#define xrApi_included
-#pragma once
+﻿#pragma once
 
 #ifdef XRAPI_EXPORTS
 #define XRAPI_API __declspec(dllexport)
@@ -32,10 +30,10 @@ class CGameMtlLibrary;
 extern XRAPI_API CGameMtlLibrary *			PGMLib;
 #endif
 
-#ifdef DEBUG
+//#ifdef DEBUG
 	class IDebugRender;
 	extern XRAPI_API IDebugRender*	DRender;
-#endif // DEBUG
+//#endif // DEBUG
 
 #else
 	class	CRender;
@@ -44,17 +42,3 @@ extern XRAPI_API CGameMtlLibrary *			PGMLib;
    class IRenderFactory;
     extern ENGINE_API IRenderFactory*	RenderFactory;
 #endif
-/*
-// This class is exported from the xrAPI.dll
-class XRAPI_API CxrAPI {
-public:
-	CxrAPI(void);
-	// TODO: add your methods here.
-};
-
-extern XRAPI_API int nxrAPI;
-
-XRAPI_API int fnxrAPI(void);
-*/
-
-#endif	//	xrApi_included

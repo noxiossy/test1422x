@@ -1,7 +1,5 @@
 ﻿#include "stdafx.h"
 
-#ifdef DEBUG
-
 #include "dxDebugRender.h"
 #include "dxUIShader.h"
 
@@ -139,6 +137,8 @@ void dxDebugRender::dbg_DrawTRI(Fmatrix& T, Fvector& p1, Fvector& p2, Fvector& p
 	RCache.dbg_DrawTRI(T, p1, p2, p3, C);
 }
 
+
+#ifdef DEBUG
 
 struct RDebugRender: 
 	public dxDebugRender,
