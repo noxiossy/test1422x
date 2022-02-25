@@ -51,14 +51,12 @@
 #include "xrPhysics/console_vars.h"
 #include "../xrEngine/device.h"
 
-#ifdef DEBUG
 #include "level_debug.h"
 #include "ai/stalker/ai_stalker.h"
 #include "debug_renderer.h"
 #include "PhysicObject.h"
 #include "PHDebug.h"
 #include "debug_text_tree.h"
-#endif
 
 //AVO: used by SPAWN_ANTIFREEZE (by alpet)
 #ifdef SPAWN_ANTIFREEZE
