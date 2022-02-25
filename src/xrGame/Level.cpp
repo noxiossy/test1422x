@@ -51,12 +51,14 @@
 #include "xrPhysics/console_vars.h"
 #include "../xrEngine/device.h"
 
+#ifdef DEBUG
 #include "level_debug.h"
 #include "ai/stalker/ai_stalker.h"
 #include "debug_renderer.h"
 #include "PhysicObject.h"
 #include "PHDebug.h"
 #include "debug_text_tree.h"
+#endif
 
 //AVO: used by SPAWN_ANTIFREEZE (by alpet)
 #ifdef SPAWN_ANTIFREEZE
@@ -123,8 +125,8 @@ IPureClient(Device.GetTimerGlobal())
         m_space_restriction_manager = xr_new<CSpaceRestrictionManager>();
         m_client_spawn_manager = xr_new<CClientSpawnManager>();
         m_autosave_manager = xr_new<CAutosaveManager>();
-        m_debug_renderer = xr_new<CDebugRenderer>();
 #ifdef DEBUG
+        m_debug_renderer = xr_new<CDebugRenderer>();
         m_level_debug = xr_new<CLevelDebug>();
 #endif
     }
@@ -174,7 +176,9 @@ CLevel::~CLevel()
     xr_delete(m_seniority_hierarchy_holder);
     xr_delete(m_client_spawn_manager);
     xr_delete(m_autosave_manager);
+#ifdef DEBUG
     xr_delete(m_debug_renderer);
+#endif
 
     ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorLevel);
     xr_delete(game);

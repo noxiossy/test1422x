@@ -13,13 +13,10 @@
 
 u32 hud_adj_mode		= 0;
 u32 hud_adj_item_idx	= 0;
-u8 hud_addon_index      = 0;
 // "press SHIFT+NUM 0-return 1-hud_pos 2-hud_rot 3-itm_pos 4-itm_rot 5-fire_point 6-fire_2_point 7-shell_point";
 
-extern ENGINE_API float hud_adj_delta_pos, hud_adj_delta_rot;
-
-//float _delta_pos			= READ_IF_EXISTS(pFFSettings, r_float, "hud_adj", "_delta_pos", 0.0005f);
-//float _delta_rot			= READ_IF_EXISTS(pFFSettings, r_float, "hud_adj", "_delta_rot", 0.05f);
+float _delta_pos			= 0.0005f;
+float _delta_rot			= 0.05f;
 
 bool is_attachable_item_tuning_mode()
 {
@@ -110,6 +107,7 @@ void calc_cam_diff_rot(Fmatrix item_transform, Fvector diff, Fvector& res)
 
 void attachable_hud_item::tune(Ivector values)
 {
+#ifndef MASTER_GOLD
 	if(!is_attachable_item_tuning_mode() )
 		return;
 
@@ -120,9 +118,9 @@ void attachable_hud_item::tune(Ivector values)
 	{
 		if(hud_adj_mode==3)
 		{
-			if(values.x)	diff.x = (values.x>0)? hud_adj_delta_pos :-hud_adj_delta_pos;
-			if(values.y)	diff.y = (values.y>0)? hud_adj_delta_pos :-hud_adj_delta_pos;
-			if(values.z)	diff.z = (values.z>0)? hud_adj_delta_pos :-hud_adj_delta_pos;
+			if(values.x)	diff.x = (values.x>0)?_delta_pos:-_delta_pos;
+			if(values.y)	diff.y = (values.y>0)?_delta_pos:-_delta_pos;
+			if(values.z)	diff.z = (values.z>0)?_delta_pos:-_delta_pos;
 			
 			Fvector							d;
 			Fmatrix							ancor_m;
@@ -132,9 +130,9 @@ void attachable_hud_item::tune(Ivector values)
 		}else
 		if(hud_adj_mode==4)
 		{
-			if(values.x)	diff.x = (values.x>0)? hud_adj_delta_rot :-hud_adj_delta_rot;
-			if(values.y)	diff.y = (values.y>0)? hud_adj_delta_rot :-hud_adj_delta_rot;
-			if(values.z)	diff.z = (values.z>0)? hud_adj_delta_rot :-hud_adj_delta_rot;
+			if(values.x)	diff.x = (values.x>0)?_delta_rot:-_delta_rot;
+			if(values.y)	diff.y = (values.y>0)?_delta_rot:-_delta_rot;
+			if(values.z)	diff.z = (values.z>0)?_delta_rot:-_delta_rot;
 
 			Fvector							d;
 			Fmatrix							ancor_m;
@@ -155,9 +153,9 @@ void attachable_hud_item::tune(Ivector values)
 
 	if(hud_adj_mode==5||hud_adj_mode==6||hud_adj_mode==7)
 	{
-		if(values.x)	diff.x = (values.x>0)? hud_adj_delta_pos :-hud_adj_delta_pos;
-		if(values.y)	diff.y = (values.y>0)? hud_adj_delta_pos :-hud_adj_delta_pos;
-		if(values.z)	diff.z = (values.z>0)? hud_adj_delta_pos :-hud_adj_delta_pos;
+		if(values.x)	diff.x = (values.x>0)?_delta_pos:-_delta_pos;
+		if(values.y)	diff.y = (values.y>0)?_delta_pos:-_delta_pos;
+		if(values.z)	diff.z = (values.z>0)?_delta_pos:-_delta_pos;
 
 		if(hud_adj_mode==5)
 		{
@@ -180,10 +178,12 @@ void attachable_hud_item::tune(Ivector values)
 			Log("-----------");
 		}
 	}
+#endif // #ifndef MASTER_GOLD
 }
 
 void attachable_hud_item::debug_draw_firedeps()
 {
+#ifdef DEBUG
 	bool bForce = (hud_adj_mode==3||hud_adj_mode==4);
 
 	if(hud_adj_mode==5||hud_adj_mode==6||hud_adj_mode==7 ||bForce)
@@ -193,87 +193,22 @@ void attachable_hud_item::debug_draw_firedeps()
 		firedeps			fd;
 		setup_firedeps		(fd);
 		
-		Fmatrix m;
-		m.identity();
+		if(hud_adj_mode==5||bForce)
+			render.draw_aabb(fd.vLastFP,0.005f,0.005f,0.005f,D3DCOLOR_XRGB(255,0,0));
 
-		m.scale(200.0f,200.0f,200.0f);
-
-		if(hud_adj_mode!=0)
-			render.draw_line(m, fd.vLastFP, Fvector().mad(fd.vLastFP, fd.vLastFD, HUD().GetCurrentRayQuery().range), D3DCOLOR_XRGB(255, 0, 0));
-
-		if (hud_adj_mode == 5 || bForce)
-			render.draw_aabb(fd.vLastFP, 0.005f, 0.005f, 0.005f, D3DCOLOR_XRGB(0, 0, 255));
-			
 		if(hud_adj_mode==6)
 			render.draw_aabb(fd.vLastFP2,0.005f,0.005f,0.005f,D3DCOLOR_XRGB(0,0,255));
 
 		if(hud_adj_mode==7)
 			render.draw_aabb(fd.vLastSP,0.005f,0.005f,0.005f,D3DCOLOR_XRGB(0,255,0));
 	}
+#endif // DEBUG
 }
 
-
-void player_hud::AddonTune(Ivector _values, Fvector& pos_, Fvector& rot_, shared_str addon_name)
-{
-	Ivector				values;
-	tune_remap(_values, values);
-
-	bool is_16x9 = UI().is_widescreen();
-
-	if (hud_adj_mode == 8 || hud_adj_mode == 9)
-	{
-		Fvector			diff;
-		diff.set(0, 0, 0);
-
-		float _curr_dr = hud_adj_delta_rot;
-
-		if (hud_adj_mode == 8)
-		{
-			if (values.x)	diff.x = (values.x < 0) ? hud_adj_delta_pos : -hud_adj_delta_pos;
-			if (values.y)	diff.y = (values.y > 0) ? hud_adj_delta_pos : -hud_adj_delta_pos;
-			if (values.z)	diff.z = (values.z > 0) ? hud_adj_delta_pos : -hud_adj_delta_pos;
-
-			pos_.add(diff);
-		}
-
-		if (hud_adj_mode == 9)
-		{
-			if (values.x)	diff.x = (values.x > 0) ? _curr_dr : -_curr_dr;
-			if (values.y)	diff.y = (values.y > 0) ? _curr_dr : -_curr_dr;
-			if (values.z)	diff.z = (values.z > 0) ? _curr_dr : -_curr_dr;
-
-			rot_.add(diff);
-		}
-
-		if ((values.x) || (values.y) || (values.z))
-		{
-			Msg("[%s]", addon_name.c_str());
-			Msg("hud_addon_pos			= %f,%f,%f",  pos_.x, pos_.y, pos_.z);
-			Msg("hud_addon_rot			= %f,%f,%f", rot_.x, rot_.y, rot_.z);
-			Log("-----------");
-		}
-	}
-
-	if (pInput->iGetAsyncKeyState(DIK_LSHIFT) && pInput->iGetAsyncKeyState(DIK_RETURN))
-	{
-		LPCSTR sect_name = addon_name.c_str();
-		string_path fname;
-		FS.update_path(fname, "$game_data$", make_string("addons_config\\%s.ltx", sect_name).c_str());
-
-		CInifile* pHudCfg = new CInifile(fname, FALSE, FALSE, TRUE);
-
-		pHudCfg->w_string(sect_name,"hud_addon_pos",make_string("%f,%f,%f",pos_.x,pos_.y,pos_.z).c_str());
-		pHudCfg->w_string(sect_name,"hud_addon_rot",make_string("%f,%f,%f",rot_.x,rot_.y,rot_.z).c_str());
-
-		//-----------------//
-		xr_delete(pHudCfg);
-		Msg("-HUD data saved to %s", fname);
-		Sleep(250);
-	}
-}
 
 void player_hud::tune(Ivector _values)
 {
+#ifndef MASTER_GOLD
 	Ivector				values;
 	tune_remap			(_values,values);
 
@@ -284,7 +219,7 @@ void player_hud::tune(Ivector _values)
 		Fvector			diff;
 		diff.set		(0,0,0);
 		
-		float _curr_dr	= hud_adj_delta_rot;
+		float _curr_dr	= _delta_rot;
 
 		u8 idx			= m_attached_items[hud_adj_item_idx]->m_parent_hud_item->GetCurrentHudOffsetIdx();
 		if(idx)
@@ -295,9 +230,9 @@ void player_hud::tune(Ivector _values)
 
 		if(hud_adj_mode==1)
 		{
-			if(values.x)	diff.x = (values.x<0)? hud_adj_delta_pos :-hud_adj_delta_pos;
-			if(values.y)	diff.y = (values.y>0)? hud_adj_delta_pos :-hud_adj_delta_pos;
-			if(values.z)	diff.z = (values.z>0)? hud_adj_delta_pos :-hud_adj_delta_pos;
+			if(values.x)	diff.x = (values.x<0)?_delta_pos:-_delta_pos;
+			if(values.y)	diff.y = (values.y>0)?_delta_pos:-_delta_pos;
+			if(values.z)	diff.z = (values.z>0)?_delta_pos:-_delta_pos;
 
 			pos_.add		(diff);
 		}
@@ -334,111 +269,21 @@ void player_hud::tune(Ivector _values)
 				Log("-----------");
 			}
 		}
-	}
-	else if(hud_adj_mode==8 || hud_adj_mode==9)
+	}else
+	if(hud_adj_mode==8 || hud_adj_mode==9)
 	{
 		if(hud_adj_mode==8 && (values.z) )
-			hud_adj_delta_pos += (values.z>0)?0.001f:-0.001f;
+			_delta_pos	+= (values.z>0)?0.001f:-0.001f;
 		
 		if(hud_adj_mode==9 && (values.z) )
-			hud_adj_delta_rot += (values.z>0)?0.1f:-0.1f;
-	}
-	else
+			 _delta_rot += (values.z>0)?0.1f:-0.1f;
+	}else
 	{
 		attachable_hud_item* hi = m_attached_items[hud_adj_item_idx];
 		if(!hi)	return;
 		hi->tune(values);
 	}
-
-	// Сохранение в файл
-	if (pInput->iGetAsyncKeyState(DIK_LSHIFT) && pInput->iGetAsyncKeyState(DIK_RETURN))
-	{
-		attachable_hud_item* hi = m_attached_items[hud_adj_item_idx];
-		if (!hi)	return;
-
-		LPCSTR sect_name = hi->m_sect_name.c_str();
-		string_path fname;
-		FS.update_path(fname, "$game_data$", make_string("_hud\\%s.ltx", sect_name).c_str());
-
-		CInifile* pHudCfg = new CInifile(fname, FALSE, FALSE, TRUE);
-		//-----------------//
-		pHudCfg->w_string(sect_name,
-			make_string("gl_hud_offset_pos%s", (is_16x9) ? "_16x9" : "").c_str(),
-			make_string("%f,%f,%f",
-				hi->m_measures.m_hands_offset[0][2].x,
-				hi->m_measures.m_hands_offset[0][2].y,
-				hi->m_measures.m_hands_offset[0][2].z)
-			.c_str());
-		pHudCfg->w_string(sect_name,
-			make_string("gl_hud_offset_rot%s", (is_16x9) ? "_16x9" : "").c_str(),
-			make_string("%f,%f,%f",
-				hi->m_measures.m_hands_offset[1][2].x,
-				hi->m_measures.m_hands_offset[1][2].y,
-				hi->m_measures.m_hands_offset[1][2].z)
-			.c_str());
-
-		pHudCfg->w_string(sect_name,
-			make_string("aim_hud_offset_pos%s", (is_16x9) ? "_16x9" : "").c_str(),
-			make_string("%f,%f,%f",
-				hi->m_measures.m_hands_offset[0][1].x,
-				hi->m_measures.m_hands_offset[0][1].y,
-				hi->m_measures.m_hands_offset[0][1].z)
-			.c_str());
-		pHudCfg->w_string(sect_name,
-			make_string("aim_hud_offset_rot%s", (is_16x9) ? "_16x9" : "").c_str(),
-			make_string("%f,%f,%f",
-				hi->m_measures.m_hands_offset[1][1].x,
-				hi->m_measures.m_hands_offset[1][1].y,
-				hi->m_measures.m_hands_offset[1][1].z)
-			.c_str());
-
-		pHudCfg->w_string(sect_name,
-			make_string("hands_position%s", (is_16x9) ? "_16x9" : "").c_str(),
-			make_string(
-				"%f,%f,%f", hi->m_measures.m_hands_attach[0].x, hi->m_measures.m_hands_attach[0].y, hi->m_measures.m_hands_attach[0].z)
-			.c_str());
-		pHudCfg->w_string(sect_name,
-			make_string("hands_orientation%s", (is_16x9) ? "_16x9" : "").c_str(),
-			make_string(
-				"%f,%f,%f", hi->m_measures.m_hands_attach[1].x, hi->m_measures.m_hands_attach[1].y, hi->m_measures.m_hands_attach[1].z)
-			.c_str());
-
-		pHudCfg->w_string(sect_name,
-			"item_position",
-			make_string("%f,%f,%f", hi->m_measures.m_item_attach[0].x, hi->m_measures.m_item_attach[0].y, hi->m_measures.m_item_attach[0].z)
-			.c_str());
-		pHudCfg->w_string(sect_name,
-			"item_orientation",
-			make_string("%f,%f,%f", hi->m_measures.m_item_attach[1].x, hi->m_measures.m_item_attach[1].y, hi->m_measures.m_item_attach[1].z)
-			.c_str());
-
-		pHudCfg->w_string(sect_name,
-			"fire_point",
-			make_string("%f,%f,%f",
-				hi->m_measures.m_fire_point_offset.x,
-				hi->m_measures.m_fire_point_offset.y,
-				hi->m_measures.m_fire_point_offset.z)
-			.c_str());
-		pHudCfg->w_string(sect_name,
-			"fire_point2",
-			make_string("%f,%f,%f",
-				hi->m_measures.m_fire_point2_offset.x,
-				hi->m_measures.m_fire_point2_offset.y,
-				hi->m_measures.m_fire_point2_offset.z)
-			.c_str());
-		pHudCfg->w_string(sect_name,
-			"shell_point",
-			make_string("%f,%f,%f",
-				hi->m_measures.m_shell_point_offset.x,
-				hi->m_measures.m_shell_point_offset.y,
-				hi->m_measures.m_shell_point_offset.z)
-			.c_str());
-
-		//-----------------//
-		xr_delete(pHudCfg);
-		Msg("-HUD data saved to %s", fname);
-		Sleep(250);
-	}
+#endif // #ifndef MASTER_GOLD
 }
 
 void hud_draw_adjust_mode()
@@ -474,10 +319,10 @@ void hud_draw_adjust_mode()
 			_text = "adjusting SHELL POINT";
 			break;
 		case 8:
-			_text = "adjusting ADDON POSITION";
+			_text = "adjusting pos STEP";
 			break;
 		case 9:
-			_text = "adjusting ADDON ROTATION";
+			_text = "adjusting rot STEP";
 			break;
 
 		};
@@ -489,9 +334,8 @@ void hud_draw_adjust_mode()
 			F->SetColor			(0xffffffff);
 			F->OutNext			(_text);
 			F->OutNext			("for item [%d]", hud_adj_item_idx);
-			F->OutNext			("delta values dP=%f dR=%f", hud_adj_delta_pos, hud_adj_delta_rot);
+			F->OutNext			("delta values dP=%f dR=%f", _delta_pos, _delta_rot);
 			F->OutNext			("[Z]-x axis [X]-y axis [C]-z axis");
-			F->OutNext			("[SHIFT] + [ENTER] for save params into file");
 		}
 }
 
@@ -516,16 +360,15 @@ void hud_adjust_mode_keyb(int dik)
 		if(dik==DIK_NUMPAD7)
 			hud_adj_mode = 7;
 		if(dik==DIK_NUMPAD8)
-			hud_adj_mode = 8; // Заменено для настройки аддонов!!!
+			hud_adj_mode = 8;
 		if(dik==DIK_NUMPAD9)
-			hud_adj_mode = 9; // 
+			hud_adj_mode = 9;
 	}
 	if(pInput->iGetAsyncKeyState(DIK_LCONTROL))
 	{
-		if (dik == DIK_NUMPAD0)
+		if(dik==DIK_NUMPAD0)
 			hud_adj_item_idx = 0;
-		if (dik == DIK_NUMPAD1)
+		if(dik==DIK_NUMPAD1)
 			hud_adj_item_idx = 1;
-
 	}
 }
