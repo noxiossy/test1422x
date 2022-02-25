@@ -289,15 +289,10 @@ void hud_draw_adjust_mode()
 		return;
 
 	LPCSTR _text = NULL;
-	if (pInput->iGetAsyncKeyState(DIK_LSHIFT))
-	{
-		_text = "press SHIFT+NUM 0-return|1-hud_pos|2-hud_rot|3-itm_pos|4-itm_rot|5-fire_point|6-fire_2_point|7-shell_point|8-pos_step|9-rot_step";
-	}
-	else if (pInput->iGetAsyncKeyState(DIK_LCONTROL))
-	{
-		_text = "press CTRL+NUM 0-item idx 1|1-item idx 2";
-	}
-	else {
+	if (pInput->iGetAsyncKeyState(DIK_LSHIFT) && hud_adj_mode)
+		_text =
+			"press SHIFT+NUM 0-return 1-hud_pos 2-hud_rot 3-itm_pos 4-itm_rot 5-fire_point 6-fire_2_point 7-shell_point 8-pos_step 9-rot_step";
+
 	switch (hud_adj_mode)
 		{
 		case 1:
